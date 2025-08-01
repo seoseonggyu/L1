@@ -1,0 +1,60 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#pragma once
+
+#include "NativeGameplayTags.h"
+
+namespace LyraGameplayTags
+{
+	L1GAME_API	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString = false);
+
+	// Declare all of the custom native tags that Lyra will use
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_IsDead);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_Cooldown);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_Cost);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_TagsBlocked);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_TagsMissing);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_Networking);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_ActivateFail_ActivationGroup);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Behavior_SurvivesDeath);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Move);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Look_Mouse);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Look_Stick);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Crouch);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_AutoRun);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_Spawned);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_DataAvailable);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_DataInitialized);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(InitState_GameplayReady);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_Death);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_Reset);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_RequestReset);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Damage);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Heal);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cheat_GodMode);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cheat_UnlimitedHealth);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Crouching);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_AutoRunning);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Death);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Death_Dying);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Death_Dead);
+
+	// These are mappings from MovementMode enums to GameplayTags associated with those enums (below)
+	L1GAME_API	extern const TMap<uint8, FGameplayTag> MovementModeTagMap;
+	L1GAME_API	extern const TMap<uint8, FGameplayTag> CustomMovementModeTagMap;
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Walking);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_NavWalking);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Falling);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Swimming);
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Flying);
+
+	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Movement_Mode_Custom);
+};
