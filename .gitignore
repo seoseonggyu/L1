@@ -73,3 +73,20 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+GameServer/DummyClient
+GameServer/DummyClient
+GameServer/DummyClient
+GameServer/DummyClient
+GameServer/DummyClient
+GameServer/DummyClient
+
+GameServer/GameServer/Enum.pb.h
+GameServer/GameServer/Enum.pb.cc
+GameServer/GameServer/Protocol.pb.h
+GameServer/GameServer/Protocol.pb.cc
+GameServer/GameServer/Struct.pb.h
+GameServer/GameServer/Struct.pb.cc
+
+GameServer/GameServer/x64
+GameServer/ServerCore/x64

@@ -1,0 +1,7 @@
+syntax = "proto3";
+package Protocol;
+
+import "Enum.proto";
+
+// C_ : 클라에서 서버한테 보내기
+// S_ : 서버에서 클라한테 보내기
