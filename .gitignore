@@ -95,7 +95,15 @@ GameServer/GameServer/Protocol.pb.cc
 GameServer/GameServer/Struct.pb.h
 GameServer/GameServer/Struct.pb.cc
 
+L1/Source/L1Game/Network/Proto/Enum.pb.h
+L1/Source/L1Game/Network/Proto/Enum.pb.cc
+L1/Source/L1Game/Network/Proto/Protocol.pb.h
+L1/Source/L1Game/Network/Proto/Protocol.pb.cc
+L1/Source/L1Game/Network/Proto/Struct.pb.h
+L1/Source/L1Game/Network/Proto/Struct.pb.cc
+
 GameServer/GameServer/x64
 GameServer/ServerCore/x64
 GameServer/Binary
 GameServer/Libraries/Libs/ServerCore
+

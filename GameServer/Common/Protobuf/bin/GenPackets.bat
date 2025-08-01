@@ -16,6 +16,15 @@ XCOPY /Y Protocol.pb.h "../../../GameServer"
 XCOPY /Y Protocol.pb.cc "../../../GameServer"
 XCOPY /Y ClientPacketHandler.h "../../../GameServer"
 
+
+XCOPY /Y Enum.pb.h "../../../../L1/Source/L1Game/Network/Proto"
+XCOPY /Y Enum.pb.cc "../../../../L1/Source/L1Game/Network/Proto"
+XCOPY /Y Struct.pb.h "../../../../L1/Source/L1Game/Network/Proto"
+XCOPY /Y Struct.pb.cc "../../../../L1/Source/L1Game/Network/Proto"
+XCOPY /Y Protocol.pb.h "../../../../L1/Source/L1Game/Network/Proto"
+XCOPY /Y Protocol.pb.cc "../../../../L1/Source/L1Game/Network/Proto"
+XCOPY /Y ServerPacketHandler.h "../../../../L1/Source/L1Game/Network"
+
 DEL /Q /F *.pb.h
 DEL /Q /F *.pb.cc
 DEL /Q /F *.h

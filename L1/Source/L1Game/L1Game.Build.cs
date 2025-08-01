@@ -15,8 +15,11 @@ public class L1Game : ModuleRules
 		);
 
 		PrivateIncludePaths.AddRange(
-			new string[] {
-			}
+			new string[] 
+			{
+                "L1Game/",
+                "L1Game/Network/Proto/",
+            }
 		);
 
 		PublicDependencyModuleNames.AddRange(
@@ -42,8 +45,12 @@ public class L1Game : ModuleRules
 				"Niagara",
 				"AsyncMixin",
 				"ControlFlows",
-				"PropertyPath"
-			}
+				"PropertyPath",
+
+				// Network
+				"Sockets",
+				"Networking",
+            }
 		);
 
 		PrivateDependencyModuleNames.AddRange(
@@ -73,8 +80,10 @@ public class L1Game : ModuleRules
 				"AudioModulation",
 				"EngineSettings",
 				"DTLSHandlerComponent",
-			}
-		);
+
+                "ProtobufCore",
+            }
+        );
 
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[] {

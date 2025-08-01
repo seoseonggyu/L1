@@ -23,6 +23,9 @@
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "InputMappingContext.h"
 
+// SSG: 옮겨야 함
+#include "GameFramework/PlayerController.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraHeroComponent)
 
 #if WITH_EDITOR
@@ -288,6 +291,9 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_AutoRun, ETriggerEvent::Triggered, this, &ThisClass::Input_AutoRun, /*bLogIfNotFound=*/ false);
+
+					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_SetDestination, ETriggerEvent::Started, this, &ThisClass::Input_SetDestination, /*bLogIfNotFound=*/ false);
+
 				}
 			}
 		}
@@ -466,6 +472,44 @@ void ULyraHeroComponent::Input_AutoRun(const FInputActionValue& InputActionValue
 			// Toggle auto running
 			Controller->SetIsAutoRunning(!Controller->GetIsAutoRunning());
 		}	
+	}
+}
+
+void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActionValue)
+{
+	// SSG: 수정해야함
+	//https://x157.github.io/UE5/LyraStarterGame/Tutorials/How-to-Take-Control-of-the-Mouse#XistedUIActionRouter
+	if (APawn* Pawn = GetPawn<APawn>())
+	{
+		if (ALyraPlayerController* Controller = Cast<ALyraPlayerController>(Pawn->GetController()))
+		{
+			bool bIsTouch = false;
+
+			FVector CachedDestination;
+			FHitResult Hit;
+			bool bHitSuccessful = false;
+			if (bIsTouch)
+			{
+				bHitSuccessful = Controller->GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
+			}
+			else
+			{
+				bHitSuccessful = Controller->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+			}
+
+			// If we hit a surface, cache the location
+			if (bHitSuccessful)
+			{
+				CachedDestination = Hit.Location;
+			}
+
+			if (Pawn != nullptr)
+			{
+				Pawn->SetActorLocation(CachedDestination);
+				//FVector WorldDirection = (CachedDestination - Pawn->GetActorLocation()).GetSafeNormal();
+				//Pawn->AddMovementInput(WorldDirection, 1.0, false);
+			}
+		}
 	}
 }
 

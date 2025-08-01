@@ -85,6 +85,8 @@ protected:
 	void Input_Crouch(const FInputActionValue& InputActionValue);
 	void Input_AutoRun(const FInputActionValue& InputActionValue);
 
+	void Input_SetDestination(const FInputActionValue& InputActionValue);
+
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 	
 	void OnInputConfigActivated(const FLoadedMappableConfigPair& ConfigPair);
