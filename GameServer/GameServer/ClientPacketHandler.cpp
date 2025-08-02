@@ -19,16 +19,6 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 {
 	Protocol::S_LOGIN loginPkt;
 	
-	for (int32 i = 0; i < 3; i++)
-	{
-		Protocol::ObjectInfo* player = loginPkt.add_players();
-		Protocol::PosInfo* posInfo = player->mutable_pos_info();
-		posInfo->set_x(Utils::GetRandom(0.f, 100.f));
-		posInfo->set_y(Utils::GetRandom(0.f, 100.f));
-		posInfo->set_z(Utils::GetRandom(0.f, 100.f));
-		posInfo->set_yaw(Utils::GetRandom(0.f, 45.f));
-	}
-
 	loginPkt.set_success(true);
 
 	SEND_PACKET(loginPkt);
@@ -37,10 +27,8 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 
 bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 {
-	// 플레이어 생성
 	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session));
 
-	// 방에 입장
 	GRoom->DoAsync(&Room::HandleEnterPlayer, player);
 
 	return true;

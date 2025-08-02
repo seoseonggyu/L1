@@ -17,13 +17,11 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 {
 
 	bool success = AddObject(object);
-
-	// ·£´ý À§Ä¡
 	if (randPos)
 	{
-		object->_posInfo->set_x(Utils::GetRandom(0.f, 500.f));
-		object->_posInfo->set_y(Utils::GetRandom(0.f, 500.f));
-		object->_posInfo->set_z(100.f);
+		object->_posInfo->set_x(155.f);
+		object->_posInfo->set_y(290.f);
+		object->_posInfo->set_z(90.f);
 		object->_posInfo->set_yaw(Utils::GetRandom(0.f, 100.f));
 	}
 
@@ -175,7 +173,6 @@ bool Room::RemoveObject(uint64 objectId)
 
 	return true;
 }
-
 
 
 void Room::Broadcast(SendBufferRef sendBuffer, uint64 exceptId)

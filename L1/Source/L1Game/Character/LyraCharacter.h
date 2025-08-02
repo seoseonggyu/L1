@@ -7,6 +7,7 @@
 #include "GameplayTagAssetInterface.h"
 #include "ModularCharacter.h"
 #include "Teams/LyraTeamAgentInterface.h"
+#include "Protocol.pb.h"
 
 #include "LyraCharacter.generated.h"
 
@@ -27,6 +28,7 @@ struct FFrame;
 struct FGameplayTag;
 struct FGameplayTagContainer;
 
+Protocol::PosInfo;
 
 /**
  * FLyraReplicatedAcceleration: Compressed representation of acceleration
@@ -229,5 +231,8 @@ private:
 public:
 	// SSG: 설정해야함
 	FVector Destination;
+
+	Protocol::PosInfo* PlayerInfo;	// 현재 위치
+	Protocol::PosInfo* DestInfo;	// 목적지
 	
 };
