@@ -121,6 +121,7 @@ public:
 	//~AActor interface
 	virtual void PreInitializeComponents() override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Reset() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -224,4 +225,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_MyTeamID(FGenericTeamId OldTeamID);
+
+public:
+	// SSG: 설정해야함
+	FVector Destination;
+	
 };

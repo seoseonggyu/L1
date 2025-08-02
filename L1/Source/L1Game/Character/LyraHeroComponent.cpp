@@ -25,6 +25,8 @@
 
 // SSG: 옮겨야 함
 #include "GameFramework/PlayerController.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraHeroComponent)
 
@@ -505,7 +507,12 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 
 			if (Pawn != nullptr)
 			{
-				Pawn->SetActorLocation(CachedDestination);
+				if (ALyraCharacter* Character = Cast<ALyraCharacter>(Pawn))
+				{
+					Character->Destination = CachedDestination;
+				}
+				//UAIBlueprintHelperLibrary::SimpleMoveToLocation(Controller, CachedDestination);
+
 				//FVector WorldDirection = (CachedDestination - Pawn->GetActorLocation()).GetSafeNormal();
 				//Pawn->AddMovementInput(WorldDirection, 1.0, false);
 			}

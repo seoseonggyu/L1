@@ -31,8 +31,9 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<ULyraCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Avoid ticking characters if possible.
-	PrimaryActorTick.bCanEverTick = false;
-	PrimaryActorTick.bStartWithTickEnabled = false;
+	// SSG: 
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	NetCullDistanceSquared = 900000000.0f;
 
@@ -78,6 +79,10 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 
 	BaseEyeHeight = 80.0f;
 	CrouchedEyeHeight = 50.0f;
+
+
+	// SSG:
+	Destination = GetActorLocation();
 }
 
 void ALyraCharacter::PreInitializeComponents()
@@ -98,6 +103,39 @@ void ALyraCharacter::BeginPlay()
 		{
 //@TODO: SignificanceManager->RegisterObject(this, (EFortSignificanceType)SignificanceType);
 		}
+	}
+}
+
+// SSG: 
+void ALyraCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+	{
+
+		//FVector CurrentLocation = GetActorLocation();
+		//FVector Direction = (Destination - CurrentLocation).GetSafeNormal();
+		//float Speed = GetCharacterMovement()->MaxWalkSpeed;
+		//AddMovementInput(Direction, Speed * DeltaTime);
+
+	}
+	FVector CurrentLocation = GetActorLocation();
+	FVector ToDestination = Destination - CurrentLocation;
+	float Distance = ToDestination.Size();
+
+	// 1. 일정 거리 이내면 멈춤
+	float StopThreshold = 10.0f; // 10cm 이내 도달로 간주
+	if (Distance > StopThreshold)
+	{
+		FVector Direction = ToDestination.GetSafeNormal();
+
+		// 2. 이동
+		AddMovementInput(Direction);
+	}
+	else
+	{
+		// 4. 도달 후 멈춤 처리 필요 시 여기에 작성
 	}
 }
 
