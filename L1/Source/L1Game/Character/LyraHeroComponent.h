@@ -22,6 +22,8 @@ struct FFrame;
 struct FGameplayTag;
 struct FInputActionValue;
 
+class UL1NetworkManager;
+
 /**
  * Component that sets up input and camera handling for player controlled pawns (or bots that simulate players).
  * This depends on a PawnExtensionComponent to coordinate initialization.
@@ -79,12 +81,6 @@ protected:
 	void Input_AbilityInputTagPressed(FGameplayTag InputTag);
 	void Input_AbilityInputTagReleased(FGameplayTag InputTag);
 
-	void Input_Move(const FInputActionValue& InputActionValue);
-	void Input_LookMouse(const FInputActionValue& InputActionValue);
-	void Input_LookStick(const FInputActionValue& InputActionValue);
-	void Input_Crouch(const FInputActionValue& InputActionValue);
-	void Input_AutoRun(const FInputActionValue& InputActionValue);
-
 	void Input_SetDestination(const FInputActionValue& InputActionValue);
 
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
@@ -119,4 +115,8 @@ protected:
 
 	/** True when player input bindings have been applied, will never be true for non - players */
 	bool bReadyToBindInputs;
+
+protected:
+	UL1NetworkManager* GetNetworkManager() const;
+
 };

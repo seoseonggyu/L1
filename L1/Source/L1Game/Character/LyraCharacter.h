@@ -229,6 +229,10 @@ private:
 	void OnRep_MyTeamID(FGenericTeamId OldTeamID);
 
 public:
+	void SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo);
+	void SetDestInfo(const Protocol::PosInfo& InDestInfo);
+
+public:
 	// SSG: 설정해야함
 	FVector Destination;
 

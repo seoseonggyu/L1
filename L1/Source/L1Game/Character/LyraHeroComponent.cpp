@@ -26,6 +26,7 @@
 // SSG: 옮겨야 함
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Network/L1NetworkManager.h"
 
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraHeroComponent)
@@ -288,12 +289,6 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 					TArray<uint32> BindHandles;
 					LyraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 
-					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_AutoRun, ETriggerEvent::Triggered, this, &ThisClass::Input_AutoRun, /*bLogIfNotFound=*/ false);
-
 					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_SetDestination, ETriggerEvent::Started, this, &ThisClass::Input_SetDestination, /*bLogIfNotFound=*/ false);
 
 				}
@@ -380,142 +375,51 @@ void ULyraHeroComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 	}
 }
 
-void ULyraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
-{
-	APawn* Pawn = GetPawn<APawn>();
-	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
-
-	// If the player has attempted to move again then cancel auto running
-	if (ALyraPlayerController* LyraController = Cast<ALyraPlayerController>(Controller))
-	{
-		LyraController->SetIsAutoRunning(false);
-	}
-	
-	if (Controller)
-	{
-		const FVector2D Value = InputActionValue.Get<FVector2D>();
-		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
-
-		if (Value.X != 0.0f)
-		{
-			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
-			Pawn->AddMovementInput(MovementDirection, Value.X);
-		}
-
-		if (Value.Y != 0.0f)
-		{
-			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
-			Pawn->AddMovementInput(MovementDirection, Value.Y);
-		}
-	}
-}
-
-void ULyraHeroComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
-{
-	APawn* Pawn = GetPawn<APawn>();
-
-	if (!Pawn)
-	{
-		return;
-	}
-	
-	const FVector2D Value = InputActionValue.Get<FVector2D>();
-
-	if (Value.X != 0.0f)
-	{
-		Pawn->AddControllerYawInput(Value.X);
-	}
-
-	if (Value.Y != 0.0f)
-	{
-		Pawn->AddControllerPitchInput(Value.Y);
-	}
-}
-
-void ULyraHeroComponent::Input_LookStick(const FInputActionValue& InputActionValue)
-{
-	APawn* Pawn = GetPawn<APawn>();
-
-	if (!Pawn)
-	{
-		return;
-	}
-	
-	const FVector2D Value = InputActionValue.Get<FVector2D>();
-
-	const UWorld* World = GetWorld();
-	check(World);
-
-	if (Value.X != 0.0f)
-	{
-		Pawn->AddControllerYawInput(Value.X * LyraHero::LookYawRate * World->GetDeltaSeconds());
-	}
-
-	if (Value.Y != 0.0f)
-	{
-		Pawn->AddControllerPitchInput(Value.Y * LyraHero::LookPitchRate * World->GetDeltaSeconds());
-	}
-}
-
-void ULyraHeroComponent::Input_Crouch(const FInputActionValue& InputActionValue)
-{
-	if (ALyraCharacter* Character = GetPawn<ALyraCharacter>())
-	{
-		Character->ToggleCrouch();
-	}
-}
-
-void ULyraHeroComponent::Input_AutoRun(const FInputActionValue& InputActionValue)
-{
-	if (APawn* Pawn = GetPawn<APawn>())
-	{
-		if (ALyraPlayerController* Controller = Cast<ALyraPlayerController>(Pawn->GetController()))
-		{
-			// Toggle auto running
-			Controller->SetIsAutoRunning(!Controller->GetIsAutoRunning());
-		}	
-	}
-}
-
 void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActionValue)
 {
 	// SSG: 수정해야함
 	//https://x157.github.io/UE5/LyraStarterGame/Tutorials/How-to-Take-Control-of-the-Mouse#XistedUIActionRouter
-	if (APawn* Pawn = GetPawn<APawn>())
+	if (ALyraCharacter* Pawn = GetPawn<ALyraCharacter>())
 	{
 		if (ALyraPlayerController* Controller = Cast<ALyraPlayerController>(Pawn->GetController()))
 		{
-			bool bIsTouch = false;
-
 			FVector CachedDestination;
 			FHitResult Hit;
 			bool bHitSuccessful = false;
-			if (bIsTouch)
-			{
-				bHitSuccessful = Controller->GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
-			}
-			else
 			{
 				bHitSuccessful = Controller->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 			}
 
-			// If we hit a surface, cache the location
 			if (bHitSuccessful)
 			{
 				CachedDestination = Hit.Location;
 			}
 
-			if (Pawn != nullptr)
 			{
-				if (ALyraCharacter* Character = Cast<ALyraCharacter>(Pawn))
-				{
-					Character->Destination = CachedDestination;
-				}
-				//UAIBlueprintHelperLibrary::SimpleMoveToLocation(Controller, CachedDestination);
+				// SSG;
+				Protocol::C_MOVE MovePkt;
+				Protocol::PosInfo* Info = MovePkt.mutable_info();
 
-				//FVector WorldDirection = (CachedDestination - Pawn->GetActorLocation()).GetSafeNormal();
-				//Pawn->AddMovementInput(WorldDirection, 1.0, false);
+				Info->set_object_id(Pawn->PlayerInfo->object_id());
+				Info->set_x(CachedDestination.X);
+				Info->set_y(CachedDestination.Y);
+				Info->set_z(CachedDestination.Z);
+				GetNetworkManager()->SendPacket(MovePkt);
 			}
+
+			//if (Pawn != nullptr)
+			//{
+			//	if (ALyraCharacter* Character = Cast<ALyraCharacter>(Pawn))
+			//	{
+			//		Character->Destination = CachedDestination;
+			//	}
+
+
+			//	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(Controller, CachedDestination);
+
+			//	//FVector WorldDirection = (CachedDestination - Pawn->GetActorLocation()).GetSafeNormal();
+			//	//Pawn->AddMovementInput(WorldDirection, 1.0, false);
+			//}
 		}
 	}
 }
@@ -542,6 +446,11 @@ TSubclassOf<ULyraCameraMode> ULyraHeroComponent::DetermineCameraMode() const
 	}
 
 	return nullptr;
+}
+
+UL1NetworkManager* ULyraHeroComponent::GetNetworkManager() const
+{
+	return GetPawn<APawn>()->GetGameInstance()->GetSubsystem<UL1NetworkManager>();
 }
 
 void ULyraHeroComponent::SetAbilityCameraMode(TSubclassOf<ULyraCameraMode> CameraMode, const FGameplayAbilitySpecHandle& OwningSpecHandle)

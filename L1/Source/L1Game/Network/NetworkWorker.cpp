@@ -18,7 +18,7 @@ RecvWorker::~RecvWorker()
 
 bool RecvWorker::Init()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Recv Thread Init")));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Recv Thread Init")));
 	return true;
 }
 
@@ -122,7 +122,7 @@ SendWorker::~SendWorker()
 
 bool SendWorker::Init()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Send Thread Init")));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Send Thread Init")));
 
 	return true;
 }

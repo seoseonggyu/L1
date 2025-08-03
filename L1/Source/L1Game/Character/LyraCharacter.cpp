@@ -83,6 +83,9 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 
 	// SSG:
 	Destination = GetActorLocation();
+
+	PlayerInfo = new Protocol::PosInfo();
+	DestInfo = new Protocol::PosInfo();
 }
 
 void ALyraCharacter::PreInitializeComponents()
@@ -111,6 +114,7 @@ void ALyraCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	return;
 
 	{
 
@@ -560,6 +564,16 @@ void ALyraCharacter::OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, 
 void ALyraCharacter::OnRep_MyTeamID(FGenericTeamId OldTeamID)
 {
 	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
+}
+
+void ALyraCharacter::SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo)
+{
+	PlayerInfo->CopyFrom(InPlayerInfo);
+}
+
+void ALyraCharacter::SetDestInfo(const Protocol::PosInfo& InDestInfo)
+{
+	DestInfo->CopyFrom(InDestInfo);
 }
 
 bool ALyraCharacter::UpdateSharedReplication()

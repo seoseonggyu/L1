@@ -18,7 +18,7 @@ void UL1NetworkManager::ConnectToGameServer()
 	InternetAddr->SetIp(Ip.Value);
 	InternetAddr->SetPort(Port);
 
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Connecting To Server...")));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Connecting To Server...")));
 
 	bool Connected = Socket->Connect(*InternetAddr);
 
@@ -83,14 +83,14 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 
 		Player->SetActorLocation(SpawnLocation);
 
-		//Player->SetPlayerInfo(ObjectInfo.pos_info());
+		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		MyPlayer = Player;
 		Players.Add(ObjectInfo.object_id(), Player);
 	}
 	else
 	{
 		ALyraCharacter* Player = Cast<ALyraCharacter>(World->SpawnActor(ALyraCharacter::StaticClass(), &SpawnLocation));
-		//Player->SetPlayerInfo(ObjectInfo.pos_info());
+		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		Players.Add(ObjectInfo.object_id(), Player);
 	}
 }
@@ -149,6 +149,9 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 	ALyraCharacter* Player = (*FindActor);
 	if (Player == nullptr) return;
 
+	FVector Destination = FVector(MovePkt.info().x(), MovePkt.info().y(), MovePkt.info().z());
+	Player->SetActorLocation(Destination);
+	
 	const Protocol::PosInfo& Info = MovePkt.info();
-	//Player->SetDestInfo(Info);
+	Player->SetDestInfo(Info);
 }
