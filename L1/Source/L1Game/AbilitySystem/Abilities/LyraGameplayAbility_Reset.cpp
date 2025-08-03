@@ -5,7 +5,7 @@
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Character/LyraCharacter.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
-#include "LyraGameplayTags.h"
+#include "L1GameplayTags.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraGameplayAbility_Reset)
 
@@ -19,7 +19,7 @@ ULyraGameplayAbility_Reset::ULyraGameplayAbility_Reset(const FObjectInitializer&
 	{
 		// Add the ability trigger tag as default to the CDO.
 		FAbilityTriggerData TriggerData;
-		TriggerData.TriggerTag = LyraGameplayTags::GameplayEvent_RequestReset;
+		TriggerData.TriggerTag = L1GameplayTags::GameplayEvent_RequestReset;
 		TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
 		AbilityTriggers.Add(TriggerData);
 	}
@@ -32,7 +32,7 @@ void ULyraGameplayAbility_Reset::ActivateAbility(const FGameplayAbilitySpecHandl
 	ULyraAbilitySystemComponent* LyraASC = CastChecked<ULyraAbilitySystemComponent>(ActorInfo->AbilitySystemComponent.Get());
 
 	FGameplayTagContainer AbilityTypesToIgnore;
-	AbilityTypesToIgnore.AddTag(LyraGameplayTags::Ability_Behavior_SurvivesDeath);
+	AbilityTypesToIgnore.AddTag(L1GameplayTags::Ability_Behavior_SurvivesDeath);
 
 	// Cancel all abilities and block others from starting.
 	LyraASC->CancelAbilities(nullptr, &AbilityTypesToIgnore, this);
@@ -49,7 +49,7 @@ void ULyraGameplayAbility_Reset::ActivateAbility(const FGameplayAbilitySpecHandl
 	FLyraPlayerResetMessage Message;
 	Message.OwnerPlayerState = CurrentActorInfo->OwnerActor.Get();
 	UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(this);
-	MessageSystem.BroadcastMessage(LyraGameplayTags::GameplayEvent_Reset, Message);
+	MessageSystem.BroadcastMessage(L1GameplayTags::GameplayEvent_Reset, Message);
 
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 

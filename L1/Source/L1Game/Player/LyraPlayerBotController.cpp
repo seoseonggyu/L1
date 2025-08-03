@@ -7,7 +7,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerState.h"
 #include "GameModes/LyraGameMode.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "Perception/AIPerceptionComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerBotController)
@@ -83,7 +83,7 @@ void ALyraPlayerBotController::OnRep_PlayerState()
 
 void ALyraPlayerBotController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 {
-	UE_LOG(LogLyraTeams, Error, TEXT("You can't set the team ID on a player bot controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
+	UE_LOG(LogL1Teams, Error, TEXT("You can't set the team ID on a player bot controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
 }
 
 FGenericTeamId ALyraPlayerBotController::GetGenericTeamId() const

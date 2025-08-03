@@ -8,7 +8,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
 #include "LyraGlobalAbilitySystem.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
 
@@ -116,7 +116,7 @@ void ULyraAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc
 		ULyraGameplayAbility* LyraAbilityCDO = Cast<ULyraGameplayAbility>(AbilitySpec.Ability);
 		if (!LyraAbilityCDO)
 		{
-			UE_LOG(LogLyraAbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Non-LyraGameplayAbility %s was Granted to ASC. Skipping."), *AbilitySpec.Ability.GetName());
+			UE_LOG(LogL1AbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Non-LyraGameplayAbility %s was Granted to ASC. Skipping."), *AbilitySpec.Ability.GetName());
 			continue;
 		}
 
@@ -136,7 +136,7 @@ void ULyraAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc
 					}
 					else
 					{
-						UE_LOG(LogLyraAbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false."), *LyraAbilityInstance->GetName());
+						UE_LOG(LogL1AbilitySystem, Error, TEXT("CancelAbilitiesByFunc: Can't cancel ability [%s] because CanBeCanceled is false."), *LyraAbilityInstance->GetName());
 					}
 				}
 			}
@@ -404,7 +404,7 @@ void ULyraAbilitySystemComponent::ClientNotifyAbilityFailed_Implementation(const
 
 void ULyraAbilitySystemComponent::HandleAbilityFailed(const UGameplayAbility* Ability, const FGameplayTagContainer& FailureReason)
 {
-	//UE_LOG(LogLyraAbilitySystem, Warning, TEXT("Ability %s failed to activate (tags: %s)"), *GetPathNameSafe(Ability), *FailureReason.ToString());
+	//UE_LOG(LogL1AbilitySystem, Warning, TEXT("Ability %s failed to activate (tags: %s)"), *GetPathNameSafe(Ability), *FailureReason.ToString());
 
 	if (const ULyraGameplayAbility* LyraAbility = Cast<const ULyraGameplayAbility>(Ability))
 	{
@@ -465,7 +465,7 @@ void ULyraAbilitySystemComponent::AddAbilityToActivationGroup(ELyraAbilityActiva
 	const int32 ExclusiveCount = ActivationGroupCounts[(uint8)ELyraAbilityActivationGroup::Exclusive_Replaceable] + ActivationGroupCounts[(uint8)ELyraAbilityActivationGroup::Exclusive_Blocking];
 	if (!ensure(ExclusiveCount <= 1))
 	{
-		UE_LOG(LogLyraAbilitySystem, Error, TEXT("AddAbilityToActivationGroup: Multiple exclusive abilities are running."));
+		UE_LOG(LogL1AbilitySystem, Error, TEXT("AddAbilityToActivationGroup: Multiple exclusive abilities are running."));
 	}
 }
 
@@ -489,10 +489,10 @@ void ULyraAbilitySystemComponent::CancelActivationGroupAbilities(ELyraAbilityAct
 
 void ULyraAbilitySystemComponent::AddDynamicTagGameplayEffect(const FGameplayTag& Tag)
 {
-	const TSubclassOf<UGameplayEffect> DynamicTagGE = ULyraAssetManager::GetSubclass(ULyraGameData::Get().DynamicTagGameplayEffect);
+	const TSubclassOf<UGameplayEffect> DynamicTagGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DynamicTagGameplayEffect);
 	if (!DynamicTagGE)
 	{
-		UE_LOG(LogLyraAbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to find DynamicTagGameplayEffect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
+		UE_LOG(LogL1AbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to find DynamicTagGameplayEffect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
 		return;
 	}
 
@@ -501,7 +501,7 @@ void ULyraAbilitySystemComponent::AddDynamicTagGameplayEffect(const FGameplayTag
 
 	if (!Spec)
 	{
-		UE_LOG(LogLyraAbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to make outgoing spec for [%s]."), *GetNameSafe(DynamicTagGE));
+		UE_LOG(LogL1AbilitySystem, Warning, TEXT("AddDynamicTagGameplayEffect: Unable to make outgoing spec for [%s]."), *GetNameSafe(DynamicTagGE));
 		return;
 	}
 
@@ -512,10 +512,10 @@ void ULyraAbilitySystemComponent::AddDynamicTagGameplayEffect(const FGameplayTag
 
 void ULyraAbilitySystemComponent::RemoveDynamicTagGameplayEffect(const FGameplayTag& Tag)
 {
-	const TSubclassOf<UGameplayEffect> DynamicTagGE = ULyraAssetManager::GetSubclass(ULyraGameData::Get().DynamicTagGameplayEffect);
+	const TSubclassOf<UGameplayEffect> DynamicTagGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DynamicTagGameplayEffect);
 	if (!DynamicTagGE)
 	{
-		UE_LOG(LogLyraAbilitySystem, Warning, TEXT("RemoveDynamicTagGameplayEffect: Unable to find gameplay effect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
+		UE_LOG(LogL1AbilitySystem, Warning, TEXT("RemoveDynamicTagGameplayEffect: Unable to find gameplay effect [%s]."), *ULyraGameData::Get().DynamicTagGameplayEffect.GetAssetName());
 		return;
 	}
 

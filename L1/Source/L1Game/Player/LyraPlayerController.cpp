@@ -3,14 +3,14 @@
 #include "LyraPlayerController.h"
 #include "CommonInputTypeEnum.h"
 #include "Components/PrimitiveComponent.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "LyraCheatManager.h"
 #include "LyraPlayerState.h"
 #include "Camera/LyraPlayerCameraManager.h"
 #include "UI/LyraHUD.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "EngineUtils.h"
-#include "LyraGameplayTags.h"
+#include "L1GameplayTags.h"
 #include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/GameInstance.h"
@@ -337,7 +337,7 @@ void ALyraPlayerController::ServerCheat_Implementation(const FString& Msg)
 #if USING_CHEAT_MANAGER
 	if (CheatManager)
 	{
-		UE_LOG(LogLyra, Warning, TEXT("ServerCheat: %s"), *Msg);
+		UE_LOG(LogL1, Warning, TEXT("ServerCheat: %s"), *Msg);
 		ClientMessage(ConsoleCommand(Msg));
 	}
 #endif // #if USING_CHEAT_MANAGER
@@ -353,7 +353,7 @@ void ALyraPlayerController::ServerCheatAll_Implementation(const FString& Msg)
 #if USING_CHEAT_MANAGER
 	if (CheatManager)
 	{
-		UE_LOG(LogLyra, Warning, TEXT("ServerCheatAll: %s"), *Msg);
+		UE_LOG(LogL1, Warning, TEXT("ServerCheatAll: %s"), *Msg);
 		for (TActorIterator<ALyraPlayerController> It(GetWorld()); It; ++It)
 		{
 			ALyraPlayerController* LyraPC = (*It);
@@ -432,7 +432,7 @@ bool ALyraPlayerController::GetIsAutoRunning() const
 	bool bIsAutoRunning = false;
 	if (const ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent())
 	{
-		bIsAutoRunning = LyraASC->GetTagCount(LyraGameplayTags::Status_AutoRunning) > 0;
+		bIsAutoRunning = LyraASC->GetTagCount(L1GameplayTags::Status_AutoRunning) > 0;
 	}
 	return bIsAutoRunning;
 }
@@ -441,7 +441,7 @@ void ALyraPlayerController::OnStartAutoRun()
 {
 	if (ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent())
 	{
-		LyraASC->SetLooseGameplayTagCount(LyraGameplayTags::Status_AutoRunning, 1);
+		LyraASC->SetLooseGameplayTagCount(L1GameplayTags::Status_AutoRunning, 1);
 		K2_OnStartAutoRun();
 	}	
 }
@@ -450,7 +450,7 @@ void ALyraPlayerController::OnEndAutoRun()
 {
 	if (ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent())
 	{
-		LyraASC->SetLooseGameplayTagCount(LyraGameplayTags::Status_AutoRunning, 0);
+		LyraASC->SetLooseGameplayTagCount(L1GameplayTags::Status_AutoRunning, 0);
 		K2_OnEndAutoRun();
 	}
 }
@@ -529,7 +529,7 @@ void ALyraPlayerController::UpdateHiddenComponents(const FVector& ViewLocation, 
 
 void ALyraPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 {
-	UE_LOG(LogLyraTeams, Error, TEXT("You can't set the team ID on a player controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
+	UE_LOG(LogL1Teams, Error, TEXT("You can't set the team ID on a player controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
 }
 
 FGenericTeamId ALyraPlayerController::GetGenericTeamId() const

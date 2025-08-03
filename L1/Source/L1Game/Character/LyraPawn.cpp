@@ -3,7 +3,7 @@
 #include "LyraPawn.h"
 
 #include "GameFramework/Controller.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ScriptInterface.h"
 
@@ -79,12 +79,12 @@ void ALyraPawn::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 		}
 		else
 		{
-			UE_LOG(LogLyraTeams, Error, TEXT("You can't set the team ID on a pawn (%s) except on the authority"), *GetPathNameSafe(this));
+			UE_LOG(LogL1Teams, Error, TEXT("You can't set the team ID on a pawn (%s) except on the authority"), *GetPathNameSafe(this));
 		}
 	}
 	else
 	{
-		UE_LOG(LogLyraTeams, Error, TEXT("You can't set the team ID on a possessed pawn (%s); it's driven by the associated controller"), *GetPathNameSafe(this));
+		UE_LOG(LogL1Teams, Error, TEXT("You can't set the team ID on a possessed pawn (%s); it's driven by the associated controller"), *GetPathNameSafe(this));
 	}
 }
 

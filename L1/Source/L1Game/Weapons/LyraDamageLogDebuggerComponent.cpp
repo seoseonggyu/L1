@@ -3,7 +3,7 @@
 #include "LyraDamageLogDebuggerComponent.h"
 
 #include "Engine/World.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "Messages/LyraVerbMessage.h"
 #include "NativeGameplayTags.h"
 
@@ -69,15 +69,15 @@ void ULyraDamageLogDebuggerComponent::TickComponent(float DeltaTime, enum ELevel
 			}
 		}
 
-		UE_LOG(LogLyra, Warning, TEXT("%d impacts in %d distinct frames over %.2f seconds did %.2f damage"),
+		UE_LOG(LogL1, Warning, TEXT("%d impacts in %d distinct frames over %.2f seconds did %.2f damage"),
 			NumImpacts, NumFrames, TotalInterval, TotalDamage);
 		if (TotalInterval > 0.0)
 		{
-			UE_LOG(LogLyra, Warning, TEXT("Interval ranged from %.1f ms to %.1f ms (avg %.1f ms)"),
+			UE_LOG(LogL1, Warning, TEXT("Interval ranged from %.1f ms to %.1f ms (avg %.1f ms)"),
 				MinInterval * 1000.0, MaxInterval * 1000.0, (MaxInterval + MinInterval) / 2.0 * 1000.0);
-			UE_LOG(LogLyra, Warning, TEXT("DPS %.2f"), TotalDamage / TotalInterval);
+			UE_LOG(LogL1, Warning, TEXT("DPS %.2f"), TotalDamage / TotalInterval);
 		}
-		UE_LOG(LogLyra, Warning, TEXT("\n"));
+		UE_LOG(LogL1, Warning, TEXT("\n"));
 	}
 }
 

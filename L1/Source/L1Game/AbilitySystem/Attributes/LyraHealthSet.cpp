@@ -2,7 +2,7 @@
 
 #include "LyraHealthSet.h"
 #include "AbilitySystem/Attributes/LyraAttributeSet.h"
-#include "LyraGameplayTags.h"
+#include "L1GameplayTags.h"
 #include "Net/UnrealNetwork.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Engine/World.h"
@@ -88,7 +88,7 @@ bool ULyraHealthSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData &Da
 
 #if !UE_BUILD_SHIPPING
 			// Check GodMode cheat, unlimited health is checked below
-			if (Data.Target.HasMatchingGameplayTag(LyraGameplayTags::Cheat_GodMode) && !bIsDamageFromSelfDestruct)
+			if (Data.Target.HasMatchingGameplayTag(L1GameplayTags::Cheat_GodMode) && !bIsDamageFromSelfDestruct)
 			{
 				// Do not take away any health.
 				Data.EvaluatedData.Magnitude = 0.0f;
@@ -115,7 +115,7 @@ void ULyraHealthSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackD
 #if !UE_BUILD_SHIPPING
 	// Godmode and unlimited health stop death unless it's a self destruct
 	if (!bIsDamageFromSelfDestruct &&
-		(Data.Target.HasMatchingGameplayTag(LyraGameplayTags::Cheat_GodMode) || Data.Target.HasMatchingGameplayTag(LyraGameplayTags::Cheat_UnlimitedHealth) ))
+		(Data.Target.HasMatchingGameplayTag(L1GameplayTags::Cheat_GodMode) || Data.Target.HasMatchingGameplayTag(L1GameplayTags::Cheat_UnlimitedHealth) ))
 	{
 		MinimumHealth = 1.0f;
 	}

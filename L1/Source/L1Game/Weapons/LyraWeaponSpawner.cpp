@@ -11,7 +11,7 @@
 #include "GameFramework/Pawn.h"
 #include "Inventory/InventoryFragment_SetStats.h"
 #include "Kismet/GameplayStatics.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "Net/UnrealNetwork.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
@@ -60,7 +60,7 @@ void ALyraWeaponSpawner::BeginPlay()
 	{
 		if (!World->IsPlayingReplay())
 		{
-			UE_LOG(LogLyra, Error, TEXT("'%s' does not have a valid weapon definition! Make sure to set this data on the instance!"), *GetNameSafe(this));	
+			UE_LOG(LogL1, Error, TEXT("'%s' does not have a valid weapon definition! Make sure to set this data on the instance!"), *GetNameSafe(this));	
 		}
 	}
 }

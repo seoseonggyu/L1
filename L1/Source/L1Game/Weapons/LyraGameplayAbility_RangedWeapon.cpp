@@ -3,7 +3,7 @@
 #include "LyraGameplayAbility_RangedWeapon.h"
 #include "Weapons/LyraRangedWeaponInstance.h"
 #include "Physics/LyraCollisionChannels.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "AIController.h"
 #include "NativeGameplayTags.h"
 #include "Weapons/LyraWeaponStateComponent.h"
@@ -89,7 +89,7 @@ bool ULyraGameplayAbility_RangedWeapon::CanActivateAbility(const FGameplayAbilit
 	{
 		if (GetWeaponInstance() == nullptr)
 		{
-			UE_LOG(LogLyraAbilitySystem, Error, TEXT("Weapon ability %s cannot be activated because there is no associated ranged weapon (equipment instance=%s but needs to be derived from %s)"),
+			UE_LOG(LogL1AbilitySystem, Error, TEXT("Weapon ability %s cannot be activated because there is no associated ranged weapon (equipment instance=%s but needs to be derived from %s)"),
 				*GetPathName(),
 				*GetPathNameSafe(GetAssociatedEquipment()),
 				*ULyraRangedWeaponInstance::StaticClass()->GetName());
@@ -540,7 +540,7 @@ void ULyraGameplayAbility_RangedWeapon::OnTargetDataReadyCallback(const FGamepla
 		}
 		else
 		{
-			UE_LOG(LogLyraAbilitySystem, Warning, TEXT("Weapon ability %s failed to commit (bIsTargetDataValid=%d)"), *GetPathName(), bIsTargetDataValid ? 1 : 0);
+			UE_LOG(LogL1AbilitySystem, Warning, TEXT("Weapon ability %s failed to commit (bIsTargetDataValid=%d)"), *GetPathName(), bIsTargetDataValid ? 1 : 0);
 			K2_EndAbility();
 		}
 	}

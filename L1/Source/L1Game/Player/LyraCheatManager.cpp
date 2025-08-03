@@ -10,7 +10,7 @@
 #include "GameFramework/HUD.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
-#include "LyraGameplayTags.h"
+#include "L1GameplayTags.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "AbilitySystemGlobals.h"
 #include "Character/LyraHealthComponent.h"
@@ -240,7 +240,7 @@ void ULyraCheatManager::CancelActivatedAbilities()
 
 void ULyraCheatManager::AddTagToSelf(FString TagName)
 {
-	FGameplayTag Tag = LyraGameplayTags::FindTagByString(TagName, true);
+	FGameplayTag Tag = L1GameplayTags::FindTagByString(TagName, true);
 	if (Tag.IsValid())
 	{
 		if (ULyraAbilitySystemComponent* LyraASC = GetPlayerAbilitySystemComponent())
@@ -256,7 +256,7 @@ void ULyraCheatManager::AddTagToSelf(FString TagName)
 
 void ULyraCheatManager::RemoveTagFromSelf(FString TagName)
 {
-	FGameplayTag Tag = LyraGameplayTags::FindTagByString(TagName, true);
+	FGameplayTag Tag = L1GameplayTags::FindTagByString(TagName, true);
 	if (Tag.IsValid())
 	{
 		if (ULyraAbilitySystemComponent* LyraASC = GetPlayerAbilitySystemComponent())
@@ -303,12 +303,12 @@ void ULyraCheatManager::ApplySetByCallerDamage(ULyraAbilitySystemComponent* Lyra
 {
 	check(LyraASC);
 
-	TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclass(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+	TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
 	FGameplayEffectSpecHandle SpecHandle = LyraASC->MakeOutgoingSpec(DamageGE, 1.0f, LyraASC->MakeEffectContext());
 
 	if (SpecHandle.IsValid())
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(LyraGameplayTags::SetByCaller_Damage, DamageAmount);
+		SpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Damage, DamageAmount);
 		LyraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }
@@ -339,12 +339,12 @@ void ULyraCheatManager::ApplySetByCallerHeal(ULyraAbilitySystemComponent* LyraAS
 {
 	check(LyraASC);
 
-	TSubclassOf<UGameplayEffect> HealGE = ULyraAssetManager::GetSubclass(ULyraGameData::Get().HealGameplayEffect_SetByCaller);
+	TSubclassOf<UGameplayEffect> HealGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().HealGameplayEffect_SetByCaller);
 	FGameplayEffectSpecHandle SpecHandle = LyraASC->MakeOutgoingSpec(HealGE, 1.0f, LyraASC->MakeEffectContext());
 
 	if (SpecHandle.IsValid())
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(LyraGameplayTags::SetByCaller_Heal, HealAmount);
+		SpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Heal, HealAmount);
 		LyraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }
@@ -364,7 +364,7 @@ void ULyraCheatManager::DamageSelfDestruct()
 	{
  		if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(LyraPC->GetPawn()))
 		{
-			if (PawnExtComp->HasReachedInitState(LyraGameplayTags::InitState_GameplayReady))
+			if (PawnExtComp->HasReachedInitState(L1GameplayTags::InitState_GameplayReady))
 			{
 				if (ULyraHealthComponent* HealthComponent = ULyraHealthComponent::FindHealthComponent(LyraPC->GetPawn()))
 				{
@@ -388,7 +388,7 @@ void ULyraCheatManager::God()
 
 		if (ULyraAbilitySystemComponent* LyraASC = LyraPC->GetLyraAbilitySystemComponent())
 		{
-			const FGameplayTag Tag = LyraGameplayTags::Cheat_GodMode;
+			const FGameplayTag Tag = L1GameplayTags::Cheat_GodMode;
 			const bool bHasTag = LyraASC->HasMatchingGameplayTag(Tag);
 
 			if (bHasTag)
@@ -407,7 +407,7 @@ void ULyraCheatManager::UnlimitedHealth(int32 Enabled)
 {
 	if (ULyraAbilitySystemComponent* LyraASC = GetPlayerAbilitySystemComponent())
 	{
-		const FGameplayTag Tag = LyraGameplayTags::Cheat_UnlimitedHealth;
+		const FGameplayTag Tag = L1GameplayTags::Cheat_UnlimitedHealth;
 		const bool bHasTag = LyraASC->HasMatchingGameplayTag(Tag);
 
 		if ((Enabled == -1) || ((Enabled > 0) && !bHasTag) || ((Enabled == 0) && bHasTag))

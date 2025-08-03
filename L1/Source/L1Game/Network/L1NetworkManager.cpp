@@ -18,7 +18,7 @@ void UL1NetworkManager::ConnectToGameServer()
 	InternetAddr->SetIp(Ip.Value);
 	InternetAddr->SetPort(Port);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Connecting To Server...")));
+	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Connecting To Server...")));
 
 	bool Connected = Socket->Connect(*InternetAddr);
 
@@ -27,7 +27,6 @@ void UL1NetworkManager::ConnectToGameServer()
 		GameServerSession = MakeShared<PacketSession>(Socket);
 		GameServerSession->Run();
 
-		// TEMP : Lobby에서 캐릭터 선택창 등
 		{
 			Protocol::C_LOGIN Pkt;
 			SendBufferRef SendBuffer = ServerPacketHandler::MakeSendBuffer(Pkt);

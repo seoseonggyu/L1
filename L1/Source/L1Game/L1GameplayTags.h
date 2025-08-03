@@ -4,7 +4,7 @@
 
 #include "NativeGameplayTags.h"
 
-namespace LyraGameplayTags
+namespace L1GameplayTags
 {
 	L1GAME_API	FGameplayTag FindTagByString(const FString& TagString, bool bMatchPartialString = false);
 
@@ -47,7 +47,6 @@ namespace LyraGameplayTags
 	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Death_Dying);
 	L1GAME_API	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Status_Death_Dead);
 
-	// These are mappings from MovementMode enums to GameplayTags associated with those enums (below)
 	L1GAME_API	extern const TMap<uint8, FGameplayTag> MovementModeTagMap;
 	L1GAME_API	extern const TMap<uint8, FGameplayTag> CustomMovementModeTagMap;
 

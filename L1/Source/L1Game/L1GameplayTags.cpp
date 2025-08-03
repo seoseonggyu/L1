@@ -1,12 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "LyraGameplayTags.h"
+#include "L1GameplayTags.h"
 
 #include "Engine/EngineTypes.h"
 #include "GameplayTagsManager.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 
-namespace LyraGameplayTags
+namespace L1GameplayTags
 {
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_ActivateFail_IsDead, "Ability.ActivateFail.IsDead", "Ability failed to activate because its owner is dead.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_ActivateFail_Cooldown, "Ability.ActivateFail.Cooldown", "Ability failed to activate because it is on cool down.");
@@ -87,7 +87,7 @@ namespace LyraGameplayTags
 			{
 				if (TestTag.ToString().Contains(TagString))
 				{
-					UE_LOG(LogLyra, Display, TEXT("Could not find exact match for tag [%s] but found partial match on tag [%s]."), *TagString, *TestTag.ToString());
+					UE_LOG(LogL1, Display, TEXT("Could not find exact match for tag [%s] but found partial match on tag [%s]."), *TagString, *TestTag.ToString());
 					Tag = TestTag;
 					break;
 				}
@@ -97,4 +97,3 @@ namespace LyraGameplayTags
 		return Tag;
 	}
 }
-

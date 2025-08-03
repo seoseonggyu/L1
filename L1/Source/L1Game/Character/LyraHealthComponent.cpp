@@ -3,10 +3,10 @@
 #include "Character/LyraHealthComponent.h"
 
 #include "AbilitySystem/Attributes/LyraAttributeSet.h"
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
-#include "LyraGameplayTags.h"
+#include "L1GameplayTags.h"
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
@@ -56,21 +56,21 @@ void ULyraHealthComponent::InitializeWithAbilitySystem(ULyraAbilitySystemCompone
 
 	if (AbilitySystemComponent)
 	{
-		UE_LOG(LogLyra, Error, TEXT("LyraHealthComponent: Health component for owner [%s] has already been initialized with an ability system."), *GetNameSafe(Owner));
+		UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: Health component for owner [%s] has already been initialized with an ability system."), *GetNameSafe(Owner));
 		return;
 	}
 
 	AbilitySystemComponent = InASC;
 	if (!AbilitySystemComponent)
 	{
-		UE_LOG(LogLyra, Error, TEXT("LyraHealthComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Owner));
+		UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: Cannot initialize health component for owner [%s] with NULL ability system."), *GetNameSafe(Owner));
 		return;
 	}
 
 	HealthSet = AbilitySystemComponent->GetSet<ULyraHealthSet>();
 	if (!HealthSet)
 	{
-		UE_LOG(LogLyra, Error, TEXT("LyraHealthComponent: Cannot initialize health component for owner [%s] with NULL health set on the ability system."), *GetNameSafe(Owner));
+		UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: Cannot initialize health component for owner [%s] with NULL health set on the ability system."), *GetNameSafe(Owner));
 		return;
 	}
 
@@ -107,8 +107,8 @@ void ULyraHealthComponent::ClearGameplayTags()
 {
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->SetLooseGameplayTagCount(LyraGameplayTags::Status_Death_Dying, 0);
-		AbilitySystemComponent->SetLooseGameplayTagCount(LyraGameplayTags::Status_Death_Dead, 0);
+		AbilitySystemComponent->SetLooseGameplayTagCount(L1GameplayTags::Status_Death_Dying, 0);
+		AbilitySystemComponent->SetLooseGameplayTagCount(L1GameplayTags::Status_Death_Dead, 0);
 	}
 }
 
@@ -153,7 +153,7 @@ void ULyraHealthComponent::HandleOutOfHealth(AActor* DamageInstigator, AActor* D
 		// Send the "GameplayEvent.Death" gameplay event through the owner's ability system.  This can be used to trigger a death gameplay ability.
 		{
 			FGameplayEventData Payload;
-			Payload.EventTag = LyraGameplayTags::GameplayEvent_Death;
+			Payload.EventTag = L1GameplayTags::GameplayEvent_Death;
 			Payload.Instigator = DamageInstigator;
 			Payload.Target = AbilitySystemComponent->GetAvatarActor();
 			Payload.OptionalObject = DamageEffectSpec->Def;
@@ -197,7 +197,7 @@ void ULyraHealthComponent::OnRep_DeathState(ELyraDeathState OldDeathState)
 	if (OldDeathState > NewDeathState)
 	{
 		// The server is trying to set us back but we've already predicted past the server state.
-		UE_LOG(LogLyra, Warning, TEXT("LyraHealthComponent: Predicted past server death state [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+		UE_LOG(LogL1, Warning, TEXT("LyraHealthComponent: Predicted past server death state [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 		return;
 	}
 
@@ -214,7 +214,7 @@ void ULyraHealthComponent::OnRep_DeathState(ELyraDeathState OldDeathState)
 		}
 		else
 		{
-			UE_LOG(LogLyra, Error, TEXT("LyraHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+			UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 		}
 	}
 	else if (OldDeathState == ELyraDeathState::DeathStarted)
@@ -225,7 +225,7 @@ void ULyraHealthComponent::OnRep_DeathState(ELyraDeathState OldDeathState)
 		}
 		else
 		{
-			UE_LOG(LogLyra, Error, TEXT("LyraHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
+			UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: Invalid death transition [%d] -> [%d] for owner [%s]."), (uint8)OldDeathState, (uint8)NewDeathState, *GetNameSafe(GetOwner()));
 		}
 	}
 
@@ -243,7 +243,7 @@ void ULyraHealthComponent::StartDeath()
 
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->SetLooseGameplayTagCount(LyraGameplayTags::Status_Death_Dying, 1);
+		AbilitySystemComponent->SetLooseGameplayTagCount(L1GameplayTags::Status_Death_Dying, 1);
 	}
 
 	AActor* Owner = GetOwner();
@@ -265,7 +265,7 @@ void ULyraHealthComponent::FinishDeath()
 
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->SetLooseGameplayTagCount(LyraGameplayTags::Status_Death_Dead, 1);
+		AbilitySystemComponent->SetLooseGameplayTagCount(L1GameplayTags::Status_Death_Dead, 1);
 	}
 
 	AActor* Owner = GetOwner();
@@ -280,10 +280,10 @@ void ULyraHealthComponent::DamageSelfDestruct(bool bFellOutOfWorld)
 {
 	if ((DeathState == ELyraDeathState::NotDead) && AbilitySystemComponent)
 	{
-		const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclass(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+		const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
 		if (!DamageGE)
 		{
-			UE_LOG(LogLyra, Error, TEXT("LyraHealthComponent: DamageSelfDestruct failed for owner [%s]. Unable to find gameplay effect [%s]."), *GetNameSafe(GetOwner()), *ULyraGameData::Get().DamageGameplayEffect_SetByCaller.GetAssetName());
+			UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: DamageSelfDestruct failed for owner [%s]. Unable to find gameplay effect [%s]."), *GetNameSafe(GetOwner()), *ULyraGameData::Get().DamageGameplayEffect_SetByCaller.GetAssetName());
 			return;
 		}
 
@@ -292,7 +292,7 @@ void ULyraHealthComponent::DamageSelfDestruct(bool bFellOutOfWorld)
 
 		if (!Spec)
 		{
-			UE_LOG(LogLyra, Error, TEXT("LyraHealthComponent: DamageSelfDestruct failed for owner [%s]. Unable to make outgoing spec for [%s]."), *GetNameSafe(GetOwner()), *GetNameSafe(DamageGE));
+			UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: DamageSelfDestruct failed for owner [%s]. Unable to make outgoing spec for [%s]."), *GetNameSafe(GetOwner()), *GetNameSafe(DamageGE));
 			return;
 		}
 
@@ -305,7 +305,7 @@ void ULyraHealthComponent::DamageSelfDestruct(bool bFellOutOfWorld)
 
 		const float DamageAmount = GetMaxHealth();
 
-		Spec->SetSetByCallerMagnitude(LyraGameplayTags::SetByCaller_Damage, DamageAmount);
+		Spec->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Damage, DamageAmount);
 		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec);
 	}
 }

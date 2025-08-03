@@ -1,12 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "LyraLogChannels.h"
+#include "L1LogChannels.h"
 #include "GameFramework/Actor.h"
 
-DEFINE_LOG_CATEGORY(LogLyra);
-DEFINE_LOG_CATEGORY(LogLyraExperience);
-DEFINE_LOG_CATEGORY(LogLyraAbilitySystem);
-DEFINE_LOG_CATEGORY(LogLyraTeams);
+DEFINE_LOG_CATEGORY(LogL1);
+DEFINE_LOG_CATEGORY(LogL1Experience);
+DEFINE_LOG_CATEGORY(LogL1AbilitySystem);
+DEFINE_LOG_CATEGORY(LogL1Teams);
 
 FString GetClientServerContextString(UObject* ContextObject)
 {
