@@ -15,7 +15,11 @@ public:
 	bool HandleLeavePlayer(PlayerRef player);
 	void HandleMove(Protocol::C_MOVE pkt);
 
+
 public:
+	// SSG:
+	void TestTick(PlayerRef player);
+	
 	RoomRef GetRoomRef();
 
 private:

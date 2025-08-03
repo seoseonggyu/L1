@@ -66,6 +66,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>GameContents\Object</Filter>
     </ClCompile>
+    <ClCompile Include="FVector3.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>GameContents\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="FVector3.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

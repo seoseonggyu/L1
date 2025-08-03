@@ -86,6 +86,8 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 
 	PlayerInfo = new Protocol::PosInfo();
 	DestInfo = new Protocol::PosInfo();
+
+	LyraMoveComp->bRunPhysicsWithNoController = true;
 }
 
 void ALyraCharacter::PreInitializeComponents()
@@ -114,8 +116,6 @@ void ALyraCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	return;
-
 	{
 
 		//FVector CurrentLocation = GetActorLocation();
@@ -124,6 +124,11 @@ void ALyraCharacter::Tick(float DeltaTime)
 		//AddMovementInput(Direction, Speed * DeltaTime);
 
 	}
+	if (MyPlayer && objectId == 2)
+	{
+		int32 a = 4;
+	}
+
 	FVector CurrentLocation = GetActorLocation();
 	FVector ToDestination = Destination - CurrentLocation;
 	float Distance = ToDestination.Size();

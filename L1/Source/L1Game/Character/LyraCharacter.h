@@ -238,5 +238,8 @@ public:
 
 	Protocol::PosInfo* PlayerInfo;	// 현재 위치
 	Protocol::PosInfo* DestInfo;	// 목적지
+
+	bool MyPlayer = false;
+	int32 objectId = 0;
 	
 };
