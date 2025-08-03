@@ -11,6 +11,8 @@ class UPrimaryDataAsset;
 class ULyraGameData;
 class ULyraPawnData;
 
+class UL1CharacterData;
+
 struct FLyraBundles
 {
 	static const FName Equipped;
@@ -52,6 +54,7 @@ public:
 
 	const ULyraGameData& GetGameData();
 	const ULyraPawnData* GetDefaultPawnData() const;
+	const UL1CharacterData& GetCharacterData();
 
 protected:
 	template <typename GameDataClass>
@@ -87,6 +90,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<ULyraPawnData> DefaultPawnData;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UL1CharacterData> CharacterDataPath;
 
 	UPROPERTY(Transient)
 	TMap<TObjectPtr<UClass>, TObjectPtr<UPrimaryDataAsset>> GameDataMap;

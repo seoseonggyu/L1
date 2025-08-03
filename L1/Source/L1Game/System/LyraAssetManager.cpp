@@ -12,6 +12,8 @@
 #include "Misc/ScopedSlowTask.h"
 #include "System/LyraAssetManagerStartupJob.h"
 
+#include "Data/L1CharacterData.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraAssetManager)
 
 const FName FLyraBundles::Equipped("Equipped");
@@ -112,6 +114,11 @@ const ULyraPawnData* ULyraAssetManager::GetDefaultPawnData() const
 	return GetAssetByPath(DefaultPawnData);
 }
 
+const UL1CharacterData& ULyraAssetManager::GetCharacterData()
+{
+	return GetOrLoadTypedGameData<UL1CharacterData>(CharacterDataPath);
+}
+
 void ULyraAssetManager::StartInitialLoading()
 {
 	SCOPED_BOOT_TIMING("ULyraAssetManager::StartInitialLoading");
@@ -122,8 +129,8 @@ void ULyraAssetManager::StartInitialLoading()
 	STARTUP_JOB(InitializeGameplayCueManager());
 
 	{
-		// Load base game data asset
 		STARTUP_JOB_WEIGHTED(GetGameData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetCharacterData(), 25.f);
 	}
 
 	// Run all the queued up startup jobs
