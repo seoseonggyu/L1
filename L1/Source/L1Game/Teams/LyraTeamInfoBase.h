@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameFramework/Info.h"
-#include "System/GameplayTagStack.h"
+#include "System/L1GameplayTagStack.h"
 
 #include "LyraTeamInfoBase.generated.h"
 
@@ -43,7 +43,7 @@ public:
 	friend ULyraTeamCreationComponent;
 
 	UPROPERTY(Replicated)
-	FGameplayTagStackContainer TeamTags;
+	FL1GameplayTagStackContainer TeamTags;
 
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_TeamId)

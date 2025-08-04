@@ -1,15 +1,15 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "GameplayTagStack.h"
+#include "L1GameplayTagStack.h"
 
 #include "UObject/Stack.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(GameplayTagStack)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(L1GameplayTagStack)
 
 //////////////////////////////////////////////////////////////////////
 // FGameplayTagStack
 
-FString FGameplayTagStack::GetDebugString() const
+FString FL1GameplayTagStack::GetDebugString() const
 {
 	return FString::Printf(TEXT("%sx%d"), *Tag.ToString(), StackCount);
 }
@@ -17,7 +17,7 @@ FString FGameplayTagStack::GetDebugString() const
 //////////////////////////////////////////////////////////////////////
 // FGameplayTagStackContainer
 
-void FGameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
+void FL1GameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
 {
 	if (!Tag.IsValid())
 	{
@@ -27,7 +27,7 @@ void FGameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
 
 	if (StackCount > 0)
 	{
-		for (FGameplayTagStack& Stack : Stacks)
+		for (FL1GameplayTagStack& Stack : Stacks)
 		{
 			if (Stack.Tag == Tag)
 			{
@@ -39,13 +39,13 @@ void FGameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
 			}
 		}
 
-		FGameplayTagStack& NewStack = Stacks.Emplace_GetRef(Tag, StackCount);
+		FL1GameplayTagStack& NewStack = Stacks.Emplace_GetRef(Tag, StackCount);
 		MarkItemDirty(NewStack);
 		TagToCountMap.Add(Tag, StackCount);
 	}
 }
 
-void FGameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
+void FL1GameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
 {
 	if (!Tag.IsValid())
 	{
@@ -58,7 +58,7 @@ void FGameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
 	{
 		for (auto It = Stacks.CreateIterator(); It; ++It)
 		{
-			FGameplayTagStack& Stack = *It;
+			FL1GameplayTagStack& Stack = *It;
 			if (Stack.Tag == Tag)
 			{
 				if (Stack.StackCount <= StackCount)
@@ -80,7 +80,7 @@ void FGameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
 	}
 }
 
-void FGameplayTagStackContainer::PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize)
+void FL1GameplayTagStackContainer::PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize)
 {
 	for (int32 Index : RemovedIndices)
 	{
@@ -89,20 +89,20 @@ void FGameplayTagStackContainer::PreReplicatedRemove(const TArrayView<int32> Rem
 	}
 }
 
-void FGameplayTagStackContainer::PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize)
+void FL1GameplayTagStackContainer::PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize)
 {
 	for (int32 Index : AddedIndices)
 	{
-		const FGameplayTagStack& Stack = Stacks[Index];
+		const FL1GameplayTagStack& Stack = Stacks[Index];
 		TagToCountMap.Add(Stack.Tag, Stack.StackCount);
 	}
 }
 
-void FGameplayTagStackContainer::PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize)
+void FL1GameplayTagStackContainer::PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize)
 {
 	for (int32 Index : ChangedIndices)
 	{
-		const FGameplayTagStack& Stack = Stacks[Index];
+		const FL1GameplayTagStack& Stack = Stacks[Index];
 		TagToCountMap[Stack.Tag] = Stack.StackCount;
 	}
 }

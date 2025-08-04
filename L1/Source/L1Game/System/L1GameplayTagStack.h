@@ -5,23 +5,23 @@
 #include "GameplayTagContainer.h"
 #include "Net/Serialization/FastArraySerializer.h"
 
-#include "GameplayTagStack.generated.h"
+#include "L1GameplayTagStack.generated.h"
 
-struct FGameplayTagStackContainer;
+struct FL1GameplayTagStackContainer;
 struct FNetDeltaSerializeInfo;
 
 /**
  * Represents one stack of a gameplay tag (tag + count)
  */
 USTRUCT(BlueprintType)
-struct FGameplayTagStack : public FFastArraySerializerItem
+struct FL1GameplayTagStack : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
-	FGameplayTagStack()
+	FL1GameplayTagStack()
 	{}
 
-	FGameplayTagStack(FGameplayTag InTag, int32 InStackCount)
+	FL1GameplayTagStack(FGameplayTag InTag, int32 InStackCount)
 		: Tag(InTag)
 		, StackCount(InStackCount)
 	{
@@ -30,7 +30,7 @@ struct FGameplayTagStack : public FFastArraySerializerItem
 	FString GetDebugString() const;
 
 private:
-	friend FGameplayTagStackContainer;
+	friend FL1GameplayTagStackContainer;
 
 	UPROPERTY()
 	FGameplayTag Tag;
@@ -41,11 +41,11 @@ private:
 
 /** Container of gameplay tag stacks */
 USTRUCT(BlueprintType)
-struct FGameplayTagStackContainer : public FFastArraySerializer
+struct FL1GameplayTagStackContainer : public FFastArraySerializer
 {
 	GENERATED_BODY()
 
-	FGameplayTagStackContainer()
+	FL1GameplayTagStackContainer()
 	//	: Owner(nullptr)
 	{
 	}
@@ -77,20 +77,20 @@ public:
 
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 	{
-		return FFastArraySerializer::FastArrayDeltaSerialize<FGameplayTagStack, FGameplayTagStackContainer>(Stacks, DeltaParms, *this);
+		return FFastArraySerializer::FastArrayDeltaSerialize<FL1GameplayTagStack, FL1GameplayTagStackContainer>(Stacks, DeltaParms, *this);
 	}
 
 private:
 	// Replicated list of gameplay tag stacks
 	UPROPERTY()
-	TArray<FGameplayTagStack> Stacks;
+	TArray<FL1GameplayTagStack> Stacks;
 	
 	// Accelerated list of tag stacks for queries
 	TMap<FGameplayTag, int32> TagToCountMap;
 };
 
 template<>
-struct TStructOpsTypeTraits<FGameplayTagStackContainer> : public TStructOpsTypeTraitsBase2<FGameplayTagStackContainer>
+struct TStructOpsTypeTraits<FL1GameplayTagStackContainer> : public TStructOpsTypeTraitsBase2<FL1GameplayTagStackContainer>
 {
 	enum
 	{

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "System/GameplayTagStack.h"
+#include "System/L1GameplayTagStack.h"
 #include "Templates/SubclassOf.h"
 
 #include "LyraInventoryItemInstance.generated.h"
@@ -71,7 +71,7 @@ private:
 
 private:
 	UPROPERTY(Replicated)
-	FGameplayTagStackContainer StatTags;
+	FL1GameplayTagStackContainer StatTags;
 
 	// The item definition
 	UPROPERTY(Replicated)

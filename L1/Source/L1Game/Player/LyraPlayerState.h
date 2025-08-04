@@ -4,7 +4,7 @@
 
 #include "AbilitySystemInterface.h"
 #include "ModularPlayerState.h"
-#include "System/GameplayTagStack.h"
+#include "System/L1GameplayTagStack.h"
 #include "Teams/LyraTeamAgentInterface.h"
 
 #include "LyraPlayerState.generated.h"
@@ -170,7 +170,7 @@ private:
 	int32 MySquadID;
 
 	UPROPERTY(Replicated)
-	FGameplayTagStackContainer StatTags;
+	FL1GameplayTagStackContainer StatTags;
 
 	UPROPERTY(Replicated)
 	FRotator ReplicatedViewRotation;
