@@ -20,9 +20,9 @@ void UL1NetworkManager::ConnectToGameServer()
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Connecting To Server...")));
 
-	bool Connected = Socket->Connect(*InternetAddr);
+	bConnected = Socket->Connect(*InternetAddr);
 
-	if (Connected)
+	if (bConnected)
 	{
 		GameServerSession = MakeShared<PacketSession>(Socket);
 		GameServerSession->Run();

@@ -43,6 +43,7 @@ public:
 	class FSocket* Socket;
 	FString IpAddress = TEXT("127.0.0.1");
 	int16 Port = 7777;
+	bool bConnected = false;
 
 	TSharedPtr<class PacketSession> GameServerSession;
 

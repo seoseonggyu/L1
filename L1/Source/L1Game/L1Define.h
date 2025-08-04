@@ -65,7 +65,6 @@ enum class EEquipmentType : uint8
 UENUM(BlueprintType)
 enum class EArmorType : uint8
 {
-	FullBody,
 	Helmet,
 	Chest,
 	Legs,

@@ -184,10 +184,6 @@ void UL1CosmeticManagerComponent::InitializeManager()
 				SkinMaterialSlotName = FName("LowerBody");
 				//SkinMaterial = DefaultArmorMeshSet.LowerBodySkinMaterial;
 			}
-			else if (ArmorType == EArmorType::FullBody)
-			{
-				SkinMaterialSlotName = FName("FullBody");
-			}
 
 			CosmeticSlots[i] = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMeshEntries[i], DefaultArmorMeshSet.SecondaryMeshEntries[i], SkinMaterialSlotName, SkinMaterial);
 		}

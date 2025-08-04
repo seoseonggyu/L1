@@ -379,9 +379,9 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 {
 	// SSG: 수정해야함
 	//https://x157.github.io/UE5/LyraStarterGame/Tutorials/How-to-Take-Control-of-the-Mouse#XistedUIActionRouter
-	if (ALyraCharacter* Pawn = GetPawn<ALyraCharacter>())
+	if (ALyraCharacter* Character = GetPawn<ALyraCharacter>())
 	{
-		if (ALyraPlayerController* Controller = Cast<ALyraPlayerController>(Pawn->GetController()))
+		if (ALyraPlayerController* Controller = Cast<ALyraPlayerController>(Character->GetController()))
 		{
 			FVector CachedDestination;
 			FHitResult Hit;
@@ -396,15 +396,22 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 			}
 
 			{
-				// SSG;
-				Protocol::C_MOVE MovePkt;
-				Protocol::PosInfo* Info = MovePkt.mutable_info();
+				if (GetNetworkManager()->bConnected)
+				{
+					// SSG;
+					Protocol::C_MOVE MovePkt;
+					Protocol::PosInfo* Info = MovePkt.mutable_info();
 
-				Info->set_object_id(Pawn->PlayerInfo->object_id());
-				Info->set_x(CachedDestination.X);
-				Info->set_y(CachedDestination.Y);
-				Info->set_z(CachedDestination.Z);
-				GetNetworkManager()->SendPacket(MovePkt);
+					Info->set_object_id(Character->PlayerInfo->object_id());
+					Info->set_x(CachedDestination.X);
+					Info->set_y(CachedDestination.Y);
+					Info->set_z(CachedDestination.Z);
+					GetNetworkManager()->SendPacket(MovePkt);
+				}
+				else {
+					Character->Destination = CachedDestination;
+				}
+				
 			}
 
 			//if (Pawn != nullptr)
