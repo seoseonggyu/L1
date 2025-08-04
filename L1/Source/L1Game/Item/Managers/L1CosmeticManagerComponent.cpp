@@ -177,13 +177,14 @@ void UL1CosmeticManagerComponent::InitializeManager()
 			if (ArmorType == EArmorType::Helmet || ArmorType == EArmorType::Chest || ArmorType == EArmorType::Hands)
 			{
 				SkinMaterialSlotName = FName("UpperBody");
-				//SkinMaterial = DefaultArmorMeshSet.UpperBodySkinMaterial;
+				SkinMaterial = DefaultArmorMeshSet.UpperBodySkinMaterial;
 			}
 			else if (ArmorType == EArmorType::Legs || ArmorType == EArmorType::Foot)
 			{
 				SkinMaterialSlotName = FName("LowerBody");
-				//SkinMaterial = DefaultArmorMeshSet.LowerBodySkinMaterial;
+				SkinMaterial = DefaultArmorMeshSet.LowerBodySkinMaterial;
 			}
+
 
 			CosmeticSlots[i] = SpawnCosmeticSlotActor(DefaultArmorMeshSet.DefaultMeshEntries[i], DefaultArmorMeshSet.SecondaryMeshEntries[i], SkinMaterialSlotName, SkinMaterial);
 		}

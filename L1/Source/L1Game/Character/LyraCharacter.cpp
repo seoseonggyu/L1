@@ -30,8 +30,8 @@ static FName NAME_LyraCharacterCollisionProfile_Mesh(TEXT("LyraPawnMesh"));
 ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<ULyraCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
-	// Avoid ticking characters if possible.
-	// SSG: 
+
+	// Lyra는 Tick을 사용하지 않지만 나는 사용하기로 한다.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
@@ -80,10 +80,6 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	BaseEyeHeight = 80.0f;
 	CrouchedEyeHeight = 50.0f;
 
-
-	// SSG:
-	Destination = GetActorLocation();
-
 	PlayerInfo = new Protocol::PosInfo();
 	DestInfo = new Protocol::PosInfo();
 
@@ -111,23 +107,14 @@ void ALyraCharacter::BeginPlay()
 	}
 }
 
-// SSG: 
 void ALyraCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	{
-
-		//FVector CurrentLocation = GetActorLocation();
-		//FVector Direction = (Destination - CurrentLocation).GetSafeNormal();
-		//float Speed = GetCharacterMovement()->MaxWalkSpeed;
-		//AddMovementInput(Direction, Speed * DeltaTime);
-
-	}
-	if (MyPlayer && objectId == 2)
-	{
-		int32 a = 4;
-	}
+	FVector Destination;
+	Destination.X = DestInfo->x();
+	Destination.Y = DestInfo->y();
+	Destination.Z = DestInfo->z();
 
 	FVector CurrentLocation = GetActorLocation();
 	FVector ToDestination = Destination - CurrentLocation;
@@ -146,6 +133,8 @@ void ALyraCharacter::Tick(float DeltaTime)
 	{
 		// 4. 도달 후 멈춤 처리 필요 시 여기에 작성
 	}
+
+	SetPlayerInfo(GetActorLocation());
 }
 
 void ALyraCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -576,9 +565,23 @@ void ALyraCharacter::SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo)
 	PlayerInfo->CopyFrom(InPlayerInfo);
 }
 
+void ALyraCharacter::SetPlayerInfo(const FVector& InPlayerInfo)
+{
+	PlayerInfo->set_x(InPlayerInfo.X);
+	PlayerInfo->set_y(InPlayerInfo.Y);
+	PlayerInfo->set_z(InPlayerInfo.Z);
+}
+
 void ALyraCharacter::SetDestInfo(const Protocol::PosInfo& InDestInfo)
 {
 	DestInfo->CopyFrom(InDestInfo);
+}
+
+void ALyraCharacter::SetDestInfo(const FVector& InDestInfo)
+{
+	DestInfo->set_x(InDestInfo.X);
+	DestInfo->set_y(InDestInfo.Y);
+	DestInfo->set_z(InDestInfo.Z);
 }
 
 bool ALyraCharacter::UpdateSharedReplication()

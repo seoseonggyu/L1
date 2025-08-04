@@ -66,34 +66,36 @@ void ALyraPlayerController::BeginPlay()
 
 
 	// SSG: 옮겨야 함
-	const ULocalPlayer* LocalPlayer = GetLocalPlayer();
-	if (!LocalPlayer)
 	{
-		return;
-	}
+		const ULocalPlayer* LocalPlayer = GetLocalPlayer();
+		if (!LocalPlayer)
+		{
+			return;
+		}
 
-	UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>();
-	if (!ActionRouter)
-	{
-		return;
-	}
+		UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>();
+		if (!ActionRouter)
+		{
+			return;
+		}
 
-	const ECommonInputMode& CommonInputMode = ECommonInputMode::All;
-	FUIInputConfig InputConfig;
-	if (CommonInputMode == ECommonInputMode::Game)
-	{
-		// Game mode means invisible mouse, permanently captured
-		constexpr bool bHideCursorDuringViewportCapture = true;
-		InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown, bHideCursorDuringViewportCapture);
-	}
-	else
-	{
-		// Menu or All modes mean visible mouse, not permanently captured
-		constexpr bool bHideCursorDuringViewportCapture = false;
-		InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CaptureDuringMouseDown, bHideCursorDuringViewportCapture);
-	}
+		const ECommonInputMode& CommonInputMode = ECommonInputMode::All;
+		FUIInputConfig InputConfig;
+		if (CommonInputMode == ECommonInputMode::Game)
+		{
+			// Game mode means invisible mouse, permanently captured
+			constexpr bool bHideCursorDuringViewportCapture = true;
+			InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown, bHideCursorDuringViewportCapture);
+		}
+		else
+		{
+			// Menu or All modes mean visible mouse, not permanently captured
+			constexpr bool bHideCursorDuringViewportCapture = false;
+			InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CaptureDuringMouseDown, bHideCursorDuringViewportCapture);
+		}
 
-	ActionRouter->SetActiveUIInputConfig(InputConfig);
+		ActionRouter->SetActiveUIInputConfig(InputConfig);
+	}
 }
 
 void ALyraPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)

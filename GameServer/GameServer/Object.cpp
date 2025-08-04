@@ -5,6 +5,7 @@ Object::Object()
 {
 	_objectInfo = new Protocol::ObjectInfo();
 	_posInfo = new Protocol::PosInfo();
+	_destinationInfo = new Protocol::PosInfo();
 	_objectInfo->set_allocated_pos_info(_posInfo);
 
 }
@@ -12,4 +13,5 @@ Object::Object()
 Object::~Object()
 {
 	delete _objectInfo;
+	delete _destinationInfo;
 }

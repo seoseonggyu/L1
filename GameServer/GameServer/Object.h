@@ -11,14 +11,10 @@ public:
 public:
 	Protocol::ObjectInfo*	_objectInfo;
 	Protocol::PosInfo*		_posInfo;
-
-	// SSG:
-	FVector3 _location;
-	FVector3 _destination;
+	Protocol::PosInfo*		_destinationInfo;
 
 public:
 	atomic<weak_ptr<Room>> _room;
-
 
 protected:
 	bool _isPlayer = false;

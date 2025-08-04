@@ -23,9 +23,7 @@
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "InputMappingContext.h"
 
-// SSG: 옮겨야 함
-#include "GameFramework/PlayerController.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
+
 #include "Network/L1NetworkManager.h"
 
 
@@ -398,7 +396,6 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 			{
 				if (GetNetworkManager()->bConnected)
 				{
-					// SSG;
 					Protocol::C_MOVE MovePkt;
 					Protocol::PosInfo* Info = MovePkt.mutable_info();
 
@@ -409,24 +406,9 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 					GetNetworkManager()->SendPacket(MovePkt);
 				}
 				else {
-					Character->Destination = CachedDestination;
+					Character->SetDestInfo(CachedDestination);
 				}
-				
 			}
-
-			//if (Pawn != nullptr)
-			//{
-			//	if (ALyraCharacter* Character = Cast<ALyraCharacter>(Pawn))
-			//	{
-			//		Character->Destination = CachedDestination;
-			//	}
-
-
-			//	//UAIBlueprintHelperLibrary::SimpleMoveToLocation(Controller, CachedDestination);
-
-			//	//FVector WorldDirection = (CachedDestination - Pawn->GetActorLocation()).GetSafeNormal();
-			//	//Pawn->AddMovementInput(WorldDirection, 1.0, false);
-			//}
 		}
 	}
 }

@@ -13,6 +13,7 @@
 #include "System/LyraAssetManagerStartupJob.h"
 
 #include "Data/L1CharacterData.h"
+#include "Data/L1NetworkPawnData.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraAssetManager)
 
@@ -119,6 +120,11 @@ const UL1CharacterData& ULyraAssetManager::GetCharacterData()
 	return GetOrLoadTypedGameData<UL1CharacterData>(CharacterDataPath);
 }
 
+const UL1NetworkPawnData& ULyraAssetManager::GetNetworkPawnData()
+{
+	return GetOrLoadTypedGameData<UL1NetworkPawnData>(NetworkPawnDataPath);
+}
+
 void ULyraAssetManager::StartInitialLoading()
 {
 	SCOPED_BOOT_TIMING("ULyraAssetManager::StartInitialLoading");
@@ -131,6 +137,7 @@ void ULyraAssetManager::StartInitialLoading()
 	{
 		STARTUP_JOB_WEIGHTED(GetGameData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetCharacterData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetNetworkPawnData(), 25.f);
 	}
 
 	// Run all the queued up startup jobs

@@ -7,6 +7,8 @@
 #include "ServerPacketHandler.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/LyraCharacter.h"
+#include "System/LyraAssetManager.h"
+#include "Data/L1NetworkPawnData.h"
 
 void UL1NetworkManager::ConnectToGameServer()
 {
@@ -84,16 +86,17 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 		Player->SetActorLocation(SpawnLocation);
 
 		Player->SetPlayerInfo(ObjectInfo.pos_info());
-		Player->MyPlayer = true;
-		Player->objectId = ObjectId;
+		Player->SetDestInfo(ObjectInfo.pos_info());
+
 		MyPlayer = Player;
 		Players.Add(ObjectInfo.object_id(), Player);
 	}
 	else
 	{
-		ALyraCharacter* Player = Cast<ALyraCharacter>(World->SpawnActor(ALyraCharacter::StaticClass(), &SpawnLocation));
-		Player->objectId = ObjectId;
+		const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
+		ALyraCharacter* Player = Cast<ALyraCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
 		Player->SetPlayerInfo(ObjectInfo.pos_info());
+		Player->SetDestInfo(ObjectInfo.pos_info());
 		Players.Add(ObjectInfo.object_id(), Player);
 	}
 }
@@ -152,10 +155,5 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 	ALyraCharacter* Player = (*FindActor);
 	if (Player == nullptr) return;
 
-	FVector Destination = FVector(MovePkt.info().x(), MovePkt.info().y(), MovePkt.info().z());
-	Player->Destination = Destination;
-	//Player->SetActorLocation(Destination);
-	
-	const Protocol::PosInfo& Info = MovePkt.info();
-	Player->SetDestInfo(Info);
+	Player->SetDestInfo(MovePkt.info());
 }

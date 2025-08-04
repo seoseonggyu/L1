@@ -230,16 +230,12 @@ private:
 
 public:
 	void SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo);
+	void SetPlayerInfo(const FVector& InPlayerInfo);
 	void SetDestInfo(const Protocol::PosInfo& InDestInfo);
+	void SetDestInfo(const FVector& InDestInfo);
 
 public:
-	// SSG: 설정해야함
-	FVector Destination;
-
 	Protocol::PosInfo* PlayerInfo;	// 현재 위치
 	Protocol::PosInfo* DestInfo;	// 목적지
 
-	bool MyPlayer = false;
-	int32 objectId = 0;
-	
 };

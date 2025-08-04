@@ -19,15 +19,15 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 	bool success = AddObject(object);
 	if (randPos)
 	{
-		object->_posInfo->set_x(Utils::GetRandom(0.f, 100.f));
-		object->_posInfo->set_y(Utils::GetRandom(0.f, 100.f));
-		object->_posInfo->set_z(90.f);
-		object->_posInfo->set_yaw(Utils::GetRandom(0.f, 100.f));
+		float x = Utils::GetRandom(0.f, 100.f);
+		float y = Utils::GetRandom(0.f, 100.f);
+		float z = 90.f;
+		float yaw = Utils::GetRandom(0.f, 100.f);
 
-		// SSG: 
-		object->_location.x = object->_posInfo->x();
-		object->_location.y = object->_posInfo->y();
-		object->_location.z = object->_posInfo->z();
+		object->_posInfo->set_x(x);
+		object->_posInfo->set_y(y);
+		object->_posInfo->set_z(z);
+		object->_posInfo->set_yaw(yaw);
 	}
 
 	// 입장 사실을 신입 플레이어에게 알린다
@@ -128,28 +128,13 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 	if (_objects.find(objectId) == _objects.end())
 		return;
 
-	// 적용
 	PlayerRef player = dynamic_pointer_cast<Player>(_objects[objectId]);
-	player->_posInfo->CopyFrom(pkt.info());
-	player->_destination.x = pkt.info().x();
-	player->_destination.y = pkt.info().y();
-	player->_destination.z = pkt.info().z();
+	player->_destinationInfo->CopyFrom(pkt.info());
 
 	// SSG:
 	TestTick(player);
 
-	// 이동 사실을 알린다 (본인 포함? 빼고?)
-	{
-		/*Protocol::S_MOVE movePkt;
-		{
-			Protocol::PosInfo* info = movePkt.mutable_info();
-			info->CopyFrom(pkt.info());
-		}
-		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
-		Broadcast(sendBuffer);*/
-	}
 }
-
 
 void Room::TestTick(PlayerRef player)
 {
@@ -157,26 +142,36 @@ void Room::TestTick(PlayerRef player)
 	bool isTick = true;
 	float DeltaTime = 1.0f / 30.0f;
 
-	FVector3 ToDest = player->_destination - player->_location;
+	float destination_x = player->_destinationInfo->x();
+	float destination_y = player->_destinationInfo->y();
+	float destination_z = player->_destinationInfo->z();
+	FVector3 destination = FVector3(destination_x, destination_y, destination_z);
+
+	float location_x = player->_posInfo->x();
+	float location_y = player->_posInfo->y();
+	float location_z = player->_posInfo->z();
+	FVector3 location = FVector3(location_x, location_y, location_z);
+
+	FVector3 ToDest = destination - location;
 	float Distance = ToDest.Length();
 
 	FVector3 Direction = ToDest.Normalize();
 	float MoveDistance = 600.f * DeltaTime;
 
 	if (MoveDistance >= Distance) {
-		player->_location = player->_destination;
+		player->_posInfo->CopyFrom(*player->_destinationInfo);
 		isTick = false;
 	}
 	else {
-		player->_location = player->_location + Direction * MoveDistance;
+		location = location + Direction * MoveDistance;
+		player->_posInfo->set_x(location._x);
+		player->_posInfo->set_y(location._y);
+		player->_posInfo->set_z(location._z);
 	}
 
 	Protocol::S_MOVE movePkt;
 	Protocol::PosInfo* info = movePkt.mutable_info();
-	info->set_object_id(player->_posInfo->object_id());
-	info->set_x(player->_location.x);
-	info->set_y(player->_location.y);
-	info->set_z(player->_location.z);
+	info->CopyFrom(*player->_posInfo);
 	
 	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
 	Broadcast(sendBuffer);

@@ -10,6 +10,13 @@ struct FL1DefaultArmorMeshSet
 
 public:
 	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInterface> UpperBodySkinMaterial;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInterface> LowerBodySkinMaterial;
+
+public:
+	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<USkeletalMesh> HeadDefaultMesh;
 
 	UPROPERTY(EditDefaultsOnly)
