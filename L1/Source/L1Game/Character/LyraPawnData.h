@@ -13,7 +13,6 @@ class ULyraCameraMode;
 class ULyraInputConfig;
 class UObject;
 
-
 /**
  * ULyraPawnData
  *
@@ -31,22 +30,23 @@ public:
 public:
 
 	// Class to instantiate for this pawn (should usually derive from ALyraPawn or ALyraCharacter).
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Pawn")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Pawn")
 	TSubclassOf<APawn> PawnClass;
 
 	// Ability sets to grant to this pawn's ability system.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Abilities")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Abilities")
 	TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
 
 	// What mapping of ability tags to use for actions taking by this pawn
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Abilities")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Abilities")
 	TObjectPtr<ULyraAbilityTagRelationshipMapping> TagRelationshipMapping;
 
 	// Input configuration used by player controlled pawns to create input mappings and bind input actions.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Input")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Input")
 	TObjectPtr<ULyraInputConfig> InputConfig;
 
 	// Default camera mode used by player controlled pawns.
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Camera")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Camera")
 	TSubclassOf<ULyraCameraMode> DefaultCameraMode;
+
 };
