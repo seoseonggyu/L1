@@ -23,6 +23,8 @@ struct FGameplayTag;
 struct FInputActionValue;
 
 class UL1NetworkManager;
+class UNiagaraSystem;
+
 
 /**
  * Component that sets up input and camera handling for player controlled pawns (or bots that simulate players).
@@ -118,5 +120,11 @@ protected:
 
 protected:
 	UL1NetworkManager* GetNetworkManager() const;
+
+
+public:
+	// SSG: 위치를 옮겨야 함!
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Cursor")
+	UNiagaraSystem* FXCursor;
 
 };
