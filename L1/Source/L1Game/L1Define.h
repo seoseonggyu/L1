@@ -161,6 +161,10 @@ UENUM(BlueprintType, meta = (Bitflags))
 enum class ECharacterClassType : uint8
 {
 	Fighter,
+	Swordmaster,
+	Barbarian,
+	Wizard,
+	Archer,
 
 
 	Count	UMETA(Hidden)

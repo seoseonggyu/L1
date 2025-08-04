@@ -14,6 +14,7 @@
 
 #include "Data/L1CharacterData.h"
 #include "Data/L1ItemData.h"
+#include "Data/L1ClassData.h"
 #include "Data/L1NetworkPawnData.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraAssetManager)
@@ -126,6 +127,11 @@ const UL1ItemData& ULyraAssetManager::GetItemData()
 	return GetOrLoadTypedGameData<UL1ItemData>(ItemDataPath);
 }
 
+const UL1ClassData& ULyraAssetManager::GetClassData()
+{
+	return GetOrLoadTypedGameData<UL1ClassData>(ClassDataPath);
+}
+
 const UL1NetworkPawnData& ULyraAssetManager::GetNetworkPawnData()
 {
 	return GetOrLoadTypedGameData<UL1NetworkPawnData>(NetworkPawnDataPath);
@@ -143,7 +149,8 @@ void ULyraAssetManager::StartInitialLoading()
 	{
 		STARTUP_JOB_WEIGHTED(GetGameData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetCharacterData(), 25.f);
-		// STARTUP_JOB_WEIGHTED(GetItemData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetItemData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetClassData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetNetworkPawnData(), 25.f);
 	}
 
