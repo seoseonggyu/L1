@@ -25,6 +25,7 @@
 
 
 #include "Network/L1NetworkManager.h"
+#include "NiagaraFunctionLibrary.h"
 
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraHeroComponent)
@@ -408,6 +409,10 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 				else {
 					Character->SetDestInfo(CachedDestination);
 				}
+			}
+
+			if (bHitSuccessful) {
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 			}
 		}
 	}
