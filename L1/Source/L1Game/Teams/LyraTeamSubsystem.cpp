@@ -291,7 +291,9 @@ void ULyraTeamSubsystem::RemoveTeamTagStack(int32 TeamId, FGameplayTag Tag, int3
 		{
 			if (Entry->PublicInfo->HasAuthority())
 			{
-				Entry->PublicInfo->TeamTags.RemoveStack(Tag, StackCount);
+				// SSG
+				Entry->PublicInfo->TeamTags.RemoveStack(Tag);
+				//Entry->PublicInfo->TeamTags.RemoveStack(Tag, StackCount);
 			}
 			else
 			{

@@ -55,7 +55,7 @@ public:
 	void AddStack(FGameplayTag Tag, int32 StackCount);
 
 	// Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
-	void RemoveStack(FGameplayTag Tag, int32 StackCount);
+	void RemoveStack(FGameplayTag Tag);
 
 	// Returns the stack count of the specified tag (or 0 if the tag is not present)
 	int32 GetStackCount(FGameplayTag Tag) const

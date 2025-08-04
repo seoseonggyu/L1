@@ -107,6 +107,25 @@ enum class EWeaponHandType : uint8
 	Count	UMETA(Hidden)
 };
 
+UENUM(BlueprintType)
+enum class EUtilityType : uint8
+{
+	Drink,
+	LightSource,
+
+	Count	UMETA(Hidden)
+};
+
+UENUM(BlueprintType)
+enum class EUtilitySlotType : uint8
+{
+	Primary,
+	Secondary,
+	Tertiary,
+	Quaternary,
+
+	Count	UMETA(Hidden)
+};
 
 UENUM(BlueprintType)
 enum class EItemRarity : uint8

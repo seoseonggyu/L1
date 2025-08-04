@@ -39,6 +39,7 @@ protected:
 	FScalableFloat Quantity;
 
 	/** Which item to consume */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AbilityCost)
-	TSubclassOf<ULyraInventoryItemDefinition> ItemDefinition;
+	// SSG:
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AbilityCost)
+	//TSubclassOf<ULyraInventoryItemDefinition> ItemDefinition;
 };

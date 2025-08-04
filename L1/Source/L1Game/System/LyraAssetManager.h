@@ -12,6 +12,7 @@ class ULyraGameData;
 class ULyraPawnData;
 
 class UL1CharacterData;
+class UL1ItemData;
 class UL1NetworkPawnData;
 
 struct FLyraBundles
@@ -56,6 +57,7 @@ public:
 	const ULyraGameData& GetGameData();
 	const ULyraPawnData* GetDefaultPawnData() const;
 	const UL1CharacterData& GetCharacterData();
+	const UL1ItemData& GetItemData();
 	const UL1NetworkPawnData& GetNetworkPawnData();
 
 protected:
@@ -95,6 +97,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UL1CharacterData> CharacterDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UL1ItemData> ItemDataPath;
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UL1NetworkPawnData> NetworkPawnDataPath;

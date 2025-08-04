@@ -45,7 +45,7 @@ void FL1GameplayTagStackContainer::AddStack(FGameplayTag Tag, int32 StackCount)
 	}
 }
 
-void FL1GameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
+void FL1GameplayTagStackContainer::RemoveStack(FGameplayTag Tag)
 {
 	if (!Tag.IsValid())
 	{
@@ -53,29 +53,15 @@ void FL1GameplayTagStackContainer::RemoveStack(FGameplayTag Tag, int32 StackCoun
 		return;
 	}
 
-	//@TODO: Should we error if you try to remove a stack that doesn't exist or has a smaller count?
-	if (StackCount > 0)
+	for (auto It = Stacks.CreateIterator(); It; ++It)
 	{
-		for (auto It = Stacks.CreateIterator(); It; ++It)
+		FL1GameplayTagStack& Stack = *It;
+		if (Stack.Tag == Tag)
 		{
-			FL1GameplayTagStack& Stack = *It;
-			if (Stack.Tag == Tag)
-			{
-				if (Stack.StackCount <= StackCount)
-				{
-					It.RemoveCurrent();
-					TagToCountMap.Remove(Tag);
-					MarkArrayDirty();
-				}
-				else
-				{
-					const int32 NewCount = Stack.StackCount - StackCount;
-					Stack.StackCount = NewCount;
-					TagToCountMap[Tag] = NewCount;
-					MarkItemDirty(Stack);
-				}
-				return;
-			}
+			It.RemoveCurrent();
+			TagToCountMap.Remove(Tag);
+			MarkArrayDirty();
+			return;
 		}
 	}
 }
