@@ -5,6 +5,7 @@
 #include "Engine/AssetManager.h"
 #include "LyraAssetManagerStartupJob.h"
 #include "Templates/SubclassOf.h"
+#include "Data/L1AssetData.h"
 #include "LyraAssetManager.generated.h"
 
 class UPrimaryDataAsset;
@@ -43,14 +44,14 @@ public:
 	template<typename AssetType>
 	static AssetType* GetAssetByPath(const TSoftObjectPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
 
-	//template<typename AssetType>
-	//static AssetType* GetAssetByName(const FName& AssetName, bool bKeepInMemory = true);
+	template<typename AssetType>
+	static AssetType* GetAssetByName(const FName& AssetName, bool bKeepInMemory = true);
 
 	template<typename AssetType>
 	static TSubclassOf<AssetType> GetSubclassByPath(const TSoftClassPtr<AssetType>& AssetPointer, bool bKeepInMemory = true);
 
-	//template<typename AssetType>
-	//static TSubclassOf<AssetType> GetSubclassByName(const FName& AssetName, bool bKeepInMemory = true);
+	template<typename AssetType>
+	static TSubclassOf<AssetType> GetSubclassByName(const FName& AssetName, bool bKeepInMemory = true);
 
 	// Logs all assets currently loaded and tracked by the asset manager.
 	static void DumpLoadedAssets();
@@ -60,6 +61,7 @@ public:
 	const UL1CharacterData& GetCharacterData();
 	const UL1ItemData& GetItemData();
 	const UL1ClassData& GetClassData();
+	const UL1AssetData& GetAssetData();
 	const UL1NetworkPawnData& GetNetworkPawnData();
 
 protected:
@@ -105,6 +107,9 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UL1ClassData> ClassDataPath;
+
+	UPROPERTY(Config)
+	TSoftObjectPtr<UL1AssetData> AssetDataPath;
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UL1NetworkPawnData> NetworkPawnDataPath;
@@ -160,14 +165,14 @@ AssetType* ULyraAssetManager::GetAssetByPath(const TSoftObjectPtr<AssetType>& As
 	return LoadedAsset;
 }
 
-//template <typename AssetType>
-//AssetType* ULyraAssetManager::GetAssetByName(const FName& AssetName, bool bKeepInMemory)
-//{
-//	const UL1AssetData& AssetData = Get().GetAssetData();
-//	const FSoftObjectPath& AssetPath = AssetData.GetAssetPathByName(AssetName);
-//	TSoftObjectPtr<AssetType> AssetPtr(AssetPath);
-//	return GetAssetByPath<AssetType>(AssetPtr, bKeepInMemory);
-//}
+template <typename AssetType>
+AssetType* ULyraAssetManager::GetAssetByName(const FName& AssetName, bool bKeepInMemory)
+{
+	const UL1AssetData& AssetData = Get().GetAssetData();
+	const FSoftObjectPath& AssetPath = AssetData.GetAssetPathByName(AssetName);
+	TSoftObjectPtr<AssetType> AssetPtr(AssetPath);
+	return GetAssetByPath<AssetType>(AssetPtr, bKeepInMemory);
+}
 
 template<typename AssetType>
 TSubclassOf<AssetType> ULyraAssetManager::GetSubclassByPath(const TSoftClassPtr<AssetType>& AssetPointer, bool bKeepInMemory)
@@ -195,16 +200,16 @@ TSubclassOf<AssetType> ULyraAssetManager::GetSubclassByPath(const TSoftClassPtr<
 	return LoadedSubclass;
 }
 
-//template <typename AssetType>
-//TSubclassOf<AssetType> ULyraAssetManager::GetSubclassByName(const FName& AssetName, bool bKeepInMemory)
-//{
-//	const UL1AssetData& AssetData = Get().GetAssetData();
-//	const FSoftObjectPath& AssetPath = AssetData.GetAssetPathByName(AssetName);
-//
-//	FString AssetPathString = AssetPath.GetAssetPathString();
-//	AssetPathString.Append(TEXT("_C"));
-//
-//	FSoftClassPath ClassPath(AssetPathString);
-//	TSoftClassPtr<AssetType> ClassPtr(ClassPath);
-//	return GetSubclassByPath<AssetType>(ClassPtr, bKeepInMemory);
-//}
+template <typename AssetType>
+TSubclassOf<AssetType> ULyraAssetManager::GetSubclassByName(const FName& AssetName, bool bKeepInMemory)
+{
+	const UL1AssetData& AssetData = Get().GetAssetData();
+	const FSoftObjectPath& AssetPath = AssetData.GetAssetPathByName(AssetName);
+
+	FString AssetPathString = AssetPath.GetAssetPathString();
+	AssetPathString.Append(TEXT("_C"));
+
+	FSoftClassPath ClassPath(AssetPathString);
+	TSoftClassPtr<AssetType> ClassPtr(ClassPath);
+	return GetSubclassByPath<AssetType>(ClassPtr, bKeepInMemory);
+}
