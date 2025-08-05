@@ -562,15 +562,17 @@ void ALyraCharacter::OnRep_MyTeamID(FGenericTeamId OldTeamID)
 
 void ALyraCharacter::SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo)
 {
-	PlayerInfo->CopyFrom(InPlayerInfo);
+	if(PlayerInfo)
+		PlayerInfo->CopyFrom(InPlayerInfo);
 }
 
 void ALyraCharacter::SetPlayerInfo(const FVector& InPlayerInfo)
 {
-	PlayerInfo->set_x(InPlayerInfo.X);
-	PlayerInfo->set_y(InPlayerInfo.Y);
-	PlayerInfo->set_z(InPlayerInfo.Z);
-}
+	if (PlayerInfo) {
+		PlayerInfo->set_x(InPlayerInfo.X);
+		PlayerInfo->set_y(InPlayerInfo.Y);
+		PlayerInfo->set_z(InPlayerInfo.Z);
+	}}
 
 void ALyraCharacter::SetDestInfo(const Protocol::PosInfo& InDestInfo)
 {

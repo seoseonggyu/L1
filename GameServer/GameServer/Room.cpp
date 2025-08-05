@@ -19,8 +19,8 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 	bool success = AddObject(object);
 	if (randPos)
 	{
-		float x = Utils::GetRandom(0.f, 100.f);
-		float y = Utils::GetRandom(0.f, 100.f);
+		float x = Utils::GetRandom(0.f, 300.f);
+		float y = Utils::GetRandom(0.f, 300.f);
 		float z = 90.f;
 		float yaw = Utils::GetRandom(0.f, 100.f);
 
@@ -132,6 +132,8 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 	player->_destinationInfo->CopyFrom(pkt.info());
 
 	// SSG:
+	if (player->IsMove()) return;
+
 	TestTick(player);
 
 }
@@ -139,6 +141,9 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 void Room::TestTick(PlayerRef player)
 {
 	if (player == nullptr) return;
+	
+	player->SetMove(true);
+	
 	bool isTick = true;
 	float DeltaTime = 1.0f / 30.0f;
 
@@ -161,6 +166,7 @@ void Room::TestTick(PlayerRef player)
 	if (MoveDistance >= Distance) {
 		player->_posInfo->CopyFrom(*player->_destinationInfo);
 		isTick = false;
+		player->SetMove(false);
 	}
 	else {
 		location = location + Direction * MoveDistance;
