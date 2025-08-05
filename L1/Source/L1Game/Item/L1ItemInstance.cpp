@@ -1,13 +1,8 @@
 ﻿#include "L1ItemInstance.h"
 
-#if UE_WITH_IRIS
-#include "Iris/ReplicationSystem/ReplicationFragmentUtil.h"
-#endif // UE_WITH_IRIS
-
 #include "L1ItemTemplate.h"
 #include "L1LogChannels.h"
 #include "Data/L1ItemData.h"
-#include "Net/UnrealNetwork.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1ItemInstance)
 
@@ -17,14 +12,6 @@ UL1ItemInstance::UL1ItemInstance(const FObjectInitializer& ObjectInitializer)
     
 }
 
-void UL1ItemInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ThisClass, ItemTemplateID);
-	DOREPLIFETIME(ThisClass, ItemRarity);
-	DOREPLIFETIME(ThisClass, StatContainer);
-}
 
 float UL1ItemInstance::GetDistanceAttenuation(float Distance, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags) const
 {
@@ -53,14 +40,6 @@ void UL1ItemInstance::Init(int32 InItemTemplateID, EItemRarity InItemRarity)
 		}
 	}
 }
-
-#if UE_WITH_IRIS
-void UL1ItemInstance::RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags)
-{
-	using namespace UE::Net;
-	FReplicationFragmentUtil::CreateAndRegisterFragmentsForObject(this, Context, RegistrationFlags);
-}
-#endif // UE_WITH_IRIS
 
 void UL1ItemInstance::AddStatTagStack(FGameplayTag StatTag, int32 StackCount)
 {

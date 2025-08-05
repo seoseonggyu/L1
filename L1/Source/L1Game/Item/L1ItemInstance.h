@@ -27,8 +27,6 @@ public:
 	UL1ItemInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 public:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual bool IsSupportedForNetworking() const override { return true; }
 	virtual float GetDistanceAttenuation(float Distance, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr) const override;
 	virtual float GetPhysicalMaterialAttenuation(const UPhysicalMaterial* PhysicalMaterial, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr) const override;
 	
@@ -72,17 +70,12 @@ public:
 	}
 	
 private:
-#if UE_WITH_IRIS
-	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
-#endif // UE_WITH_IRIS
-	
-private:
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	int32 ItemTemplateID = INDEX_NONE;
 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	EItemRarity ItemRarity = EItemRarity::Poor;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	FL1GameplayTagStackContainer StatContainer;
 };
