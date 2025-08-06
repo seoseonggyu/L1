@@ -7,6 +7,7 @@
 
 class UL1ItemInstance;
 class UL1ItemTemplate;
+class UL1EquipManagerComponent;
 class ALyraCharacter;
 class ALyraPlayerController;
 
@@ -99,7 +100,7 @@ public:
 
 	ALyraCharacter* GetCharacter() const;
 	ALyraPlayerController* GetPlayerController() const;
-	// UL1EquipManagerComponent* GetEquipManager() const; // SSG: 
+	UL1EquipManagerComponent* GetEquipManager() const;
 
 	UL1ItemInstance* GetItemInstance(EEquipmentSlotType EquipmentSlotType) const;
 	int32 GetItemCount(EEquipmentSlotType EquipmentSlotType) const;

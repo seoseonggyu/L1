@@ -17,46 +17,9 @@ ULyraAbilityCost_ItemTagStack::ULyraAbilityCost_ItemTagStack()
 bool ULyraAbilityCost_ItemTagStack::CheckCost(const ULyraGameplayAbility* Ability, const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	return false;
-
-	// SSG: 
-	//if (const ULyraGameplayAbility_FromEquipment* EquipmentAbility = Cast<const ULyraGameplayAbility_FromEquipment>(Ability))
-	//{
-	//	if (ULyraInventoryItemInstance* ItemInstance = EquipmentAbility->GetAssociatedItem())
-	//	{
-	//		const int32 AbilityLevel = Ability->GetAbilityLevel(Handle, ActorInfo);
-
-	//		const float NumStacksReal = Quantity.GetValueAtLevel(AbilityLevel);
-	//		const int32 NumStacks = FMath::TruncToInt(NumStacksReal);
-	//		const bool bCanApplyCost = ItemInstance->GetStatTagStackCount(Tag) >= NumStacks;
-
-	//		// Inform other abilities why this cost cannot be applied
-	//		if (!bCanApplyCost && OptionalRelevantTags && FailureTag.IsValid())
-	//		{
-	//			OptionalRelevantTags->AddTag(FailureTag);				
-	//		}
-	//		return bCanApplyCost;
-	//	}
-	//}
-	//return false;
 }
 
 void ULyraAbilityCost_ItemTagStack::ApplyCost(const ULyraGameplayAbility* Ability, const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
-	// SSG: 
-	//if (ActorInfo->IsNetAuthority())
-	//{
-	//	if (const ULyraGameplayAbility_FromEquipment* EquipmentAbility = Cast<const ULyraGameplayAbility_FromEquipment>(Ability))
-	//	{
-	//		if (ULyraInventoryItemInstance* ItemInstance = EquipmentAbility->GetAssociatedItem())
-	//		{
-	//			const int32 AbilityLevel = Ability->GetAbilityLevel(Handle, ActorInfo);
-
-	//			const float NumStacksReal = Quantity.GetValueAtLevel(AbilityLevel);
-	//			const int32 NumStacks = FMath::TruncToInt(NumStacksReal);
-
-	//			ItemInstance->RemoveStatTagStack(Tag, NumStacks);
-	//		}
-	//	}
-	//}
 }
 

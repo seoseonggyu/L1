@@ -96,6 +96,7 @@ public:
 	ALyraCharacter* GetCharacter() const;
 	ALyraPlayerController* GetPlayerController() const;
 	
+	TArray<FL1EquipEntry>& GetEntries();
 	UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	UL1EquipmentManagerComponent* GetEquipmentManager() const;
 

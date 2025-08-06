@@ -4,6 +4,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Data/L1ItemData.h"
+#include "Item/Managers/L1EquipManagerComponent.h"
 #include "Item/Fragments/L1ItemFragment_Equipable_Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "System/LyraAssetManager.h"
@@ -49,15 +50,14 @@ void AL1EquipmentBase::Destroyed()
 			SkillAbilitySetHandles.TakeFromAbilitySystem(ASC);
 		}
 
-		// SSG: 
-		/*if (UL1EquipManagerComponent* EquipManager = Character->FindComponentByClass<UL1EquipManagerComponent>())
+		if (UL1EquipManagerComponent* EquipManager = Character->FindComponentByClass<UL1EquipManagerComponent>())
 		{
-			TArray<FL1EquipEntry>& Entries = EquipManager->GetAllEntries();
+			TArray<FL1EquipEntry>& Entries = EquipManager->GetEntries();
 			if (Entries[(int32)EquipmentSlotType].GetEquipmentActor() == this)
 			{
 				Entries[(int32)EquipmentSlotType].SetEquipmentActor(nullptr);
 			}
-		}*/
+		}
 	}
 
 	Super::Destroyed();
@@ -77,14 +77,13 @@ void AL1EquipmentBase::ChangeBlockState(bool bShouldBlock)
 
 void AL1EquipmentBase::EquipmentSlot()
 {
-	// SSG: 
-	/*if (GetOwner() && GetOwner()->FindComponentByClass<UL1EquipManagerComponent>())
+	if (GetOwner() && GetOwner()->FindComponentByClass<UL1EquipManagerComponent>())
 	{
 		if (ALyraCharacter* Character = Cast<ALyraCharacter>(GetOwner()))
 		{
 			if (UL1EquipManagerComponent* EquipManager = Character->FindComponentByClass<UL1EquipManagerComponent>())
 			{
-				TArray<FL1EquipEntry>& Entries = EquipManager->GetAllEntries();
+				TArray<FL1EquipEntry>& Entries = EquipManager->GetEntries();
 				Entries[(int32)EquipmentSlotType].SetEquipmentActor(this);
 			}
 		}
@@ -92,7 +91,7 @@ void AL1EquipmentBase::EquipmentSlot()
 	else
 	{
 		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::EquipmentSlot);
-	}*/
+	}
 }
 
 void AL1EquipmentBase::CanBlock()

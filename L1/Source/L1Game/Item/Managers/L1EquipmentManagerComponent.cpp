@@ -1,6 +1,7 @@
 ﻿#include "L1EquipmentManagerComponent.h"
 
 #include "Character/LyraCharacter.h"
+#include "Item/Managers/L1EquipManagerComponent.h"
 #include "Item/Fragments/L1ItemFragment_Equipable_Weapon.h"
 #include "Item/Fragments/L1ItemFragment_Equipable_Armor.h"
 #include "Item/L1ItemInstance.h"
@@ -12,10 +13,9 @@ void FL1EquipmentEntry::Init(UL1ItemInstance* InItemInstance, int32 InItemCount)
 
 	check(InItemInstance && InItemCount > 0);
 
-	// SSG: 
-	//UL1EquipManagerComponent* EquipManager = EquipmentManager->GetEquipManager();
-	//if (EquipManager == nullptr)
-		//return;
+	UL1EquipManagerComponent* EquipManager = EquipmentManager->GetEquipManager();
+	if (EquipManager == nullptr)
+		return;
 
 	const UL1ItemFragment_Equipable* EquippableFragment = InItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable>();
 	if (EquippableFragment == nullptr)
@@ -23,8 +23,7 @@ void FL1EquipmentEntry::Init(UL1ItemInstance* InItemInstance, int32 InItemCount)
 
 	if (ItemInstance)
 	{
-		// SSG:
-		// EquipManager->Unequip(EquipmentSlotType);
+		EquipManager->Unequip(EquipmentSlotType);
 	}
 
 	ItemInstance = InItemInstance;
@@ -32,35 +31,31 @@ void FL1EquipmentEntry::Init(UL1ItemInstance* InItemInstance, int32 InItemCount)
 	const UL1ItemTemplate& ItemTemplate = UL1ItemData::Get().FindItemTemplateByID(ItemInstance->GetItemTemplateID());
 	ItemCount = FMath::Clamp(InItemCount, 1, ItemTemplate.MaxStackCount);
 
-	// SSG: 
-	/*if (EquippableFragment->EquipmentType == EEquipmentType::Armor || EquipmentManager->IsSameEquipState(EquipmentSlotType, EquipManager->GetCurrentEquipState()))
+	if (EquippableFragment->EquipmentType == EEquipmentType::Armor || EquipmentManager->IsSameEquipState(EquipmentSlotType, EquipManager->GetCurrentEquipState()))
 	{
 		EquipManager->Equip(EquipmentSlotType, ItemInstance);
-	}*/
+	}
 }
 
 UL1ItemInstance* FL1EquipmentEntry::Reset()
 {
-	// SSG: 
-	/*UL1EquipManagerComponent* EquipManager = EquipmentManager->GetEquipManager();
+	UL1EquipManagerComponent* EquipManager = EquipmentManager->GetEquipManager();
 	if (EquipManager == nullptr)
-		return nullptr;*/
+		return nullptr;
 
 	if (ItemInstance)
 	{
-		// SSG: 
-		// EquipManager->Unequip(EquipmentSlotType);
+		EquipManager->Unequip(EquipmentSlotType);
 	}
 
 	UL1ItemInstance* RemovedItemInstance = ItemInstance;
 	ItemInstance = nullptr;
 	ItemCount = 0;
 	
-	// SSG: 
-	//if (EquipmentManager->IsAllEmpty(EquipManager->GetCurrentEquipState()))
-	//{
-	//	EquipManager->ChangeEquipState(EEquipState::Unarmed);
-	//}
+	if (EquipmentManager->IsAllEmpty(EquipManager->GetCurrentEquipState()))
+	{
+		EquipManager->ChangeEquipState(EEquipState::Unarmed);
+	}
 
 	return RemovedItemInstance;
 }
@@ -173,8 +168,7 @@ void UL1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 	AddedItemInstance->Init(ItemTemplateID, ItemRarity);
 	Entry.Init(AddedItemInstance, ItemCount);
 
-	// SSG: 
-	/*if (IsWeaponSlot(EquipmentSlotType))
+	if (IsWeaponSlot(EquipmentSlotType))
 	{
 		if (UL1EquipManagerComponent* EquipManager = GetEquipManager())
 		{
@@ -185,7 +179,7 @@ void UL1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 				EquipManager->ChangeEquipState(EquipState);
 			}
 		}
-	}*/
+	}
 }
 
 bool UL1EquipmentManagerComponent::IsWeaponSlot(EEquipmentSlotType EquipmentSlotType)
@@ -285,7 +279,7 @@ const UL1ItemInstance* UL1EquipmentManagerComponent::FindPairItemInstance(const 
 	else if (BaseEquippableFragment->EquipmentType == EEquipmentType::Armor)
 	{
 		const UL1ItemFragment_Equipable_Armor* BaseArmorFragment = Cast<UL1ItemFragment_Equipable_Armor>(BaseEquippableFragment);
-		// OutEquipmentSlotType = UL1EquipManagerComponent::ConvertToEquipmentSlotType(BaseArmorFragment->ArmorType); // SSG: 
+		OutEquipmentSlotType = UL1EquipManagerComponent::ConvertToEquipmentSlotType(BaseArmorFragment->ArmorType); 
 		SelectedItemInstance = GetItemInstance(OutEquipmentSlotType);
 	}
 
@@ -305,9 +299,8 @@ bool UL1EquipmentManagerComponent::IsAllEmpty(EEquipState EquipState) const
 	if (EquipState == EEquipState::Unarmed)
 		return false;
 
-	// SSG: 
 	bool bAllEmpty = true;
-	/*for (EEquipmentSlotType SlotType : UL1EquipManagerComponent::GetEquipmentSlotsByEquipState(EquipState))
+	for (EEquipmentSlotType SlotType : UL1EquipManagerComponent::GetEquipmentSlotsByEquipState(EquipState))
 	{
 		const FL1EquipmentEntry& Entry = Entries[(int32)SlotType];
 		if (Entry.ItemInstance)
@@ -315,7 +308,7 @@ bool UL1EquipmentManagerComponent::IsAllEmpty(EEquipState EquipState) const
 			bAllEmpty = false;
 			break;
 		}
-	}*/
+	}
 	return bAllEmpty;
 }
 
@@ -331,6 +324,16 @@ ALyraPlayerController* UL1EquipmentManagerComponent::GetPlayerController() const
 		return LyraCharacter->GetLyraPlayerController();
 	}
 	return nullptr;
+}
+
+UL1EquipManagerComponent* UL1EquipmentManagerComponent::GetEquipManager() const
+{
+	UL1EquipManagerComponent* EquipManager = nullptr;
+	if (ALyraCharacter* Character = GetCharacter())
+	{
+		EquipManager = Character->FindComponentByClass<UL1EquipManagerComponent>();
+	}
+	return EquipManager;
 }
 
 UL1ItemInstance* UL1EquipmentManagerComponent::GetItemInstance(EEquipmentSlotType EquipmentSlotType) const

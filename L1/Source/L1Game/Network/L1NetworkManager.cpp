@@ -10,6 +10,12 @@
 #include "System/LyraAssetManager.h"
 #include "Data/L1NetworkPawnData.h"
 
+// SSG:
+#include "Data/L1ClassData.h"
+#include "Item/Managers/L1EquipmentManagerComponent.h"
+#include "AbilitySystem/LyraAbilitySystemComponent.h"
+#include "Player/LyraPlayerState.h"
+
 void UL1NetworkManager::ConnectToGameServer()
 {
 	Socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(TEXT("Stream"), TEXT("Client Socket"));
@@ -58,6 +64,43 @@ void UL1NetworkManager::SendPacket(SendBufferRef SendBuffer)
 		return;
 
 	GameServerSession->SendPacket(SendBuffer);
+}
+
+// SSG: 
+void UL1NetworkManager::SelectClass(ECharacterClassType ClassType)
+{
+	if (ClassType == ECharacterClassType::Count || ClassType == CharacterClassType)
+		return;
+
+	CharacterClassType = ClassType;
+	const FL1ClassInfoEntry& ClassEntry = UL1ClassData::Get().GetClassInfoEntry(CharacterClassType);
+
+	auto* PC = UGameplayStatics::GetPlayerController(this, 0);
+	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(PC->GetPawn());
+	if (LyraCharacter)
+	{
+		if (UL1EquipmentManagerComponent* EquipmentManager = LyraCharacter->GetComponentByClass<UL1EquipmentManagerComponent>())
+		{
+			for (const FL1DefaultItemEntry& DefaultItemEntry : ClassEntry.DefaultItemEntries)
+			{
+				EquipmentManager->SetEquipment(DefaultItemEntry.EquipmentSlotType, DefaultItemEntry.ItemTemplateClass, DefaultItemEntry.ItemRarity, DefaultItemEntry.ItemCount);
+			}
+		}
+	}
+	
+	if (LyraCharacter)
+	{
+		if (ALyraPlayerState* PlayerState = Cast<ALyraPlayerState>(LyraCharacter->GetPlayerState()))
+		{
+			ULyraAbilitySystemComponent* AbilitySystemComponent = Cast<ULyraAbilitySystemComponent>(PlayerState->GetAbilitySystemComponent());
+			AbilitySetGrantedHandles.TakeFromAbilitySystem(AbilitySystemComponent);
+			if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)
+			{
+				AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySetGrantedHandles, this);
+			}
+		}
+	}
+
 }
 
 void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool IsMine)

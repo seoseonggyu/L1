@@ -11,7 +11,7 @@ struct FL1WeaponAttachInfo
 	GENERATED_BODY()
 
 public:
-	// SSG: 
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AL1EquipmentBase> SpawnWeaponClass;
 

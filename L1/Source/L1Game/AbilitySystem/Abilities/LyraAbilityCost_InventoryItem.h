@@ -12,7 +12,6 @@ struct FGameplayAbilityActivationInfo;
 struct FGameplayAbilitySpecHandle;
 
 class ULyraGameplayAbility;
-class ULyraInventoryItemDefinition;
 class UObject;
 struct FGameplayAbilityActorInfo;
 struct FGameplayTagContainer;
@@ -37,9 +36,4 @@ protected:
 	/** How much of the item to spend (keyed on ability level) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AbilityCost)
 	FScalableFloat Quantity;
-
-	/** Which item to consume */
-	// SSG:
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=AbilityCost)
-	//TSubclassOf<ULyraInventoryItemDefinition> ItemDefinition;
 };

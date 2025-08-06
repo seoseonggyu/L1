@@ -6,6 +6,8 @@
 #include "Protocol.pb.h"
 #include "PacketUtils.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "L1Define.h"
+#include "AbilitySystem/LyraAbilitySet.h" // SSG: 
 #include "L1NetworkManager.generated.h"
 
 class ALyraCharacter;
@@ -28,6 +30,12 @@ public:
 
 	template<typename T>
 	void SendPacket(T packet) const;
+
+	UFUNCTION(BlueprintCallable) // SSG: 테스트 하기 위한 용도
+	void SelectClass(ECharacterClassType ClassType);
+	UPROPERTY() // SSG: 테스트 하기 위한 용도
+	ECharacterClassType CharacterClassType = ECharacterClassType::Count;
+	FLyraAbilitySet_GrantedHandles AbilitySetGrantedHandles; // SSG: 테스트 하기 위한 용도
 
 public:
 	void HandleSpawn(const Protocol::ObjectInfo& PlayerInfo, bool IsMine);

@@ -425,6 +425,11 @@ ALyraPlayerController* UL1EquipManagerComponent::GetPlayerController() const
 	return nullptr;
 }
 
+TArray<FL1EquipEntry>& UL1EquipManagerComponent::GetEntries()
+{
+	return Entries;
+}
+
 UAbilitySystemComponent* UL1EquipManagerComponent::GetAbilitySystemComponent() const
 {
 	return UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetOwner());
