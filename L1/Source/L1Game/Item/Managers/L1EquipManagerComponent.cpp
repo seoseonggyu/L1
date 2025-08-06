@@ -58,8 +58,8 @@ void FL1EquipEntry::Equip()
 		ASC->RemoveActiveGameplayEffect(BaseStatHandle);
 		BaseStatHandle.Invalidate();
 
-		// Add Current Stat
-		const TSubclassOf<UGameplayEffect> AttributeModifierGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().AttributeModifierGameplayEffect);
+		// Add Current Stat // SSG: 스탯은 아직 넣지는 않는다
+		/*const TSubclassOf<UGameplayEffect> AttributeModifierGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().AttributeModifierGameplayEffect);
 		check(AttributeModifierGE);
 
 		const FGameplayEffectContextHandle ContextHandle = ASC->MakeEffectContext();
@@ -77,6 +77,7 @@ void FL1EquipEntry::Equip()
 		}
 
 		BaseStatHandle = ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+		*/
 	}
 
 	if (EquippableFragment->EquipmentType == EEquipmentType::Weapon || EquippableFragment->EquipmentType == EEquipmentType::Utility)
