@@ -305,7 +305,7 @@ void ULyraHealthComponent::DamageSelfDestruct(bool bFellOutOfWorld)
 
 		const float DamageAmount = GetMaxHealth();
 
-		Spec->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Damage, DamageAmount);
+		Spec->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseDamage, DamageAmount);
 		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec);
 	}
 }

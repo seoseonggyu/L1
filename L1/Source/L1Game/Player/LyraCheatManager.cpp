@@ -308,7 +308,7 @@ void ULyraCheatManager::ApplySetByCallerDamage(ULyraAbilitySystemComponent* Lyra
 
 	if (SpecHandle.IsValid())
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Damage, DamageAmount);
+		SpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseDamage, DamageAmount);
 		LyraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }
@@ -344,7 +344,7 @@ void ULyraCheatManager::ApplySetByCallerHeal(ULyraAbilitySystemComponent* LyraAS
 
 	if (SpecHandle.IsValid())
 	{
-		SpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Heal, HealAmount);
+		SpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseHealth, HealAmount);
 		LyraASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 	}
 }

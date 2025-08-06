@@ -12,8 +12,8 @@ struct FL1WeaponAttachInfo
 
 public:
 	// SSG: 
-	/*UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AL1EquipmentBase> SpawnWeaponClass;*/
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AL1EquipmentBase> SpawnWeaponClass;
 
 	UPROPERTY(EditDefaultsOnly)
 	FName AttachSocket;

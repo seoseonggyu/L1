@@ -23,9 +23,10 @@ struct FL1GameplayTagStack : public FFastArraySerializerItem
 
 	FL1GameplayTagStack(FGameplayTag InTag, int32 InStackCount)
 		: Tag(InTag)
-		, StackCount(InStackCount)
-	{
-	}
+		, StackCount(InStackCount) { }
+public:
+	const FGameplayTag& GetStackTag() const { return Tag; }
+	int32 GetStackCount() const { return StackCount; }
 
 	FString GetDebugString() const;
 
@@ -51,17 +52,13 @@ struct FL1GameplayTagStackContainer : public FFastArraySerializer
 	}
 
 public:
-	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
 	void AddStack(FGameplayTag Tag, int32 StackCount);
-
-	// Removes a specified number of stacks from the tag (does nothing if StackCount is below 1)
 	void RemoveStack(FGameplayTag Tag);
 
-	// Returns the stack count of the specified tag (or 0 if the tag is not present)
-	int32 GetStackCount(FGameplayTag Tag) const
-	{
-		return TagToCountMap.FindRef(Tag);
-	}
+public:
+	const TArray<FL1GameplayTagStack>& GetStacks() const { return Stacks; }
+
+	int32 GetStackCount(FGameplayTag Tag) const { return TagToCountMap.FindRef(Tag); }
 
 	// Returns true if there is at least one stack of the specified tag
 	bool ContainsTag(FGameplayTag Tag) const
