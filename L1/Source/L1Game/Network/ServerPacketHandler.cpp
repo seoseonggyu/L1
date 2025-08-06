@@ -29,7 +29,7 @@ bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
 	
 	// 로비에서 캐릭터 선택해서 인덱스 전송.
 	Protocol::C_ENTER_GAME EnterGamePkt;
-	EnterGamePkt.set_class_type(Protocol::CHARACTER_CLASS_TYPE_WIZARD); // SSG: 캐릭터 직업 선택 임시로
+	EnterGamePkt.set_class_type(Protocol::CHARACTER_CLASS_TYPE_WIZARD); // TEMP: 캐릭터 직업 선택 임시로
 	EnterGamePkt.set_playerindex(0);
 
 	if (const UL1NetworkManager* GameNetwork = GetWorldNetwork(session))

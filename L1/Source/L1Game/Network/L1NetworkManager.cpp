@@ -6,16 +6,13 @@
 #include "Protocol.pb.h"
 #include "ServerPacketHandler.h"
 #include "Kismet/GameplayStatics.h"
-#include "Character/LyraCharacter.h"
+#include "L1NetworkCharacter.h"
 #include "System/LyraAssetManager.h"
-#include "Data/L1NetworkPawnData.h"
-#include "Network/NetworkUtils.h"
-
-// SSG:
 #include "Data/L1ClassData.h"
+#include "Data/L1NetworkPawnData.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
-#include "Player/LyraPlayerState.h"
+#include "Network/NetworkUtils.h"
 
 void UL1NetworkManager::ConnectToGameServer()
 {
@@ -36,7 +33,7 @@ void UL1NetworkManager::ConnectToGameServer()
 
 		GameServerSession = MakeShared<PacketSession>(Socket);
 		GameServerSession->Run();
-
+		
 		{
 			Protocol::C_LOGIN Pkt;
 			SendBufferRef SendBuffer = ServerPacketHandler::MakeSendBuffer(Pkt);
@@ -68,20 +65,19 @@ void UL1NetworkManager::SendPacket(SendBufferRef SendBuffer)
 	GameServerSession->SendPacket(SendBuffer);
 }
 
-// SSG: 
-void UL1NetworkManager::SelectClass(ECharacterClassType ClassType)
+void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
 {
-	if (ClassType == ECharacterClassType::Count || ClassType == CharacterClassType)
+	if (ClassType == ECharacterClassType::Count || ClassType == Character->CharacterClassType)
 		return;
 
-	CharacterClassType = ClassType;
-	const FL1ClassInfoEntry& ClassEntry = UL1ClassData::Get().GetClassInfoEntry(CharacterClassType);
+	if (!Character) return;
 
-	auto* PC = UGameplayStatics::GetPlayerController(this, 0);
-	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(PC->GetPawn());
-	if (LyraCharacter)
+	Character->CharacterClassType = ClassType;
+	const FL1ClassInfoEntry& ClassEntry = UL1ClassData::Get().GetClassInfoEntry(Character->CharacterClassType);
+
+	if (Character)
 	{
-		if (UL1EquipmentManagerComponent* EquipmentManager = LyraCharacter->GetComponentByClass<UL1EquipmentManagerComponent>())
+		if (UL1EquipmentManagerComponent* EquipmentManager = Character->GetComponentByClass<UL1EquipmentManagerComponent>())
 		{
 			for (const FL1DefaultItemEntry& DefaultItemEntry : ClassEntry.DefaultItemEntries)
 			{
@@ -90,16 +86,14 @@ void UL1NetworkManager::SelectClass(ECharacterClassType ClassType)
 		}
 	}
 	
-	if (LyraCharacter)
+	if (Character)
 	{
-		if (ALyraPlayerState* PlayerState = Cast<ALyraPlayerState>(LyraCharacter->GetPlayerState()))
+		ULyraAbilitySystemComponent* AbilitySystemComponent = Cast<ULyraAbilitySystemComponent>(Character->GetAbilitySystemComponent());
+
+		Character->AbilitySetGrantedHandles.TakeFromAbilitySystem(AbilitySystemComponent);
+		if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)
 		{
-			ULyraAbilitySystemComponent* AbilitySystemComponent = Cast<ULyraAbilitySystemComponent>(PlayerState->GetAbilitySystemComponent());
-			AbilitySetGrantedHandles.TakeFromAbilitySystem(AbilitySystemComponent);
-			if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)
-			{
-				AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &AbilitySetGrantedHandles, this);
-			}
+			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &Character->AbilitySetGrantedHandles, this);
 		}
 	}
 
@@ -120,46 +114,34 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 
 	FVector SpawnLocation(ObjectInfo.pos_info().x(), ObjectInfo.pos_info().y(), ObjectInfo.pos_info().z());
 
+	ALyraCharacter* Player = nullptr;
+	ECharacterClassType ClassType = NetworkUtils::ConvertProtoToUEEnum(ObjectInfo.character_classtype());
+
+
 	if (IsMine)
 	{
 		auto* PC = UGameplayStatics::GetPlayerController(this, 0);
-		ALyraCharacter* Player = Cast<ALyraCharacter>(PC->GetPawn());
+		Player = Cast<ALyraCharacter>(PC->GetPawn());
 		if (Player == nullptr)
 			return;
 
-		Player->SetActorLocation(SpawnLocation);
-
-		Player->SetPlayerInfo(ObjectInfo.pos_info());
-		Player->SetDestInfo(ObjectInfo.pos_info());
-
 		MyPlayer = Player;
-		Players.Add(ObjectInfo.object_id(), Player);
-
-		// SSG: 임시 적용 캐릭터 클래스
-		ECharacterClassType ClassType = NetworkUtils::ConvertProtoToUEEnum(ObjectInfo.character_classtype());
-		SelectClass(ClassType);
 	}
 	else
 	{
 		const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
-		ALyraCharacter* Player = Cast<ALyraCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
+		Player = Cast<AL1NetworkCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
+	}
+
+	if (Player)
+	{
+		Players.Add(ObjectInfo.object_id(), Player);
+		
+		Player->SetActorLocation(SpawnLocation);
 		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		Player->SetDestInfo(ObjectInfo.pos_info());
-		Players.Add(ObjectInfo.object_id(), Player);
 
-		// SSG: 임시 적용
-		if (Player)
-		{
-			ECharacterClassType ClassType = NetworkUtils::ConvertProtoToUEEnum(ObjectInfo.character_classtype());
-			const FL1ClassInfoEntry& ClassEntry = UL1ClassData::Get().GetClassInfoEntry(ClassType);
-			if (UL1EquipmentManagerComponent* EquipmentManager = Player->GetComponentByClass<UL1EquipmentManagerComponent>())
-			{
-				for (const FL1DefaultItemEntry& DefaultItemEntry : ClassEntry.DefaultItemEntries)
-				{
-					EquipmentManager->SetEquipment(DefaultItemEntry.EquipmentSlotType, DefaultItemEntry.ItemTemplateClass, DefaultItemEntry.ItemRarity, DefaultItemEntry.ItemCount);
-				}
-			}
-		}
+		SelectClass(ClassType, Player);
 	}
 }
 

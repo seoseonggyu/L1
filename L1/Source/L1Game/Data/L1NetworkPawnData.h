@@ -22,7 +22,6 @@ public:
 
 public:
 
-	// Class to instantiate for this pawn (should usually derive from ALyraPawn or ALyraCharacter).
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|NetworkPawn")
 	TSubclassOf<APawn> PawnClass;
 };

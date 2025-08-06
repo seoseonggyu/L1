@@ -9,6 +9,9 @@
 #include "Teams/LyraTeamAgentInterface.h"
 #include "Protocol.pb.h"
 
+#include "L1Define.h"
+#include "AbilitySystem/LyraAbilitySet.h"
+
 #include "LyraCharacter.generated.h"
 
 class AActor;
@@ -27,8 +30,6 @@ class UObject;
 struct FFrame;
 struct FGameplayTag;
 struct FGameplayTagContainer;
-
-Protocol::PosInfo;
 
 /**
  * FLyraReplicatedAcceleration: Compressed representation of acceleration
@@ -110,7 +111,7 @@ public:
 	ALyraPlayerState* GetLyraPlayerState() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Lyra|Character")
-	ULyraAbilitySystemComponent* GetLyraAbilitySystemComponent() const;
+	virtual ULyraAbilitySystemComponent* GetLyraAbilitySystemComponent() const;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	virtual void GetOwnedGameplayTags(FGameplayTagContainer& TagContainer) const override;
@@ -237,5 +238,10 @@ public:
 public:
 	Protocol::PosInfo* PlayerInfo;	// 현재 위치
 	Protocol::PosInfo* DestInfo;	// 목적지
+
+	UPROPERTY()
+	ECharacterClassType CharacterClassType = ECharacterClassType::Count;
+	
+	FLyraAbilitySet_GrantedHandles AbilitySetGrantedHandles;
 
 };
