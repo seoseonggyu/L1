@@ -27,8 +27,7 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 
 bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 {
-	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session));
-
+	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session), pkt.class_type());
 	GRoom->DoAsync(&Room::HandleEnterPlayer, player);
 
 	return true;

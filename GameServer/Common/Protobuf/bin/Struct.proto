@@ -15,6 +15,7 @@ message PosInfo
 
 message ObjectInfo
 {
-	uint64		object_id = 1;
-	PosInfo		pos_info = 2;
+	uint64				object_id			= 1;
+	CharacterClassType  character_classType = 2;
+	PosInfo				pos_info			= 3;
 }

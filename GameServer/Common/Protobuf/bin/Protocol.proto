@@ -1,6 +1,7 @@
 syntax = "proto3";
 package Protocol;
 
+import "Enum.proto";
 import "Struct.proto";
 
 // C_ : 클라에서 서버한테 보내기
@@ -20,6 +21,7 @@ message S_LOGIN
 message C_ENTER_GAME
 {
 	uint64 playerIndex = 1;
+	CharacterClassType class_type = 2; // SSG: 캐릭터 클래스 선택 임시로
 }
 
 message S_ENTER_GAME

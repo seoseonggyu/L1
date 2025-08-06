@@ -26,17 +26,10 @@ bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len)
 
 bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
 {
-	for (auto& Player : pkt.players())
-	{
-	}
-
-	for (int32 i = 0; i < pkt.players_size(); i++)
-	{
-		const Protocol::ObjectInfo& Player = pkt.players(i);
-	}
-
+	
 	// 로비에서 캐릭터 선택해서 인덱스 전송.
 	Protocol::C_ENTER_GAME EnterGamePkt;
+	EnterGamePkt.set_class_type(Protocol::CHARACTER_CLASS_TYPE_WIZARD); // SSG: 캐릭터 직업 선택 임시로
 	EnterGamePkt.set_playerindex(0);
 
 	if (const UL1NetworkManager* GameNetwork = GetWorldNetwork(session))

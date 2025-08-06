@@ -9,6 +9,7 @@
 #include "Character/LyraCharacter.h"
 #include "System/LyraAssetManager.h"
 #include "Data/L1NetworkPawnData.h"
+#include "Network/NetworkUtils.h"
 
 // SSG:
 #include "Data/L1ClassData.h"
@@ -26,12 +27,13 @@ void UL1NetworkManager::ConnectToGameServer()
 	InternetAddr->SetIp(Ip.Value);
 	InternetAddr->SetPort(Port);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Connecting To Server...")));
 
 	bConnected = Socket->Connect(*InternetAddr);
 
 	if (bConnected)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Success Coneect To Server")));
+
 		GameServerSession = MakeShared<PacketSession>(Socket);
 		GameServerSession->Run();
 
@@ -112,7 +114,6 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 	if (World == nullptr)
 		return;
 
-	// 중복 처리 체크
 	const uint64 ObjectId = ObjectInfo.object_id();
 	if (Players.Find(ObjectId) != nullptr)
 		return;
@@ -133,6 +134,10 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 
 		MyPlayer = Player;
 		Players.Add(ObjectInfo.object_id(), Player);
+
+		// SSG: 임시 적용 캐릭터 클래스
+		ECharacterClassType ClassType = NetworkUtils::ConvertProtoToUEEnum(ObjectInfo.character_classtype());
+		SelectClass(ClassType);
 	}
 	else
 	{
@@ -141,6 +146,20 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		Player->SetDestInfo(ObjectInfo.pos_info());
 		Players.Add(ObjectInfo.object_id(), Player);
+
+		// SSG: 임시 적용
+		if (Player)
+		{
+			ECharacterClassType ClassType = NetworkUtils::ConvertProtoToUEEnum(ObjectInfo.character_classtype());
+			const FL1ClassInfoEntry& ClassEntry = UL1ClassData::Get().GetClassInfoEntry(ClassType);
+			if (UL1EquipmentManagerComponent* EquipmentManager = Player->GetComponentByClass<UL1EquipmentManagerComponent>())
+			{
+				for (const FL1DefaultItemEntry& DefaultItemEntry : ClassEntry.DefaultItemEntries)
+				{
+					EquipmentManager->SetEquipment(DefaultItemEntry.EquipmentSlotType, DefaultItemEntry.ItemTemplateClass, DefaultItemEntry.ItemRarity, DefaultItemEntry.ItemCount);
+				}
+			}
+		}
 	}
 }
 
