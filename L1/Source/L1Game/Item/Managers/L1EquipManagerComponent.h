@@ -12,6 +12,8 @@ class UL1ItemInstance;
 class UL1EquipManagerComponent;
 class UL1EquipmentManagerComponent;
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnEquipStateChanged, EEquipState, EEquipState);
+
 USTRUCT(BlueprintType)
 struct FL1EquipEntry
 {
@@ -66,14 +68,79 @@ class UL1EquipManagerComponent : public UPawnComponent
 	GENERATED_BODY()
 
 public:
-	ALyraCharacter* GetCharacter() const;
-	ALyraPlayerController* GetPlayerController() const;
+	UL1EquipManagerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	UAbilitySystemComponent* GetAbilitySystemComponent() const;
+protected:
+	virtual void InitializeComponent() override;
+	virtual void UninitializeComponent() override;
 
-	bool ShouldHiddenEquipments() const { return bShouldHiddenEquipments; }
+public:
+	void Equip(EEquipmentSlotType EquipmentSlotType, UL1ItemInstance* ItemInstance);
+	void Unequip(EEquipmentSlotType EquipmentSlotType);
+
+	void EquipCurrentSlots();
+	void UnequipCurrentSlots();
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void ChangeEquipState(EEquipState NewEquipState);
+
+	UFUNCTION(BlueprintCallable)
+	bool CanChangeEquipState(EEquipState NewEquipState) const;
 
 private:
+	UFUNCTION()
+	void CurrentEquip(EEquipState PrevEquipState);
+
+public:
+	ALyraCharacter* GetCharacter() const;
+	ALyraPlayerController* GetPlayerController() const;
+	
+	UAbilitySystemComponent* GetAbilitySystemComponent() const;
+	UL1EquipmentManagerComponent* GetEquipmentManager() const;
+
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EWeaponHandType WeaponHandType, EEquipState EquipState);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EWeaponHandType WeaponHandType, EWeaponSlotType WeaponSlotType);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EArmorType ArmorType);
+	static EEquipmentSlotType ConvertToEquipmentSlotType(EUtilitySlotType UtilitySlotType);
+
+	static EWeaponSlotType ConvertToWeaponSlotType(EEquipmentSlotType EquipmentSlotType);
+	static EWeaponHandType ConvertToWeaponHandType(EEquipmentSlotType EquipmentSlotType);
+	static EArmorType ConvertToArmorType(EEquipmentSlotType EquipmentSlotType);
+	static EUtilitySlotType ConvertToUtilitySlotType(EEquipmentSlotType EquipmentSlotType);
+	static EEquipState ConvertToEquipState(EWeaponSlotType WeaponSlotType);
+	static EEquipState ConvertToEquipState(EUtilitySlotType UtilitySlotType);
+
+	static bool IsWeaponEquipState(EEquipState EquipState);
+	static bool IsUtilityEquipState(EEquipState EquipState);
+
+	static const TArray<EEquipmentSlotType>& GetEquipmentSlotsByEquipState(EEquipState EquipState);
+
+	UFUNCTION(BlueprintCallable)
+	void ChangeShouldHiddenEquipments(bool bNewShouldHiddenEquipments);
+
+	bool ShouldHiddenEquipments() const { return bShouldHiddenEquipments; }
+	EEquipState GetCurrentEquipState() const { return CurrentEquipState; }
+
+	AL1EquipmentBase* GetFirstEquippedActor() const;
+	AL1EquipmentBase* GetEquippedActor(EWeaponHandType WeaponHandType) const;
+	void GetAllEquippedActors(TArray<AL1EquipmentBase*>& OutActors) const;
+
+	UL1ItemInstance* GetFirstEquippedItemInstance(bool bIgnoreArmor = true) const;
+	UL1ItemInstance* GetEquippedItemInstance(EArmorType ArmorType) const;
+	UL1ItemInstance* GetEquippedItemInstance(EWeaponHandType WeaponHandType) const;
+	UL1ItemInstance* GetEquippedItemInstance(EEquipmentSlotType EquipmentSlotType) const;
+
+public:
+	FOnEquipStateChanged OnEquipStateChanged;
+
+private:
+	UPROPERTY()
+	TArray<FL1EquipEntry> Entries;
+
+	UPROPERTY()
+	EEquipState CurrentEquipState = EEquipState::Count;
+
 	UPROPERTY()
 	bool bShouldHiddenEquipments = false;
 };
