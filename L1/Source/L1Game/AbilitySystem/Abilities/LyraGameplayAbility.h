@@ -210,4 +210,14 @@ protected:
 
 	// Current camera mode set by the ability.
 	TSubclassOf<ULyraCameraMode> ActiveCameraMode;
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Ability")
+	TObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Ability")
+	FText Name;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Ability")
+	FText Description;
 };

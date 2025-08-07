@@ -17,6 +17,7 @@ struct FGameplayAbilityTargetDataHandle;
 
 L1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Gameplay_AbilityInputBlocked);
 
+
 /**
  * ULyraAbilitySystemComponent
  *

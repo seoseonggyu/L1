@@ -15,6 +15,8 @@
 #include "Data/L1CharacterData.h"
 #include "Data/L1ItemData.h"
 #include "Data/L1ClassData.h"
+#include "Data/L1UIData.h"
+#include "Data/L1CheatData.h"
 #include "Data/L1NetworkPawnData.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraAssetManager)
@@ -135,6 +137,18 @@ const UL1ClassData& ULyraAssetManager::GetClassData()
 const UL1AssetData& ULyraAssetManager::GetAssetData()
 {
 	return GetOrLoadTypedGameData<UL1AssetData>(AssetDataPath);
+}
+
+const UL1UIData& ULyraAssetManager::GetUIData()
+{
+	return GetOrLoadTypedGameData<UL1UIData>(UIDataPath);
+
+}
+
+const UL1CheatData& ULyraAssetManager::GetCheatData()
+{
+	return GetOrLoadTypedGameData<UL1CheatData>(CheatDataPath);
+
 }
 
 const UL1NetworkPawnData& ULyraAssetManager::GetNetworkPawnData()
