@@ -80,6 +80,7 @@ public class L1Game : ModuleRules
 				"AudioModulation",
 				"EngineSettings",
 				"DTLSHandlerComponent",
+				"PocketWorlds",
 
                 "ProtobufCore",
             }
