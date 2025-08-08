@@ -67,7 +67,6 @@ public:
 	const UL1UIData& GetUIData();
 	const UL1CheatData& GetCheatData();
 
-
 	const UL1NetworkPawnData& GetNetworkPawnData();
 
 
@@ -123,7 +122,6 @@ protected:
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UL1CheatData> CheatDataPath;
-
 
 	UPROPERTY(Config)
 	TSoftObjectPtr<UL1NetworkPawnData> NetworkPawnDataPath;

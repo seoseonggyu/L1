@@ -64,38 +64,40 @@ void ALyraPlayerController::BeginPlay()
 	Super::BeginPlay();
 	SetActorHiddenInGame(false);
 
-
-	// SSG: 옮겨야 함
+	// SSG: 마우스 처리 옮겨야 함
+	/*
 	{
-		const ULocalPlayer* LocalPlayer = GetLocalPlayer();
-		if (!LocalPlayer)
+		if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 		{
-			return;
-		}
+			if (!LocalPlayer)
+			{
+				return;
+			}
 
-		UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>();
-		if (!ActionRouter)
-		{
-			return;
-		}
+			UCommonUIActionRouterBase* ActionRouter = LocalPlayer->GetSubsystem<UCommonUIActionRouterBase>();
+			if (!ActionRouter)
+			{
+				return;
+			}
 
-		const ECommonInputMode& CommonInputMode = ECommonInputMode::All;
-		FUIInputConfig InputConfig;
-		if (CommonInputMode == ECommonInputMode::Game)
-		{
-			// Game mode means invisible mouse, permanently captured
-			constexpr bool bHideCursorDuringViewportCapture = true;
-			InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown, bHideCursorDuringViewportCapture);
-		}
-		else
-		{
-			// Menu or All modes mean visible mouse, not permanently captured
-			constexpr bool bHideCursorDuringViewportCapture = false;
-			InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CaptureDuringMouseDown, bHideCursorDuringViewportCapture);
-		}
+			const ECommonInputMode& CommonInputMode = ECommonInputMode::All;
+			FUIInputConfig InputConfig;
+			if (CommonInputMode == ECommonInputMode::Game)
+			{
+				// Game mode means invisible mouse, permanently captured
+				constexpr bool bHideCursorDuringViewportCapture = true;
+				InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CapturePermanently_IncludingInitialMouseDown, bHideCursorDuringViewportCapture);
+			}
+			else
+			{
+				// Menu or All modes mean visible mouse, not permanently captured
+				constexpr bool bHideCursorDuringViewportCapture = false;
+				InputConfig = FUIInputConfig(CommonInputMode, EMouseCaptureMode::CaptureDuringMouseDown, bHideCursorDuringViewportCapture);
+			}
 
-		ActionRouter->SetActiveUIInputConfig(InputConfig);
-	}
+			ActionRouter->SetActiveUIInputConfig(InputConfig);
+		}
+	}*/
 }
 
 void ALyraPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
