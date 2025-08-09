@@ -15,8 +15,8 @@
 // #include "AbilitySystem/Attributes/L1CombatSet.h" // SSG: 
 #include "Character/LyraCharacter.h"
 #include "Player/LyraPlayerController.h"
-//#include "PocketWorld/L1PocketStage.h"			// SSG: 
-//#include "PocketWorld/L1PocketWorldSubsystem.h"	// SSG: 
+#include "PocketWorld/L1PocketStage.h"
+#include "PocketWorld/L1PocketWorldSubsystem.h"
 #include "System/L1GameplayTagStack.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
@@ -102,85 +102,79 @@ void FL1EquipEntry::Equip()
 			NewWeaponActor->FinishSpawning(FTransform::Identity, true);
 		}
 	}
-	/*else
-		// SSG: 포켓 월드
-	
+	if (EquippableFragment->EquipmentType == EEquipmentType::Weapon || EquippableFragment->EquipmentType == EEquipmentType::Utility)
 	{
-		if (EquippableFragment->EquipmentType == EEquipmentType::Weapon || EquippableFragment->EquipmentType == EEquipmentType::Utility)
+		if (Character->IsLocallyControlled())
 		{
-			if (Character->IsLocallyControlled())
+			// Despawn Previous Pocket Weapon
+			if (IsValid(SpawnedPocketWorldActor))
 			{
-				// Despawn Previous Pocket Weapon
-				if (IsValid(SpawnedPocketWorldActor))
-				{
-					SpawnedPocketWorldActor->Destroy();
-				}
+				SpawnedPocketWorldActor->Destroy();
+			}
 
-				// Spawn Current Pocket Weapon
-				const UL1ItemFragment_Equipable_Attachment* AttachmentFragment = ItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable_Attachment>();
-				if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
+			// Spawn Current Pocket Weapon
+			const UL1ItemFragment_Equipable_Attachment* AttachmentFragment = ItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable_Attachment>();
+			if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
+			{
+				if (APlayerController* PC = Character->GetLyraPlayerController())
 				{
-					if (APlayerController* PC = Character->GetLyraPlayerController())
-					{
-						PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
-							FGetPocketStageDelegate::CreateLambda([this, AttachmentFragment](AL1PocketStage* PocketStage)
+					PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
+						FGetPocketStageDelegate::CreateLambda([this, AttachmentFragment](AL1PocketStage* PocketStage)
+							{
+								if (IsValid(PocketStage))
 								{
-									if (IsValid(PocketStage))
-									{
-										ACharacter* Character = PocketStage->GetCharacter();
-										const FL1WeaponAttachInfo& AttachInfo = AttachmentFragment->WeaponAttachInfo;
+									ACharacter* Character = PocketStage->GetCharacter();
+									const FL1WeaponAttachInfo& AttachInfo = AttachmentFragment->WeaponAttachInfo;
 
-										UWorld* World = EquipManager->GetWorld();
-										SpawnedPocketWorldActor = World->SpawnActorDeferred<AL1EquipmentBase>(AttachInfo.SpawnWeaponClass, FTransform::Identity, Character);
-										SpawnedPocketWorldActor->SetActorRelativeTransform(AttachInfo.AttachTransform);
-										SpawnedPocketWorldActor->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, AttachInfo.AttachSocket);
-										SpawnedPocketWorldActor->bOnlyUseForLocal = true;
-										SpawnedPocketWorldActor->FinishSpawning(FTransform::Identity, true);
+									UWorld* World = EquipManager->GetWorld();
+									SpawnedPocketWorldActor = World->SpawnActorDeferred<AL1EquipmentBase>(AttachInfo.SpawnWeaponClass, FTransform::Identity, Character);
+									SpawnedPocketWorldActor->SetActorRelativeTransform(AttachInfo.AttachTransform);
+									SpawnedPocketWorldActor->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, AttachInfo.AttachSocket);
+									SpawnedPocketWorldActor->FinishSpawning(FTransform::Identity, true);
 
-										PocketStage->RefreshLightingChannelToActors();
+									PocketStage->RefreshLightingChannelToActors();
 
-										UAnimMontage* PocketWorldIdleMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->PocketWorldIdleMontage);
-										Character->PlayAnimMontage(PocketWorldIdleMontage);
-									}
-								})
-						);
-					}
+									UAnimMontage* PocketWorldIdleMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->PocketWorldIdleMontage);
+									Character->PlayAnimMontage(PocketWorldIdleMontage);
+								}
+							})
+					);
 				}
 			}
 		}
-		else if (EquippableFragment->EquipmentType == EEquipmentType::Armor)
+	}
+	else if (EquippableFragment->EquipmentType == EEquipmentType::Armor)
+	{
+		// Refresh Real Armor Mesh
+		const UL1ItemFragment_Equipable_Armor* ArmorFragment = ItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable_Armor>();
+		if (UL1CosmeticManagerComponent* CharacterCosmetics = Character->FindComponentByClass<UL1CosmeticManagerComponent>())
 		{
-			// Refresh Real Armor Mesh
-			const UL1ItemFragment_Equipable_Armor* ArmorFragment = ItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable_Armor>();
-			if (UL1CosmeticManagerComponent* CharacterCosmetics = Character->FindComponentByClass<UL1CosmeticManagerComponent>())
-			{
-				CharacterCosmetics->RefreshArmorMesh(ArmorFragment->ArmorType, ArmorFragment);
-			}
+			CharacterCosmetics->RefreshArmorMesh(ArmorFragment->ArmorType, ArmorFragment);
+		}
 
-			// Refresh Pocket Armor Mesh
-			if (Character->IsLocallyControlled())
+		// Refresh Pocket Armor Mesh
+		if (Character->IsLocallyControlled())
+		{
+			if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
 			{
-				if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
+				if (APlayerController* PC = Character->GetLyraPlayerController())
 				{
-					if (APlayerController* PC = Character->GetLyraPlayerController())
-					{
-						PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
-							FGetPocketStageDelegate::CreateLambda([ArmorFragment](AL1PocketStage* PocketStage)
+					PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
+						FGetPocketStageDelegate::CreateLambda([ArmorFragment](AL1PocketStage* PocketStage)
+							{
+								if (IsValid(PocketStage))
 								{
-									if (IsValid(PocketStage))
+									if (UL1CosmeticManagerComponent* CosmeticManager = PocketStage->GetCosmeticManager())
 									{
-										if (UL1CosmeticManagerComponent* CosmeticManager = PocketStage->GetCosmeticManager())
-										{
-											CosmeticManager->RefreshArmorMesh(ArmorFragment->ArmorType, ArmorFragment);
-										}
+										CosmeticManager->RefreshArmorMesh(ArmorFragment->ArmorType, ArmorFragment);
 									}
-								})
-						);
-					}
+								}
+							})
+					);
 				}
 			}
 		}
-	}*/
+	}
 
 	if (EquippableFragment->EquipmentType == EEquipmentType::Weapon || EquippableFragment->EquipmentType == EEquipmentType::Utility)
 	{
@@ -228,8 +222,7 @@ void FL1EquipEntry::Unequip()
 			SpawnedEquipmentActor->Destroy();
 		}
 	}
-	// SSG: 포켓 월드
-	/*else
+	else
 	{
 		if (ALyraCharacter* Character = EquipManager->GetCharacter())
 		{
@@ -293,7 +286,6 @@ void FL1EquipEntry::Unequip()
 			}
 		}
 	}
-	*/
 }
 
 UL1EquipManagerComponent::UL1EquipManagerComponent(const FObjectInitializer& ObjectInitializer)

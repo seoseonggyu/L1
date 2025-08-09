@@ -77,4 +77,12 @@ private:
 
 private:
 	EWeaponSlotType WeaponSlotType = EWeaponSlotType::Count;
+
+public:
+	// SSG: 아이템 옮기기 테스트 함수
+	UFUNCTION(BlueprintCallable)
+	void InventoryToEquipment(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType);
+	UFUNCTION(BlueprintCallable)
+	void EquipmentToEquipment(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType);
+
 };

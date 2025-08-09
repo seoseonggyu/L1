@@ -4,7 +4,7 @@
 #include "Actors/L1ArmorBase.h"
 #include "Character/LyraCharacter.h"
 #include "Data/L1CharacterData.h"
-//#include "Item/Fragments/L1ItemFragment_Equipable_Armor.h"
+#include "Item/Fragments/L1ItemFragment_Equipable_Armor.h"
 #include "System/LyraAssetManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1CosmeticManagerComponent)
@@ -40,14 +40,14 @@ void UL1CosmeticManagerComponent::EndPlay(const EEndPlayReason::Type EndPlayReas
 	Super::EndPlay(EndPlayReason);
 }
 
-void UL1CosmeticManagerComponent::RefreshArmorMesh(EArmorType ArmorType/*, const UL1ItemFragment_Equipable_Armor* ArmorFragment*/)
+void UL1CosmeticManagerComponent::RefreshArmorMesh(EArmorType ArmorType, const UL1ItemFragment_Equipable_Armor* ArmorFragment)
 {
 	if (ArmorType == EArmorType::Count)
 		return;
 	
 	InitializeManager();
 	
-	/*if (ArmorFragment)
+	if (ArmorFragment)
 	{
 		if (ArmorFragment == nullptr || ArmorFragment->ArmorType != ArmorType)
 			return;
@@ -75,7 +75,7 @@ void UL1CosmeticManagerComponent::RefreshArmorMesh(EArmorType ArmorType/*, const
 			}
 		}
 	}
-	else*/
+	else
 	{
 		if (ArmorType == EArmorType::Chest)
 		{

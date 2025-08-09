@@ -77,9 +77,8 @@ bool UL1EquipmentSlotSingleWidget::NativeOnDragOver(const FGeometry& InGeometry,
 		return false;
 	
 	if (UL1InventoryManagerComponent* FromInventoryManager = ItemDragDrop->FromInventoryManager)
-	{
-		// SSG: 
-		/*if (EquipmentManager->GetItemInstance(ToEquipmentSlotType))
+	{ 
+		if (EquipmentManager->GetItemInstance(ToEquipmentSlotType))
 		{
 			FIntPoint OutToItemSlotPos;
 			bIsValid = EquipmentManager->CanSwapEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, ToEquipmentSlotType, OutToItemSlotPos);
@@ -87,18 +86,18 @@ bool UL1EquipmentSlotSingleWidget::NativeOnDragOver(const FGeometry& InGeometry,
 		else
 		{
 			bIsValid = EquipmentManager->CanMoveOrMergeEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, ToEquipmentSlotType) > 0;
-		}*/
+		}
 	}
 	else if (UL1EquipmentManagerComponent* FromEquipmentManager = ItemDragDrop->FromEquipmentManager)
 	{
-		/*if (EquipmentManager->GetItemInstance(ToEquipmentSlotType))
+		if (EquipmentManager->GetItemInstance(ToEquipmentSlotType))
 		{
 			bIsValid = EquipmentManager->CanSwapEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, ToEquipmentSlotType);
 		}
 		else
 		{
 			bIsValid = EquipmentManager->CanMoveOrMergeEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, ToEquipmentSlotType) > 0;
-		}*/
+		}
 	}
 	
 	if (bIsValid)

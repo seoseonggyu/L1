@@ -52,6 +52,14 @@ void UL1InventoryManagerComponent::InitializeComponent()
 	}
 }
 
+void UL1InventoryManagerComponent::BroadcastChangedMessage(const FIntPoint& ItemSlotPos, UL1ItemInstance* ItemInstance, int32 ItemCount)
+{
+	if (OnInventoryEntryChanged.IsBound())
+	{
+		OnInventoryEntryChanged.Broadcast(ItemSlotPos, ItemInstance, ItemCount);
+	}
+}
+
 int32 UL1InventoryManagerComponent::CanMoveOrMergeItem(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos) const
 {
 	if (OtherComponent == nullptr)
@@ -421,6 +429,8 @@ void UL1InventoryManagerComponent::AddItem_Unsafe(const FIntPoint& ItemSlotPos, 
 		Entry.Init(ItemInstance, ItemCount);
 		MarkSlotChecks(true, ItemSlotPos, ItemTemplate.SlotCount);
 	}
+
+	BroadcastChangedMessage(ItemSlotPos, ItemInstance, ItemCount);
 }
 
 UL1ItemInstance* UL1InventoryManagerComponent::RemoveItem_Unsafe(const FIntPoint& ItemSlotPos, int32 ItemCount)
@@ -439,6 +449,7 @@ UL1ItemInstance* UL1InventoryManagerComponent::RemoveItem_Unsafe(const FIntPoint
 		UL1ItemInstance* RemovedItemInstance = Entry.Reset();
 	}
 
+	BroadcastChangedMessage(ItemSlotPos, Entry.GetItemInstance(), ItemCount);
 	return ItemInstance;
 }
 

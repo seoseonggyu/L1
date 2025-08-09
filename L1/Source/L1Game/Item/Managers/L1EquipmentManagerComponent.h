@@ -8,6 +8,7 @@
 class UL1ItemInstance;
 class UL1ItemTemplate;
 class UL1EquipManagerComponent;
+class UL1InventoryManagerComponent;
 class ALyraCharacter;
 class ALyraPlayerController;
 
@@ -56,26 +57,28 @@ public:
 protected:
 	virtual void InitializeComponent() override;
 
-	// SSG: 
-//public:
-//	int32 CanMoveOrMergeEquipment(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType) const;
-//	int32 CanMoveOrMergeEquipment(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType ToEquipmentSlotType) const;
-//
-//	int32 CanMoveOrMergeEquipment_Quick(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType& OutToEquipmentSlotType) const;
-//	int32 CanMoveOrMergeEquipment_Quick(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType& OutToEquipmentSlotType) const;
-//	int32 CanMoveOrMergeEquipment_Quick(int32 FromItemTemplateID, EItemRarity FromItemRarity, int32 FromItemCount, EEquipmentSlotType& OutToEquipmentSlotType) const;
-//
-//	bool CanSwapEquipment(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType) const;
-//	bool CanSwapEquipment(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType ToEquipmentSlotType, FIntPoint& OutToItemSlotPos);
-//
-//	bool CanSwapEquipment_Quick(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType& OutToEquipmentSlotType) const;
-//	bool CanSwapEquipment_Quick(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType& OutToEquipmentSlotType, FIntPoint& OutToItemSlotPos);
-//
-//	int32 CanAddEquipment(int32 ItemTemplateID, EItemRarity ItemRarity, int32 ItemCount, EEquipmentSlotType ToEquipmentSlotType) const;
-//
-//public:
-//	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
-//	void AddUnarmedEquipments(TSubclassOf<UL1ItemTemplate> LeftHandClass, TSubclassOf<UL1ItemTemplate> RightHandClass);
+private:
+	void BroadcastChangedMessage(EEquipmentSlotType EquipmentSlotType, UL1ItemInstance* ItemInstance, int32 ItemCount); // SSG: 테스트 용도
+
+public:
+	int32 CanMoveOrMergeEquipment(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType) const;
+	int32 CanMoveOrMergeEquipment(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType ToEquipmentSlotType) const;
+
+	int32 CanMoveOrMergeEquipment_Quick(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType& OutToEquipmentSlotType) const;
+	int32 CanMoveOrMergeEquipment_Quick(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType& OutToEquipmentSlotType) const;
+	int32 CanMoveOrMergeEquipment_Quick(int32 FromItemTemplateID, EItemRarity FromItemRarity, int32 FromItemCount, EEquipmentSlotType& OutToEquipmentSlotType) const;
+
+	bool CanSwapEquipment(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType) const;
+	bool CanSwapEquipment(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType ToEquipmentSlotType, FIntPoint& OutToItemSlotPos);
+
+	bool CanSwapEquipment_Quick(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType& OutToEquipmentSlotType) const;
+	bool CanSwapEquipment_Quick(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, EEquipmentSlotType& OutToEquipmentSlotType, FIntPoint& OutToItemSlotPos);
+
+	int32 CanAddEquipment(int32 ItemTemplateID, EItemRarity ItemRarity, int32 ItemCount, EEquipmentSlotType ToEquipmentSlotType) const;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void AddUnarmedEquipments(TSubclassOf<UL1ItemTemplate> LeftHandClass, TSubclassOf<UL1ItemTemplate> RightHandClass);
 
 public:
 	void AddEquipment_Unsafe(EEquipmentSlotType EquipmentSlotType, UL1ItemInstance* ItemInstance, int32 ItemCount);

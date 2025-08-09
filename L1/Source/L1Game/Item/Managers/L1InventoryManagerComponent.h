@@ -46,6 +46,9 @@ public:
 protected:
 	virtual void InitializeComponent() override;
 
+private:
+	void BroadcastChangedMessage(const FIntPoint& ItemSlotPos, UL1ItemInstance* ItemInstance, int32 ItemCount); // SSG: 아이템 옮기기 테스트
+
 public:
 	int32 CanMoveOrMergeItem(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos) const;
 	int32 CanMoveOrMergeItem(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, const FIntPoint& ToItemSlotPos) const;
@@ -66,7 +69,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	bool TryRemoveItem(int32 ItemTemplateID, int32 ItemCount);
 
-private:
+public: // SSG: private에서 public으로 일단 열어놈
 	void AddItem_Unsafe(const FIntPoint& ItemSlotPos, UL1ItemInstance* ItemInstance, int32 ItemCount);
 	UL1ItemInstance* RemoveItem_Unsafe(const FIntPoint& ItemSlotPos, int32 ItemCount);
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿ #pragma once
 
 #include "CommonActivatableWidget.h"
 #include "L1ActivatableWidget.generated.h"

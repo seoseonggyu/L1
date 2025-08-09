@@ -21,7 +21,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 public:
-	void RefreshArmorMesh(EArmorType ArmorType/*, const UL1ItemFragment_Equipable_Armor* ArmorFragment*/);
+	void RefreshArmorMesh(EArmorType ArmorType, const UL1ItemFragment_Equipable_Armor* ArmorFragment);
 	void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const;
 
 private:

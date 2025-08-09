@@ -20,6 +20,8 @@
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/Equipment/L1EquipmentEntryWidget.h"
 
+#include "Item/Managers/L1InventoryManagerComponent.h" // SSG: 
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1InventorySlotsWidget)
 
 UL1InventorySlotsWidget::UL1InventorySlotsWidget(const FObjectInitializer& ObjectInitializer)
@@ -141,18 +143,19 @@ bool UL1InventorySlotsWidget::NativeOnDrop(const FGeometry& InGeometry, const FD
 	DragDrop->ToInventoryManager = InventoryManager;
     DragDrop->ToItemSlotPos = ToItemSlotPos;
 
-	// SSG: 
-	/*UL1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UL1ItemManagerComponent>();
-	check(ItemManager);
-	
-	if (UL1InventoryManagerComponent* FromInventoryManager = DragDrop->FromInventoryManager)
+
+	// SSG: 아이템 옮기기 테스트
 	{
-		ItemManager->Server_InventoryToInventory(FromInventoryManager, DragDrop->FromItemSlotPos, InventoryManager, ToItemSlotPos);
+		if (UL1InventoryManagerComponent* FromInventoryManager = DragDrop->FromInventoryManager)
+		{
+			InventoryToInventory(FromInventoryManager, DragDrop->FromItemSlotPos, InventoryManager, ToItemSlotPos);
+		}
+		else if (UL1EquipmentManagerComponent* FromEquipmentManager = DragDrop->FromEquipmentManager)
+		{
+			EquipmentToInventory(FromEquipmentManager, DragDrop->FromEquipmentSlotType, InventoryManager, ToItemSlotPos);
+		}
 	}
-	else if (UL1EquipmentManagerComponent* FromEquipmentManager = DragDrop->FromEquipmentManager)
-	{
-		ItemManager->Server_EquipmentToInventory(FromEquipmentManager, DragDrop->FromEquipmentSlotType, InventoryManager, ToItemSlotPos);
-	}*/
+
 	return true;
 }
 
@@ -264,4 +267,36 @@ void UL1InventorySlotsWidget::OnInventoryEntryChanged(const FIntPoint& InItemSlo
 const FGeometry& UL1InventorySlotsWidget::GetSlotContainerGeometry() const
 {
 	return Overlay_Slots->GetCachedGeometry();
+}
+
+// SSG: 아이템 옮기기 테스트 함수
+void UL1InventorySlotsWidget::EquipmentToInventory(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
+{
+	if (FromEquipmentManager == nullptr || ToInventoryManager == nullptr)
+		return;
+
+	int32 MovableCount = ToInventoryManager->CanMoveOrMergeItem(FromEquipmentManager, FromEquipmentSlotType, ToItemSlotPos);
+	if (MovableCount > 0)
+	{
+		UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
+		ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
+	}
+}
+
+// SSG: 아이템 옮기기 테스트 함수
+void UL1InventorySlotsWidget::InventoryToInventory(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
+{
+	if (FromInventoryManager == nullptr || ToInventoryManager == nullptr)
+		return;
+
+	if (FromInventoryManager == ToInventoryManager && FromItemSlotPos == ToItemSlotPos)
+		return;
+
+	int32 MovableCount = ToInventoryManager->CanMoveOrMergeItem(FromInventoryManager, FromItemSlotPos, ToItemSlotPos);
+	if (MovableCount > 0)
+	{
+		UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
+		ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
+	}
+
 }

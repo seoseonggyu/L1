@@ -36,6 +36,8 @@ struct FGameplayEventData;
 UENUM(BlueprintType)
 enum class ELyraAbilityActivationPolicy : uint8
 {
+	Manual,
+	
 	// Try to activate the ability when the input is triggered.
 	OnInputTriggered,
 

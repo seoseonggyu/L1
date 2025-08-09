@@ -4,6 +4,7 @@
 #include "Components/GameFrameworkComponentDelegates.h"
 #include "Logging/MessageLog.h"
 #include "Input/LyraMappableConfigPair.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "L1LogChannels.h"
 #include "EnhancedInputSubsystems.h"
 #include "Player/LyraPlayerController.h"
@@ -290,6 +291,9 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 
 					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_SetDestination, ETriggerEvent::Started, this, &ThisClass::Input_SetDestination, /*bLogIfNotFound=*/ false);
 
+
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Primary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Weapon_Primary, /*bLogIfNotFound=*/ false);
+
 				}
 			}
 		}
@@ -416,6 +420,13 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 			}
 		}
 	}
+}
+
+void ULyraHeroComponent::Input_ChangeEquip_Weapon_Primary()
+{
+	FGameplayEventData Payload;
+	Payload.EventMagnitude = (int32)EEquipState::Weapon_Primary;
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
 }
 
 TSubclassOf<ULyraCameraMode> ULyraHeroComponent::DetermineCameraMode() const
