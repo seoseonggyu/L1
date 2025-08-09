@@ -31,6 +31,8 @@ public:
 	template<typename T>
 	void SendPacket(T packet) const;
 
+	void SendPacket_SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
+
 	UFUNCTION(BlueprintCallable)
 	void SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
 

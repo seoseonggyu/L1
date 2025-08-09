@@ -9,6 +9,8 @@
 #include "Components/Button.h"
 #include "Data/L1ClassData.h"
 #include "Player/LyraPlayerState.h"
+#include "Network/L1NetworkManager.h"
+#include "Character/LyraCharacter.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1ClassEntryWidget)
 
@@ -30,8 +32,7 @@ void UL1ClassEntryWidget::InitializeUI(UL1ClassSelectionWidget* OwnerWidget, ECh
 	
 	if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)
 	{
-		// SSG: 
-		/*const TArray<FLyraAbilitySet_GameplayAbility>& AbilitySetAbilities = AbilitySet->GetGrantedGameplayAbilities();
+		const TArray<FLyraAbilitySet_GameplayAbility>& AbilitySetAbilities = AbilitySet->GetGrantedGameplayAbilities();
 		for (int i = 0; i < 2; i++)
 		{
 			if (AbilitySetAbilities.IsValidIndex(i))
@@ -41,7 +42,7 @@ void UL1ClassEntryWidget::InitializeUI(UL1ClassSelectionWidget* OwnerWidget, ECh
 				SkillEntryWidget->InitializeUI(AbilitySetAbility.Ability);
 				VerticalBox_SkillElements->AddChild(SkillEntryWidget);
 			}
-		}*/
+		}
 	}
 
 	Button_Class->OnClicked.AddUniqueDynamic(this, &ThisClass::OnButtonClicked);
@@ -51,7 +52,16 @@ void UL1ClassEntryWidget::OnButtonClicked()
 {
 	if (ALyraPlayerState* LyraPlayerState = Cast<ALyraPlayerState>(GetOwningPlayerState()))
 	{
-		// LyraPlayerState->Server_SelectClass(CachedClassType); // SSG: 
+		if (UWorld* World = GetWorld())
+		{
+			if (UGameInstance* GameInstance = Cast<UGameInstance>(World->GetGameInstance()))
+			{
+				if (UL1NetworkManager* NetworkManager = GameInstance->GetSubsystem<UL1NetworkManager>())
+				{
+					NetworkManager->SendPacket_SelectClass(CachedClassType, Cast<ALyraCharacter>(GetOwningPlayerPawn()));
+				}
+			}
+		}
 	}
 
 	if (UL1ClassSelectionWidget* ClassSelectionWidget = CachedOwnerWidget.Get())

@@ -65,6 +65,24 @@ void UL1NetworkManager::SendPacket(SendBufferRef SendBuffer)
 	GameServerSession->SendPacket(SendBuffer);
 }
 
+void UL1NetworkManager::SendPacket_SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
+{
+	if (bConnected) {
+
+		// 서버 연결: 서버한테 캐릭터 직업 선택 보낸다.
+		Protocol::CharacterClassType ToClassType = NetworkUtils::ConvertUEToProtoEnum(ClassType);
+
+		Protocol::C_ENTER_GAME EnterGamePkt;
+		EnterGamePkt.set_class_type(ToClassType); // SSG: 캐릭터 직업 선택 임시로
+		EnterGamePkt.set_playerindex(0);
+		SendPacket(EnterGamePkt);
+	}
+	else {
+		// 서버랑 연결이 안됐으면 자체적으로 직업 선택한다.
+		SelectClass(ClassType, Character);
+	}
+}
+
 void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
 {
 	if (ClassType == ECharacterClassType::Count || ClassType == Character->CharacterClassType)
