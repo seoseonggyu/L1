@@ -11,6 +11,7 @@
 #include "Data/L1ClassData.h"
 #include "Data/L1NetworkPawnData.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
+#include "Item/Managers/L1InventoryManagerComponent.h" // SSG: 
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Network/NetworkUtils.h"
 
@@ -70,7 +71,7 @@ void UL1NetworkManager::SendPacket_SelectClass(ECharacterClassType ClassType, AL
 	if (bConnected) {
 
 		// 서버 연결: 서버한테 캐릭터 직업 선택 보낸다.
-		Protocol::CharacterClassType ToClassType = NetworkUtils::ConvertUEToProtoEnum(ClassType);
+		Protocol::CharacterClassType ToClassType = NetworkUtils::ConvertProtoFromClass(ClassType);
 
 		Protocol::C_ENTER_GAME EnterGamePkt;
 		EnterGamePkt.set_class_type(ToClassType); // SSG: 캐릭터 직업 선택 임시로
@@ -80,6 +81,26 @@ void UL1NetworkManager::SendPacket_SelectClass(ECharacterClassType ClassType, AL
 	else {
 		// 서버랑 연결이 안됐으면 자체적으로 직업 선택한다.
 		SelectClass(ClassType, Character);
+	}
+}
+
+void UL1NetworkManager::SendPacket_ItemMove(int32 FromId, EEquipmentSlotType EquipmentSlotType, int32 ToId, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& ItemSlotPos, int32 ItemCount)
+{
+	Protocol::EquipmentSlotType ToEquipmentSlotType = NetworkUtils::ConvertProtoFromEquipSlot(EquipmentSlotType);
+	
+	if (bConnected) {
+		Protocol::C_MOVE_ITEM ItemMovePkt;
+		ItemMovePkt.set_from_object_id(FromId);
+		ItemMovePkt.set_equipment_slot_type(ToEquipmentSlotType);
+		ItemMovePkt.set_to_object_id(ToId);
+		ItemMovePkt.set_item_transfer_type(ItemTrnsferType);
+		ItemMovePkt.set_slot_pos_x(ItemSlotPos.X);
+		ItemMovePkt.set_slot_pos_y(ItemSlotPos.Y);
+		ItemMovePkt.set_item_count(ItemCount);
+		SendPacket(ItemMovePkt);
+	}
+	else {
+
 	}
 }
 
@@ -133,7 +154,7 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 	FVector SpawnLocation(ObjectInfo.pos_info().x(), ObjectInfo.pos_info().y(), ObjectInfo.pos_info().z());
 
 	ALyraCharacter* Player = nullptr;
-	ECharacterClassType ClassType = NetworkUtils::ConvertProtoToUEEnum(ObjectInfo.character_classtype());
+	ECharacterClassType ClassType = NetworkUtils::ConvertClassFromProto(ObjectInfo.character_classtype());
 
 
 	if (IsMine)
@@ -218,4 +239,33 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 	if (Player == nullptr) return;
 
 	Player->SetDestInfo(MovePkt.info());
+}
+
+void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)
+{
+	if (Socket == nullptr || GameServerSession == nullptr)
+		return;
+
+	auto* World = GetWorld();
+	if (World == nullptr)
+		return;
+
+	int32 FromId = MoveItemPkt.from_object_id();
+	EEquipmentSlotType EquipmentSlotType = NetworkUtils::ConvertEquipSlotFromProto(MoveItemPkt.equipment_slot_type());
+	int32 ToId = MoveItemPkt.to_object_id();
+	Protocol::ItemTransferType TransferType = MoveItemPkt.item_transfer_type();
+	const FIntPoint ItemSlotPos = FIntPoint(MoveItemPkt.slot_pos_x(), MoveItemPkt.slot_pos_y());
+	int32 ItemCount = MoveItemPkt.item_count();
+
+	// SSG: 테스트용
+	ALyraCharacter* FromPlayer = *(Players.Find(FromId));
+	ALyraCharacter* ToPlayer = *(Players.Find(ToId));
+	if (UL1EquipmentManagerComponent* FromEquipmentManager = FromPlayer->GetComponentByClass<UL1EquipmentManagerComponent>())
+	{
+		UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(EquipmentSlotType, ItemCount);
+		if (UL1InventoryManagerComponent* ToInventoryManager = ToPlayer->GetComponentByClass<UL1InventoryManagerComponent>())
+		{
+			ToInventoryManager->AddItem_Unsafe(ItemSlotPos, RemovedItemInstance, ItemCount);
+		}
+	}
 }

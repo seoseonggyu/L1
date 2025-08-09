@@ -11,11 +11,46 @@ enum CharacterClassType
 	CHARACTER_CLASS_TYPE_ARCHER			= 5;
 }
 
+enum EquipmentSlotType
+{
+	Slot_type_NONE			= 0;
+	Unarmed_LeftHand		= 1;
+	Unarmed_RightHand		= 2;
+
+	Primary_LeftHand		= 3;
+	Primary_RightHand		= 4;
+	Primary_TwoHand			= 5;
+
+	Secondary_LeftHand		= 6;
+	Secondary_RightHand		= 7;
+	Secondary_TwoHand		= 8;
+
+	Utility_Primary			= 9;
+	Utility_Secondary		= 10;
+	Utility_Tertiary		= 11;
+	Utility_Quaternary		= 12;
+
+	Helmet					= 13;
+	Chest					= 14;
+	Legs					= 15;
+	Hands					= 16;
+	Foot					= 17;
+};
+
+enum ItemTransferType
+{
+	Item_Transfer_Type_None	= 0;
+	Equipment_To_Inventory	= 1;
+	Equipment_To_Equipment	= 2;
+	Inventory_To_Equipment	= 3;
+	Inventory_To_Inventory	= 4;
+}
+
 enum MoveState
 {
-	MOVE_STATE_NONE = 0;
-	MOVE_STATE_IDLE = 1;
-	MOVE_STATE_RUN = 2;
-	MOVE_STATE_JUMP = 3;
-	MOVE_STATE_SKILL = 4;
+	MOVE_STATE_NONE		= 0;
+	MOVE_STATE_IDLE		= 1;
+	MOVE_STATE_RUN		= 2;
+	MOVE_STATE_JUMP		= 3;
+	MOVE_STATE_SKILL	= 4;
 }

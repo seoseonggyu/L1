@@ -26,13 +26,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleRecvPackets();
 
+public:
 	void SendPacket(SendBufferRef SendBuffer);
 
 	template<typename T>
 	void SendPacket(T packet) const;
 
 	void SendPacket_SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
+	void SendPacket_ItemMove(int32 FromId, EEquipmentSlotType EquipmentSlotType, int32 ToId, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& ItemSlotPos, int32 ItemCount);
 
+private:
 	UFUNCTION(BlueprintCallable)
 	void SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
 
@@ -45,6 +48,8 @@ public:
 	void HandleDespawn(const Protocol::S_DESPAWN& DespawnPkt);
 
 	void HandleMove(const Protocol::S_MOVE& MovePkt);
+
+	void HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt);
 
 public:
 	class FSocket* Socket;

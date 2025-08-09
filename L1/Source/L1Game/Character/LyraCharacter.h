@@ -236,6 +236,9 @@ public:
 	void SetDestInfo(const FVector& InDestInfo);
 
 public:
+	int32 GetPlayerId() { return PlayerInfo->object_id(); }
+
+public:
 	Protocol::PosInfo* PlayerInfo;	// 현재 위치
 	Protocol::PosInfo* DestInfo;	// 목적지
 

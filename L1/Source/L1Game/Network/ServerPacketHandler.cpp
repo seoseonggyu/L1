@@ -79,3 +79,13 @@ bool Handle_S_MOVE(PacketSessionRef& session, Protocol::S_MOVE& pkt)
 
 	return true;
 }
+
+bool Handle_S_MOVE_ITEM(PacketSessionRef& session, Protocol::S_MOVE_ITEM& pkt)
+{
+	if (UL1NetworkManager* GameNetwork = GetWorldNetwork(session))
+	{
+		GameNetwork->HandleMoveItem(pkt);
+	}
+
+	return true;
+}

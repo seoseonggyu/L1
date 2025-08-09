@@ -16,11 +16,12 @@
 #include "Item/L1ItemTemplate.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
-// #include "Item/Managers/L1ItemManagerComponent.h" // SSG: 
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/Equipment/L1EquipmentEntryWidget.h"
-
-#include "Item/Managers/L1InventoryManagerComponent.h" // SSG: 
+#include "Network/NetworkUtils.h"
+#include "Network/L1NetworkManager.h"
+#include "Player/LyraPlayerState.h"
+#include "Character/LyraCharacter.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1InventorySlotsWidget)
 
@@ -276,10 +277,22 @@ void UL1InventorySlotsWidget::EquipmentToInventory(UL1EquipmentManagerComponent*
 		return;
 
 	int32 MovableCount = ToInventoryManager->CanMoveOrMergeItem(FromEquipmentManager, FromEquipmentSlotType, ToItemSlotPos);
+
 	if (MovableCount > 0)
 	{
-		UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
-		ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
+		if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
+		{
+			ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromEquipmentManager->GetOwner());
+			ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToInventoryManager->GetOwner());
+			if (FromCharacter)
+			{
+				NetworkManager->SendPacket_ItemMove(FromCharacter->GetPlayerId(), FromEquipmentSlotType, ToCharacter->GetPlayerId(), Protocol::ItemTransferType::Equipment_To_Inventory, ToItemSlotPos, MovableCount);
+			}
+		}
+		
+		// SSG: 임시로 막음 
+		//UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
+		//ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
 	}
 }
 

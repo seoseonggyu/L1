@@ -10,6 +10,7 @@
 #include "Data/L1ClassData.h"
 #include "Player/LyraPlayerState.h"
 #include "Network/L1NetworkManager.h"
+#include "Network/NetworkUtils.h"
 #include "Character/LyraCharacter.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1ClassEntryWidget)
@@ -50,18 +51,9 @@ void UL1ClassEntryWidget::InitializeUI(UL1ClassSelectionWidget* OwnerWidget, ECh
 
 void UL1ClassEntryWidget::OnButtonClicked()
 {
-	if (ALyraPlayerState* LyraPlayerState = Cast<ALyraPlayerState>(GetOwningPlayerState()))
+	if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
 	{
-		if (UWorld* World = GetWorld())
-		{
-			if (UGameInstance* GameInstance = Cast<UGameInstance>(World->GetGameInstance()))
-			{
-				if (UL1NetworkManager* NetworkManager = GameInstance->GetSubsystem<UL1NetworkManager>())
-				{
-					NetworkManager->SendPacket_SelectClass(CachedClassType, Cast<ALyraCharacter>(GetOwningPlayerPawn()));
-				}
-			}
-		}
+		NetworkManager->SendPacket_SelectClass(CachedClassType, Cast<ALyraCharacter>(GetOwningPlayerPawn()));
 	}
 
 	if (UL1ClassSelectionWidget* ClassSelectionWidget = CachedOwnerWidget.Get())

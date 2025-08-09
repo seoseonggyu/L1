@@ -138,6 +138,22 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 
 }
 
+void Room::HandleMoveItem(Protocol::C_MOVE_ITEM pkt)
+{
+	// SSG: 안전 체크 없이 일단 사용
+	Protocol::S_MOVE_ITEM moveItemPkt;
+	moveItemPkt.set_from_object_id(pkt.from_object_id());
+	moveItemPkt.set_to_object_id(pkt.to_object_id());
+	moveItemPkt.set_equipment_slot_type(pkt.equipment_slot_type());
+	moveItemPkt.set_item_transfer_type(pkt.item_transfer_type());
+	moveItemPkt.set_slot_pos_x(pkt.slot_pos_x());
+	moveItemPkt.set_slot_pos_y(pkt.slot_pos_y());
+	moveItemPkt.set_item_count(pkt.item_count());
+
+	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(moveItemPkt);
+	Broadcast(sendBuffer);
+}
+
 void Room::TestTick(PlayerRef player)
 {
 	if (player == nullptr) return;

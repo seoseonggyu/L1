@@ -59,3 +59,27 @@ message S_MOVE
 {
 	PosInfo info = 1;
 }
+
+message C_MOVE_ITEM
+{
+	// TODO: struct¿∏∑Œ π≠¿ª±Ó?
+	uint64 from_object_id					= 1;
+	uint64 to_object_id						= 2;
+	EquipmentSlotType equipment_slot_type	= 3;
+	ItemTransferType item_transfer_type		= 4;
+	int32 slot_pos_x						= 5;
+	int32 slot_pos_y						= 6;
+	int32 item_count						= 7;
+}
+
+message S_MOVE_ITEM
+{
+	// TODO: struct¿∏∑Œ π≠¿ª±Ó?
+	uint64 from_object_id					= 1;
+	uint64 to_object_id						= 2;
+	EquipmentSlotType equipment_slot_type	= 3;
+	ItemTransferType item_transfer_type		= 4;
+	int32 slot_pos_x						= 5;
+	int32 slot_pos_y						= 6;
+	int32 item_count						= 7;
+}

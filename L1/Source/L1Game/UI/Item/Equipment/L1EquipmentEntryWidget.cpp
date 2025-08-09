@@ -10,7 +10,7 @@
 #include "Item/Managers/L1EquipmentManagerComponent.h"	 // SSG: 아이템 임시 옮기기
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/L1ItemDragWidget.h"
-// #include "Item/Managers/L1ItemManagerComponent.h" // SSG: 
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1EquipmentEntryWidget)
 
