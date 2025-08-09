@@ -16,7 +16,7 @@ class UTextureRenderTarget2D;
 class UWorld;
 struct FFrame;
 
-UCLASS(Abstract, Within=PocketCaptureSubsystem, BlueprintType, Blueprintable)
+UCLASS(Abstract, Within = PocketCaptureSubsystem, BlueprintType, Blueprintable)
 class POCKETWORLDS_API UPocketCapture : public UObject
 {
 	GENERATED_BODY()
@@ -24,11 +24,12 @@ class POCKETWORLDS_API UPocketCapture : public UObject
 public:
 	UPocketCapture();
 
+public:
 	virtual void Initialize(UWorld* InWorld, int32 RendererIndex);
 	virtual void Deinitialize();
-
 	virtual void BeginDestroy() override;
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void SetRenderTargetSize(int32 Width, int32 Height);
 
@@ -36,25 +37,10 @@ public:
 	UTextureRenderTarget2D* GetOrCreateDiffuseRenderTarget();
 
 	UFUNCTION(BlueprintCallable)
-	UTextureRenderTarget2D* GetOrCreateAlphaMaskRenderTarget();
-
-	UFUNCTION(BlueprintCallable)
-	UTextureRenderTarget2D* GetOrCreateEffectsRenderTarget();
-
-	UFUNCTION(BlueprintCallable)
 	void SetCaptureTarget(AActor* InCaptureTarget);
 
 	UFUNCTION(BlueprintCallable)
-	void SetAlphaMaskedActors(const TArray<AActor*>& InCaptureTarget);
-
-	UFUNCTION(BlueprintCallable)
 	void CaptureDiffuse();
-
-	UFUNCTION(BlueprintCallable)
-	void CaptureAlphaMask();
-
-	UFUNCTION(BlueprintCallable)
-	void CaptureEffects();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void ReleaseResources();
@@ -62,9 +48,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void ReclaimResources();
 
-	UFUNCTION(BlueprintCallable)
-	int32 GetRendererIndex() const;
-	
 protected:
 	AActor* GetCaptureTarget() const { return CaptureTargetPtr.Get(); }
 	virtual void OnCaptureTargetChanged(AActor* InCaptureTarget) {}
@@ -73,7 +56,7 @@ protected:
 
 protected:
 	TArray<UPrimitiveComponent*> GatherPrimitivesForCapture(const TArray<AActor*>& InCaptureActors) const;
-	
+
 	UPocketCaptureSubsystem* GetThumbnailSystem() const;
 
 protected:

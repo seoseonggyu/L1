@@ -32,4 +32,17 @@ private:
 private:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<USizeBox> SizeBox_Root;
+
+public:
+	// SSG: 아이템 마우스 클릭 옮기기 임시
+	void QuickFromInventory(class UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos);
+
+	// SSG: 아이템 마우스 클릭 옮기기 임시
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UL1InventoryManagerComponent* GetMyInventoryManager() const;
+
+	// SSG: 아이템 마우스 클릭 옮기기 임시
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UL1EquipmentManagerComponent* GetMyEquipmentManager() const;
+
 };

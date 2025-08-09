@@ -67,7 +67,7 @@ FDelegateHandle UPocketLevelInstance::AddReadyCallback(FPocketLevelInstanceEvent
 	{
 		Callback.ExecuteIfBound(this);
 	}
-	
+
 	return OnReadyEvent.Add(Callback);
 }
 

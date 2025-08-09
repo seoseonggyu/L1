@@ -10,7 +10,7 @@ class UObject;
 class UWorld;
 
 /**
- * 
+ *
  */
 UCLASS()
 class POCKETWORLDS_API UPocketLevel : public UDataAsset
@@ -24,8 +24,8 @@ public:
 	// The level that will be streamed in for this pocket level.
 	UPROPERTY(EditAnywhere, Category = "Streaming")
 	TSoftObjectPtr<UWorld> Level;
-	
+
 	// The bounds of the pocket level so that we can create multiple instances without overlapping each other.
 	UPROPERTY(EditAnywhere, Category = "Streaming")
-	FVector Bounds;	
+	FVector Bounds;
 };

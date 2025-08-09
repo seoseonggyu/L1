@@ -8,6 +8,7 @@
 #include "Item/L1ItemInstance.h"
 #include "Item/Fragments/L1ItemFragment_Equipable.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
+#include "Item/Managers/L1EquipmentManagerComponent.h" // SSG: 
 // #include "Item/Managers/L1ItemManagerComponent.h" // SSG: 
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/L1ItemDragWidget.h"
@@ -52,9 +53,14 @@ FReply UL1InventoryEntryWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
 	
 	if (Reply.IsEventHandled() == false && UWidgetBlueprintLibrary::IsDragDropping() == false && InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
+		if (UL1InventoryManagerComponent* FromInventoryManager = SlotsWidget->GetInventoryManager())
+		{
+			QuickFromInventory(FromInventoryManager, ItemSlotPos);
+			return FReply::Handled();
+		}
+
 		// SSG: 
 		/*UL1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UL1ItemManagerComponent>();
-		UL1InventoryManagerComponent* FromInventoryManager = SlotsWidget->GetInventoryManager();
 
 		if (ItemManager && FromInventoryManager)
 		{
@@ -88,4 +94,117 @@ void UL1InventoryEntryWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
 	DragDrop->FromItemInstance = ItemInstance;
 	DragDrop->DeltaWidgetPos = CachedDeltaWidgetPos;
 	OutOperation = DragDrop;
+}
+
+void UL1InventoryEntryWidget::QuickFromInventory(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos)
+{
+	if (FromInventoryManager == nullptr)
+		return;
+	UL1InventoryManagerComponent* MyInventoryManager = GetMyInventoryManager();
+	UL1EquipmentManagerComponent* MyEquipmentManager = GetMyEquipmentManager();
+	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
+		return;
+
+	UL1ItemInstance* FromItemInstance = FromInventoryManager->GetItemInstance(FromItemSlotPos);
+	if (FromItemInstance == nullptr)
+		return;
+
+	if (FromItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable>())
+	{
+		// 1. [장비]
+		// 1-1. [내 인벤토리] -> 내 장비 교체 -> 내 장비 장착 
+		// 1-2. [다른 인벤토리] -> 내 장비 교체 -> 내 장비 장착 -> 내 인벤토리
+
+		EEquipmentSlotType ToEquipmentSlotType;
+		FIntPoint ToItemSlotPos;
+		if (MyEquipmentManager->CanSwapEquipment_Quick(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType, ToItemSlotPos))
+		{
+			const int32 FromItemCount = FromInventoryManager->GetItemCount(FromItemSlotPos);
+			const int32 ToItemCount = MyEquipmentManager->GetItemCount(ToEquipmentSlotType);
+
+			UL1ItemInstance* RemovedItemInstanceFrom = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
+			UL1ItemInstance* RemovedItemInstanceTo = MyEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
+			FromInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstanceTo, ToItemCount);
+			MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
+		}
+		else
+		{
+			int32 MovableCount = MyEquipmentManager->CanMoveOrMergeEquipment_Quick(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType);
+			if (MovableCount > 0)
+			{
+				UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
+				MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstance, MovableCount);
+			}
+			else
+			{
+				if (MyInventoryManager != FromInventoryManager)
+				{
+					TArray<FIntPoint> OutToItemSlotPoses;
+					TArray<int32> OutToItemCounts;
+					MovableCount = MyInventoryManager->CanMoveOrMergeItem_Quick(FromInventoryManager, FromItemSlotPos, OutToItemSlotPoses, OutToItemCounts);
+					if (MovableCount > 0)
+					{
+						UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
+						for (int32 i = 0; i < OutToItemSlotPoses.Num(); i++)
+						{
+							MyInventoryManager->AddItem_Unsafe(OutToItemSlotPoses[i], RemovedItemInstance, OutToItemCounts[i]);
+						}
+						return;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		// 2. [일반 아이템]
+		// 2-1. [내 인벤토리] -> X
+		// 2-2. [다른 인벤토리] -> 내 인벤토리
+
+		if (MyInventoryManager != FromInventoryManager)
+		{
+			TArray<FIntPoint> ToItemSlotPoses;
+			TArray<int32> ToItemCounts;
+
+			int32 MovableItemCount = MyInventoryManager->CanMoveOrMergeItem_Quick(FromInventoryManager, FromItemSlotPos, ToItemSlotPoses, ToItemCounts);
+			if (MovableItemCount > 0)
+			{
+				UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableItemCount);
+				for (int32 i = 0; i < ToItemSlotPoses.Num(); i++)
+				{
+					MyInventoryManager->AddItem_Unsafe(ToItemSlotPoses[i], RemovedItemInstance, ToItemCounts[i]);
+				}
+			}
+		}
+	}
+}
+
+UL1InventoryManagerComponent* UL1InventoryEntryWidget::GetMyInventoryManager() const
+{
+	UL1InventoryManagerComponent* MyInventoryManager = nullptr;
+
+	if (APlayerController* Controller = GetOwningPlayer())
+	{
+		if (APawn* Pawn = Controller->GetPawn())
+		{
+			MyInventoryManager = Pawn->GetComponentByClass<UL1InventoryManagerComponent>();
+		}
+	}
+
+	return MyInventoryManager;
+}
+
+UL1EquipmentManagerComponent* UL1InventoryEntryWidget::GetMyEquipmentManager() const
+{
+	UL1EquipmentManagerComponent* MyEquipmentManager = nullptr;
+
+	if (APlayerController* Controller = GetOwningPlayer())
+	{
+		if (APawn* Pawn = Controller->GetPawn())
+		{
+			MyEquipmentManager = Pawn->GetComponentByClass<UL1EquipmentManagerComponent>();
+
+		}
+	}
+	return MyEquipmentManager;
 }

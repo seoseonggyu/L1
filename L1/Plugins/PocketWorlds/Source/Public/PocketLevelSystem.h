@@ -21,7 +21,7 @@ class POCKETWORLDS_API UPocketLevelSubsystem : public UWorldSubsystem
 
 public:
 	/**
-	 * 
+	 *
 	 */
 	UPocketLevelInstance* GetOrCreatePocketLevelFor(ULocalPlayer* LocalPlayer, UPocketLevel* PocketLevel, FVector DesiredSpawnPoint);
 

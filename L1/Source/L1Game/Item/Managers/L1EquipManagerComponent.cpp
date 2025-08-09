@@ -222,65 +222,62 @@ void FL1EquipEntry::Unequip()
 			SpawnedEquipmentActor->Destroy();
 		}
 	}
-	else
+	if (ALyraCharacter* Character = EquipManager->GetCharacter())
 	{
-		if (ALyraCharacter* Character = EquipManager->GetCharacter())
+		if (UL1EquipmentManagerComponent::IsWeaponSlot(EquipmentSlotType) || UL1EquipmentManagerComponent::IsUtilitySlot(EquipmentSlotType))
 		{
-			if (UL1EquipmentManagerComponent::IsWeaponSlot(EquipmentSlotType) || UL1EquipmentManagerComponent::IsUtilitySlot(EquipmentSlotType))
+			// Despawn Pocket Weapon
+			if (Character->IsLocallyControlled())
 			{
-				// Despawn Pocket Weapon
-				if (Character->IsLocallyControlled())
+				if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
 				{
-					if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
+					if (APlayerController* PC = Character->GetLyraPlayerController())
 					{
-						if (APlayerController* PC = Character->GetLyraPlayerController())
-						{
-							PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
-								FGetPocketStageDelegate::CreateLambda([this](AL1PocketStage* PocketStage)
+						PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
+							FGetPocketStageDelegate::CreateLambda([this](AL1PocketStage* PocketStage)
+								{
+									if (IsValid(PocketStage))
 									{
-										if (IsValid(PocketStage))
+										if (IsValid(SpawnedPocketWorldActor))
 										{
-											if (IsValid(SpawnedPocketWorldActor))
-											{
-												SpawnedPocketWorldActor->Destroy();
-											}
+											SpawnedPocketWorldActor->Destroy();
 										}
-									})
-							);
-						}
+									}
+								})
+						);
 					}
 				}
 			}
-			else if (UL1EquipmentManagerComponent::IsArmorSlot(EquipmentSlotType))
+		}
+		else if (UL1EquipmentManagerComponent::IsArmorSlot(EquipmentSlotType))
+		{
+			// Refresh Real Armor Mesh
+			EArmorType ArmorType = EquipManager->ConvertToArmorType(EquipmentSlotType);
+
+			if (UL1CosmeticManagerComponent* CharacterCosmetics = Character->FindComponentByClass<UL1CosmeticManagerComponent>())
 			{
-				// Refresh Real Armor Mesh
-				EArmorType ArmorType = EquipManager->ConvertToArmorType(EquipmentSlotType);
+				CharacterCosmetics->RefreshArmorMesh(ArmorType, nullptr);
+			}
 
-				if (UL1CosmeticManagerComponent* CharacterCosmetics = Character->FindComponentByClass<UL1CosmeticManagerComponent>())
+			// Refresh Pocket Armor Mesh
+			if (Character->IsLocallyControlled())
+			{
+				if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
 				{
-					CharacterCosmetics->RefreshArmorMesh(ArmorType, nullptr);
-				}
-
-				// Refresh Pocket Armor Mesh
-				if (Character->IsLocallyControlled())
-				{
-					if (UL1PocketWorldSubsystem* PocketWorldSubsystem = EquipManager->GetWorld()->GetSubsystem<UL1PocketWorldSubsystem>())
+					if (APlayerController* PC = Character->GetLyraPlayerController())
 					{
-						if (APlayerController* PC = Character->GetLyraPlayerController())
-						{
-							PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
-								FGetPocketStageDelegate::CreateLambda([ArmorType](AL1PocketStage* PocketStage)
+						PocketWorldSubsystem->RegisterAndCallForGetPocketStage(PC->GetLocalPlayer(),
+							FGetPocketStageDelegate::CreateLambda([ArmorType](AL1PocketStage* PocketStage)
+								{
+									if (IsValid(PocketStage))
 									{
-										if (IsValid(PocketStage))
+										if (UL1CosmeticManagerComponent* CosmeticManager = PocketStage->GetCosmeticManager())
 										{
-											if (UL1CosmeticManagerComponent* CosmeticManager = PocketStage->GetCosmeticManager())
-											{
-												CosmeticManager->RefreshArmorMesh(ArmorType, nullptr);
-											}
+											CosmeticManager->RefreshArmorMesh(ArmorType, nullptr);
 										}
-									})
-							);
-						}
+									}
+								})
+						);
 					}
 				}
 			}

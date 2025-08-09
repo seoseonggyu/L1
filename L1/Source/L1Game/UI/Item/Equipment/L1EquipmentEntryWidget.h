@@ -27,4 +27,16 @@ protected:
 	TObjectPtr<UL1EquipmentManagerComponent> EquipmentManager;
 
 	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
+
+public:
+	// SSG: 아이템 마우스 클릭 옮기기 임시
+	void QuickFromEquipment(class UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType);
+
+	// SSG: 아이템 마우스 클릭 옮기기 임시
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UL1InventoryManagerComponent* GetMyInventoryManager() const;
+
+	// SSG: 아이템 마우스 클릭 옮기기 임시
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UL1EquipmentManagerComponent* GetMyEquipmentManager() const;
 };
