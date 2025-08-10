@@ -6,9 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "L1NetworkPawnData.generated.h"
 
-/**
- * 
- */
+class ULyraAbilitySet;
+
 UCLASS()
 class L1GAME_API UL1NetworkPawnData : public UPrimaryDataAsset
 {
@@ -24,4 +23,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|NetworkPawn")
 	TSubclassOf<APawn> PawnClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Abilities")
+	TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
 };
