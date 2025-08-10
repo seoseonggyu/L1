@@ -11,7 +11,7 @@
 #include "Data/L1ClassData.h"
 #include "Data/L1NetworkPawnData.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
-#include "Item/Managers/L1InventoryManagerComponent.h" // SSG: 
+#include "Item/Managers/L1InventoryManagerComponent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Network/NetworkUtils.h"
 
@@ -74,7 +74,7 @@ void UL1NetworkManager::SendPacket_SelectClass(ECharacterClassType ClassType, AL
 		Protocol::CharacterClassType ToClassType = NetworkUtils::ConvertProtoFromClass(ClassType);
 
 		Protocol::C_ENTER_GAME EnterGamePkt;
-		EnterGamePkt.set_class_type(ToClassType); // SSG: 캐릭터 직업 선택 임시로
+		EnterGamePkt.set_class_type(ToClassType);
 		EnterGamePkt.set_playerindex(0);
 		SendPacket(EnterGamePkt);
 	}
@@ -84,25 +84,30 @@ void UL1NetworkManager::SendPacket_SelectClass(ECharacterClassType ClassType, AL
 	}
 }
 
-void UL1NetworkManager::SendPacket_ItemMove(int32 FromId, EEquipmentSlotType EquipmentSlotType, int32 ToId, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& ItemSlotPos, int32 ItemCount)
+void UL1NetworkManager::SendPacket_ItemMove(int32 FromId, int32 ToId, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount)
 {
-	Protocol::EquipmentSlotType ToEquipmentSlotType = NetworkUtils::ConvertProtoFromEquipSlot(EquipmentSlotType);
-	
+	Protocol::EquipmentSlotType SendFromEquipmentSlotType = NetworkUtils::ConvertProtoFromEquipSlot(FromEquipmentSlotType);
+	Protocol::EquipmentSlotType SendToEquipmentSlotType = NetworkUtils::ConvertProtoFromEquipSlot(ToEquipmentSlotType);
+
 	if (bConnected) {
 		Protocol::C_MOVE_ITEM ItemMovePkt;
 		ItemMovePkt.set_from_object_id(FromId);
-		ItemMovePkt.set_equipment_slot_type(ToEquipmentSlotType);
 		ItemMovePkt.set_to_object_id(ToId);
+		ItemMovePkt.set_from_equipment_slot_type(SendFromEquipmentSlotType);
+		ItemMovePkt.set_to_equipment_slot_type(SendToEquipmentSlotType);
 		ItemMovePkt.set_item_transfer_type(ItemTrnsferType);
-		ItemMovePkt.set_slot_pos_x(ItemSlotPos.X);
-		ItemMovePkt.set_slot_pos_y(ItemSlotPos.Y);
-		ItemMovePkt.set_item_count(ItemCount);
+		ItemMovePkt.set_from_slot_pos_x(FromItemSlotPos.X);
+		ItemMovePkt.set_from_slot_pos_y(FromItemSlotPos.Y);
+		ItemMovePkt.set_to_slot_pos_x(ToItemSlotPos.X);
+		ItemMovePkt.set_to_slot_pos_y(ToItemSlotPos.Y);
+		ItemMovePkt.set_movable_count(MovableCount);
 		SendPacket(ItemMovePkt);
 	}
 	else {
 
 	}
 }
+
 
 void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
 {
@@ -136,6 +141,123 @@ void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacte
 		}
 	}
 
+}
+
+void UL1NetworkManager::Check_EquipmentToInventory(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
+{
+	if (FromEquipmentManager == nullptr || ToInventoryManager == nullptr)
+		return;
+
+	int32 MovableCount = ToInventoryManager->CanMoveOrMergeItem(FromEquipmentManager, FromEquipmentSlotType, ToItemSlotPos);
+	if (MovableCount > 0)
+	{
+		ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromEquipmentManager->GetOwner());
+		ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToInventoryManager->GetOwner());
+		if (FromCharacter)
+		{
+			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, EEquipmentSlotType::Count, Protocol::ItemTransferType::Equipment_To_Inventory, FIntPoint(0, 0), ToItemSlotPos, MovableCount);
+		}
+	}
+}
+
+void UL1NetworkManager::Check_InventoryToInventory(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
+{
+	if (FromInventoryManager == nullptr || ToInventoryManager == nullptr)
+		return;
+
+	if (FromInventoryManager == ToInventoryManager && FromItemSlotPos == ToItemSlotPos)
+		return;
+
+	int32 MovableCount = ToInventoryManager->CanMoveOrMergeItem(FromInventoryManager, FromItemSlotPos, ToItemSlotPos);
+	if (MovableCount > 0)
+	{
+		ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromInventoryManager->GetOwner());
+		ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToInventoryManager->GetOwner());
+		if (FromCharacter)
+		{
+			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), EEquipmentSlotType::Count, EEquipmentSlotType::Count, Protocol::ItemTransferType::Inventory_To_Inventory, FromItemSlotPos, ToItemSlotPos, MovableCount);
+		}
+	}
+}
+
+void UL1NetworkManager::Check_InventoryToEquipment(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType)
+{
+	if (FromInventoryManager == nullptr || ToEquipmentManager == nullptr)
+		return;
+
+	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromInventoryManager->GetOwner());
+	ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToEquipmentManager->GetOwner());
+
+	int32 MovableCount = ToEquipmentManager->CanMoveOrMergeEquipment(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType);
+	if (MovableCount > 0)
+	{
+		if (FromCharacter)
+		{
+			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(),  EEquipmentSlotType::Count, ToEquipmentSlotType, Protocol::ItemTransferType::Inventory_To_Equipment, FromItemSlotPos, FIntPoint(0,0), MovableCount);
+		}
+	}
+	else
+	{
+		FIntPoint ToItemSlotPos;
+		if (ToEquipmentManager->CanSwapEquipment(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType, ToItemSlotPos))
+		{
+			if (FromCharacter)
+			{
+				SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), EEquipmentSlotType::Count, ToEquipmentSlotType, Protocol::ItemTransferType::Inventory_To_Equipment, FromItemSlotPos, ToItemSlotPos, MovableCount);
+			}
+		}
+	}
+}
+
+void UL1NetworkManager::Check_EquipmentToEquipment(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType)
+{
+}
+
+void UL1NetworkManager::EquipmentToInventory(ALyraCharacter* FromPlayer, EEquipmentSlotType FromEquipmentSlotType, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovableCount)
+{
+	if (UL1EquipmentManagerComponent* FromEquipmentManager = FromPlayer->GetComponentByClass<UL1EquipmentManagerComponent>())
+	{
+		UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
+		if (UL1InventoryManagerComponent* ToInventoryManager = ToPlayer->GetComponentByClass<UL1InventoryManagerComponent>())
+		{
+			ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
+		}
+	}
+}
+
+void UL1NetworkManager::InventoryToInventory(ALyraCharacter* FromPlayer, const FIntPoint& FromItemSlotPos, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovableCount)
+{
+	if (UL1InventoryManagerComponent* FromInventoryManager = FromPlayer->GetComponentByClass<UL1InventoryManagerComponent>())
+	{
+		UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
+		if (UL1InventoryManagerComponent* ToInventoryManager = ToPlayer->GetComponentByClass<UL1InventoryManagerComponent>())
+		{
+			ToInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstance, MovableCount);
+		}
+	}
+}
+
+void UL1NetworkManager::InventoryToEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType ToEquipmentSlotType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount)
+{
+	UL1InventoryManagerComponent* FromInventoryManager = FromPlayer->GetComponentByClass<UL1InventoryManagerComponent>();
+	UL1EquipmentManagerComponent* ToEquipmentManager = ToPlayer->GetComponentByClass<UL1EquipmentManagerComponent>();
+	if (FromInventoryManager == nullptr || ToEquipmentManager == nullptr) return;
+
+	if (MovableCount)
+	{
+		UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
+		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstance, MovableCount);
+	}
+	else
+	{
+		const int32 FromItemCount = FromInventoryManager->GetItemCount(FromItemSlotPos);
+		const int32 ToItemCount = ToEquipmentManager->GetItemCount(ToEquipmentSlotType);
+
+		UL1ItemInstance* RemovedItemInstanceFrom = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
+		UL1ItemInstance* RemovedItemInstanceTo = ToEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
+		FromInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstanceTo, ToItemCount);
+		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
+	}
 }
 
 void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool IsMine)
@@ -251,21 +373,29 @@ void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)
 		return;
 
 	int32 FromId = MoveItemPkt.from_object_id();
-	EEquipmentSlotType EquipmentSlotType = NetworkUtils::ConvertEquipSlotFromProto(MoveItemPkt.equipment_slot_type());
 	int32 ToId = MoveItemPkt.to_object_id();
+	EEquipmentSlotType FromEquipmentSlotType = NetworkUtils::ConvertEquipSlotFromProto(MoveItemPkt.from_equipment_slot_type());
+	EEquipmentSlotType ToEquipmentSlotType = NetworkUtils::ConvertEquipSlotFromProto(MoveItemPkt.to_equipment_slot_type());
 	Protocol::ItemTransferType TransferType = MoveItemPkt.item_transfer_type();
-	const FIntPoint ItemSlotPos = FIntPoint(MoveItemPkt.slot_pos_x(), MoveItemPkt.slot_pos_y());
-	int32 ItemCount = MoveItemPkt.item_count();
+	const FIntPoint FromItemSlotPos = FIntPoint(MoveItemPkt.from_slot_pos_x(), MoveItemPkt.from_slot_pos_y());
+	const FIntPoint ToItemSlotPos = FIntPoint(MoveItemPkt.to_slot_pos_x(), MoveItemPkt.to_slot_pos_y());
+	int32 MovableCount = MoveItemPkt.movable_count();
 
-	// SSG: 테스트용
 	ALyraCharacter* FromPlayer = *(Players.Find(FromId));
 	ALyraCharacter* ToPlayer = *(Players.Find(ToId));
-	if (UL1EquipmentManagerComponent* FromEquipmentManager = FromPlayer->GetComponentByClass<UL1EquipmentManagerComponent>())
+	
+	switch (TransferType)
 	{
-		UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(EquipmentSlotType, ItemCount);
-		if (UL1InventoryManagerComponent* ToInventoryManager = ToPlayer->GetComponentByClass<UL1InventoryManagerComponent>())
-		{
-			ToInventoryManager->AddItem_Unsafe(ItemSlotPos, RemovedItemInstance, ItemCount);
-		}
+	case Protocol::Equipment_To_Inventory:  EquipmentToInventory(FromPlayer, FromEquipmentSlotType, ToPlayer, ToItemSlotPos, MovableCount); break;
+	case Protocol::Equipment_To_Equipment:	break;
+	case Protocol::Inventory_To_Equipment:	break;
+	case Protocol::Inventory_To_Inventory:	InventoryToInventory(FromPlayer, FromItemSlotPos, ToPlayer, ToItemSlotPos, MovableCount); break;
+	case Protocol::ItemTransferType_INT_MIN_SENTINEL_DO_NOT_USE_:
+		break;
+	case Protocol::ItemTransferType_INT_MAX_SENTINEL_DO_NOT_USE_:
+		break;
+	default:
+		break;
 	}
+
 }

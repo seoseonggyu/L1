@@ -93,12 +93,4 @@ private:
 	FDelegateHandle EntryChangedDelegateHandle;
 	FIntPoint PrevDragOverSlotPos = FIntPoint(-1, -1);
 	FGameplayMessageListenerHandle MessageListenerHandle;
-
-public:
-	// SSG: 아이템 옮기기 테스트 함수
-	UFUNCTION(BlueprintCallable)
-	void EquipmentToInventory(class UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, class UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos);
-	UFUNCTION(BlueprintCallable)
-	void InventoryToInventory(class UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, class UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos);
-
 };

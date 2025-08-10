@@ -63,23 +63,29 @@ message S_MOVE
 message C_MOVE_ITEM
 {
 	// TODO: struct¿∏∑Œ π≠¿ª±Ó?
-	uint64 from_object_id					= 1;
-	uint64 to_object_id						= 2;
-	EquipmentSlotType equipment_slot_type	= 3;
-	ItemTransferType item_transfer_type		= 4;
-	int32 slot_pos_x						= 5;
-	int32 slot_pos_y						= 6;
-	int32 item_count						= 7;
+	uint64 from_object_id						= 1;
+	uint64 to_object_id							= 2;
+	EquipmentSlotType from_equipment_slot_type	= 3;
+	EquipmentSlotType to_equipment_slot_type	= 4;
+	ItemTransferType item_transfer_type			= 5;
+	int32 from_slot_pos_x						= 6;
+	int32 from_slot_pos_y						= 7;
+	int32 to_slot_pos_x							= 8;
+	int32 to_slot_pos_y							= 9;
+	int32 movable_Count							= 10;
 }
 
 message S_MOVE_ITEM
 {
 	// TODO: struct¿∏∑Œ π≠¿ª±Ó?
-	uint64 from_object_id					= 1;
-	uint64 to_object_id						= 2;
-	EquipmentSlotType equipment_slot_type	= 3;
-	ItemTransferType item_transfer_type		= 4;
-	int32 slot_pos_x						= 5;
-	int32 slot_pos_y						= 6;
-	int32 item_count						= 7;
+	uint64 from_object_id						= 1;
+	uint64 to_object_id							= 2;
+	EquipmentSlotType from_equipment_slot_type	= 3;
+	EquipmentSlotType to_equipment_slot_type	= 4;
+	ItemTransferType item_transfer_type			= 5;
+	int32 from_slot_pos_x						= 6;
+	int32 from_slot_pos_y						= 7;
+	int32 to_slot_pos_x							= 8;
+	int32 to_slot_pos_y							= 9;
+	int32 movable_Count							= 10;
 }

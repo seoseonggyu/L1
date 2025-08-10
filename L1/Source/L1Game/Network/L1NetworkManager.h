@@ -11,6 +11,8 @@
 #include "L1NetworkManager.generated.h"
 
 class ALyraCharacter;
+class UL1EquipmentManagerComponent;
+class UL1InventoryManagerComponent;
 
 UCLASS()
 class L1GAME_API UL1NetworkManager : public UGameInstanceSubsystem
@@ -33,11 +35,26 @@ public:
 	void SendPacket(T packet) const;
 
 	void SendPacket_SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
-	void SendPacket_ItemMove(int32 FromId, EEquipmentSlotType EquipmentSlotType, int32 ToId, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& ItemSlotPos, int32 ItemCount);
+	void SendPacket_ItemMove(int32 FromId, int32 ToId, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount);
 
 private:
 	UFUNCTION(BlueprintCallable)
 	void SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
+
+public:
+	void Check_EquipmentToInventory(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos);
+	void Check_InventoryToInventory(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos);
+	void Check_InventoryToEquipment(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType);
+	void Check_EquipmentToEquipment(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType);
+
+private:
+	UFUNCTION(BlueprintCallable)
+	void EquipmentToInventory(ALyraCharacter* FromPlayer, EEquipmentSlotType FromEquipmentSlotType, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovavleCount);
+	UFUNCTION(BlueprintCallable)
+	void InventoryToInventory(ALyraCharacter* FromPlayer, const FIntPoint& FromItemSlotPos, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovavleCount);
+	UFUNCTION(BlueprintCallable)
+	void InventoryToEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType ToEquipmentSlotType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount);
+
 
 public:
 	void HandleSpawn(const Protocol::ObjectInfo& PlayerInfo, bool IsMine);
