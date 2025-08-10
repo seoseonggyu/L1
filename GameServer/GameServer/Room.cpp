@@ -158,6 +158,17 @@ void Room::HandleMoveItem(Protocol::C_MOVE_ITEM pkt)
 	Broadcast(sendBuffer);
 }
 
+void Room::HandleEquipItem(Protocol::C_EQUIP_ITEM pkt)
+{
+	// TODO: Validation Check
+	Protocol::S_EQUIP_ITEM equipItemPkt;
+	equipItemPkt.set_object_id(pkt.object_id());
+	equipItemPkt.set_equip_state(pkt.equip_state());
+
+	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(equipItemPkt);
+	Broadcast(sendBuffer);
+}
+
 void Room::TestTick(PlayerRef player)
 {
 	if (player == nullptr) return;

@@ -54,7 +54,8 @@ private:
 	void InventoryToInventory(ALyraCharacter* FromPlayer, const FIntPoint& FromItemSlotPos, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovavleCount);
 	UFUNCTION(BlueprintCallable)
 	void InventoryToEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType ToEquipmentSlotType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount);
-
+	UFUNCTION(BlueprintCallable)
+	void EquipmentToEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType, int32 MovableCount);
 
 public:
 	void HandleSpawn(const Protocol::ObjectInfo& PlayerInfo, bool IsMine);
@@ -65,8 +66,8 @@ public:
 	void HandleDespawn(const Protocol::S_DESPAWN& DespawnPkt);
 
 	void HandleMove(const Protocol::S_MOVE& MovePkt);
-
 	void HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt);
+	void HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemPkt);
 
 public:
 	class FSocket* Socket;

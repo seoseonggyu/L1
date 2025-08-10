@@ -8,12 +8,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "L1NetworkCharacter.h"
 #include "System/LyraAssetManager.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Data/L1ClassData.h"
 #include "Data/L1NetworkPawnData.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Network/NetworkUtils.h"
+#include "L1GameplayTags.h"
 
 void UL1NetworkManager::ConnectToGameServer()
 {
@@ -140,9 +142,9 @@ void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacte
 			AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &Character->AbilitySetGrantedHandles, this);
 		}
 	}
-
 }
 
+// TODO: 코드 옮기기
 void UL1NetworkManager::Check_EquipmentToInventory(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
 {
 	if (FromEquipmentManager == nullptr || ToInventoryManager == nullptr)
@@ -211,6 +213,31 @@ void UL1NetworkManager::Check_InventoryToEquipment(UL1InventoryManagerComponent*
 
 void UL1NetworkManager::Check_EquipmentToEquipment(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType)
 {
+	if (FromEquipmentManager == nullptr || ToEquipmentManager == nullptr)
+		return;
+	if (FromEquipmentManager == ToEquipmentManager && FromEquipmentSlotType == ToEquipmentSlotType)
+		return;
+
+	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromEquipmentManager->GetOwner());
+	ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToEquipmentManager->GetOwner());
+
+
+	int32 MovableCount = ToEquipmentManager->CanMoveOrMergeEquipment(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType);
+	if (MovableCount > 0)
+	{
+		if (FromCharacter)
+		{
+			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, ToEquipmentSlotType, Protocol::ItemTransferType::Equipment_To_Equipment, FIntPoint(0, 0), FIntPoint(0, 0), MovableCount);
+		}
+	}
+	else if (ToEquipmentManager->CanSwapEquipment(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType))
+	{
+		if (FromCharacter)
+		{
+			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, ToEquipmentSlotType, Protocol::ItemTransferType::Equipment_To_Equipment, FIntPoint(0, 0), FIntPoint(0, 0), MovableCount);
+		}
+	}
+
 }
 
 void UL1NetworkManager::EquipmentToInventory(ALyraCharacter* FromPlayer, EEquipmentSlotType FromEquipmentSlotType, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovableCount)
@@ -260,6 +287,33 @@ void UL1NetworkManager::InventoryToEquipment(ALyraCharacter* FromPlayer, ALyraCh
 	}
 }
 
+void UL1NetworkManager::EquipmentToEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType, int32 MovableCount)
+{
+	UL1EquipmentManagerComponent* FromEquipmentManager = FromPlayer->GetComponentByClass<UL1EquipmentManagerComponent>();
+	UL1EquipmentManagerComponent* ToEquipmentManager = ToPlayer->GetComponentByClass<UL1EquipmentManagerComponent>();
+
+	if (FromEquipmentManager == nullptr || ToEquipmentManager == nullptr)
+		return;
+	if (FromEquipmentManager == ToEquipmentManager && FromEquipmentSlotType == ToEquipmentSlotType)
+		return;
+
+	if (MovableCount > 0)
+	{
+		UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
+		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstance, MovableCount);
+	}
+	else 
+	{
+		const int32 FromItemCount = FromEquipmentManager->GetItemCount(FromEquipmentSlotType);
+		const int32 ToItemCount = ToEquipmentManager->GetItemCount(ToEquipmentSlotType);
+
+		UL1ItemInstance* RemovedItemInstanceFrom = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, FromItemCount);
+		UL1ItemInstance* RemovedItemInstanceTo = ToEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
+		FromEquipmentManager->AddEquipment_Unsafe(FromEquipmentSlotType, RemovedItemInstanceTo, ToItemCount);
+		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
+	}
+}
+
 void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool IsMine)
 {
 	if (Socket == nullptr || GameServerSession == nullptr)
@@ -290,6 +344,7 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 	}
 	else
 	{
+		// SSG: 내 캐릭가 아닐 경우 수동으로 어빌리티 추가해야함
 		const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
 		Player = Cast<AL1NetworkCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
 	}
@@ -387,15 +442,24 @@ void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)
 	switch (TransferType)
 	{
 	case Protocol::Equipment_To_Inventory:  EquipmentToInventory(FromPlayer, FromEquipmentSlotType, ToPlayer, ToItemSlotPos, MovableCount); break;
-	case Protocol::Equipment_To_Equipment:	break;
-	case Protocol::Inventory_To_Equipment:	break;
+	case Protocol::Equipment_To_Equipment:	EquipmentToEquipment(FromPlayer, ToPlayer, FromEquipmentSlotType, ToEquipmentSlotType, MovableCount); break;
+	case Protocol::Inventory_To_Equipment:	InventoryToEquipment(FromPlayer, ToPlayer, ToEquipmentSlotType, FromItemSlotPos, ToItemSlotPos, MovableCount); break;
 	case Protocol::Inventory_To_Inventory:	InventoryToInventory(FromPlayer, FromItemSlotPos, ToPlayer, ToItemSlotPos, MovableCount); break;
-	case Protocol::ItemTransferType_INT_MIN_SENTINEL_DO_NOT_USE_:
-		break;
-	case Protocol::ItemTransferType_INT_MAX_SENTINEL_DO_NOT_USE_:
-		break;
-	default:
-		break;
+	default: break;
 	}
+}
 
+void UL1NetworkManager::HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemPkt)
+{
+	uint64 ObjectId = EquipItemPkt.object_id();
+	Protocol::EquipState EquipState = EquipItemPkt.equip_state();
+	EEquipState UEEquipState = NetworkUtils::ConvertEquipStateFromProto(EquipState);
+
+	ALyraCharacter* FindActor = *(Players.Find(ObjectId));
+	if (FindActor == nullptr)
+		return;
+
+	FGameplayEventData Payload;
+	Payload.EventMagnitude = (int32)UEEquipState;
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(FindActor, L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
 }

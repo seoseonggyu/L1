@@ -23,8 +23,6 @@
 #include "Camera/LyraCameraMode.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "InputMappingContext.h"
-
-
 #include "Network/L1NetworkManager.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -424,9 +422,19 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 
 void ULyraHeroComponent::Input_ChangeEquip_Weapon_Primary()
 {
-	FGameplayEventData Payload;
-	Payload.EventMagnitude = (int32)EEquipState::Weapon_Primary;
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	if (GetNetworkManager()->bConnected)
+	{
+		Protocol::C_EQUIP_ITEM EquipItemPkt;
+		EquipItemPkt.set_object_id(Cast<ALyraCharacter>(GetPawn<APawn>()) ->GetPlayerId());
+		EquipItemPkt.set_equip_state(Protocol::Equip_State_Weapon_Primary);
+		GetNetworkManager()->SendPacket(EquipItemPkt);
+	}
+	else 
+	{
+		FGameplayEventData Payload;
+		Payload.EventMagnitude = (int32)EEquipState::Weapon_Primary;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	}
 }
 
 TSubclassOf<ULyraCameraMode> ULyraHeroComponent::DetermineCameraMode() const

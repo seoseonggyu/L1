@@ -46,6 +46,18 @@ enum ItemTransferType
 	Inventory_To_Inventory	= 4;
 }
 
+enum EquipState
+{
+	Equip_State_None				= 0;
+	Equip_State_Unarmed				= 1;
+	Equip_State_Weapon_Primary		= 2;
+	Equip_State_Weapon_Secondary	= 3;
+	Equip_State_Utility_Primary		= 4;
+	Equip_State_Utility_Secondary	= 5;
+	Equip_State_Utility_Tertiary	= 6;
+	Equip_State_Utility_Quaternary	= 7;
+}
+
 enum MoveState
 {
 	MOVE_STATE_NONE		= 0;

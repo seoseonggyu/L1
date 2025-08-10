@@ -11,7 +11,6 @@
 #include "Item/Managers/L1EquipManagerComponent.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
-// #include "Item/Managers/L1ItemManagerComponent.h" // SSG: 
 #include "System/LyraAssetManager.h"
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/Equipment/L1EquipmentEntryWidget.h"

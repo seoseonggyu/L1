@@ -15,5 +15,8 @@ public:
 	static EEquipmentSlotType ConvertEquipSlotFromProto(Protocol::EquipmentSlotType ProtoType);
 	static Protocol::EquipmentSlotType ConvertProtoFromEquipSlot(EEquipmentSlotType UEType);
 
+	static EEquipState ConvertEquipStateFromProto(Protocol::EquipState ProtoType);
+	static Protocol::EquipState ConvertProtoFromEquipState(EEquipState UEType);
+
 	static UL1NetworkManager* GetNetworkManager(ALyraPlayerState* LyraPlayerState);
 };

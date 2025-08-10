@@ -89,3 +89,12 @@ bool Handle_S_MOVE_ITEM(PacketSessionRef& session, Protocol::S_MOVE_ITEM& pkt)
 
 	return true;
 }
+
+bool Handle_S_EQUIP_ITEM(PacketSessionRef& session, Protocol::S_EQUIP_ITEM& pkt)
+{
+	if (UL1NetworkManager* GameNetwork = GetWorldNetwork(session))
+	{
+		GameNetwork->HandleEquipItem(pkt);
+	}
+	return true;
+}

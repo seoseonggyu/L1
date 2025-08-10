@@ -79,6 +79,36 @@ Protocol::EquipmentSlotType NetworkUtils::ConvertProtoFromEquipSlot(EEquipmentSl
     }
 }
 
+EEquipState NetworkUtils::ConvertEquipStateFromProto(Protocol::EquipState ProtoType)
+{
+    switch (ProtoType)
+    {
+    case Protocol::Equip_State_Unarmed:             return EEquipState::Unarmed;
+    case Protocol::Equip_State_Weapon_Primary:      return EEquipState::Weapon_Primary;
+    case Protocol::Equip_State_Weapon_Secondary:    return EEquipState::Weapon_Secondary;
+    case Protocol::Equip_State_Utility_Primary:     return EEquipState::Utility_Primary;
+    case Protocol::Equip_State_Utility_Secondary:   return EEquipState::Utility_Secondary;
+    case Protocol::Equip_State_Utility_Tertiary:    return EEquipState::Utility_Tertiary;
+    case Protocol::Equip_State_Utility_Quaternary:  return EEquipState::Utility_Quaternary;
+    default:                                        return EEquipState::Count;
+    }
+}
+
+Protocol::EquipState NetworkUtils::ConvertProtoFromEquipState(EEquipState UEType)
+{
+    switch (UEType)
+    {
+    case EEquipState::Unarmed:                  return Protocol::Equip_State_Unarmed;
+    case EEquipState::Weapon_Primary:           return Protocol::Equip_State_Weapon_Primary;
+    case EEquipState::Weapon_Secondary:         return Protocol::Equip_State_Weapon_Secondary;
+    case EEquipState::Utility_Primary:          return Protocol::Equip_State_Utility_Primary;
+    case EEquipState::Utility_Secondary:        return Protocol::Equip_State_Utility_Secondary;
+    case EEquipState::Utility_Tertiary:         return Protocol::Equip_State_Utility_Tertiary;
+    case EEquipState::Utility_Quaternary:       return Protocol::Equip_State_Utility_Quaternary;
+    default:                                    return Protocol::Equip_State_None;
+    }
+}
+
 UL1NetworkManager* NetworkUtils::GetNetworkManager(ALyraPlayerState* LyraPlayerState)
 {
     if (LyraPlayerState)

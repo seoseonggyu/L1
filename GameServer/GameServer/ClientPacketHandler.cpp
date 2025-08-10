@@ -82,3 +82,19 @@ bool Handle_C_MOVE_ITEM(PacketSessionRef& session, Protocol::C_MOVE_ITEM& pkt)
 	room->DoAsync(&Room::HandleMoveItem, pkt);
 	return false;
 }
+
+bool Handle_C_EQUIP_ITEM(PacketSessionRef& session, Protocol::C_EQUIP_ITEM& pkt)
+{
+	auto gameSession = static_pointer_cast<GameSession>(session);
+
+	PlayerRef player = gameSession->_player.load();
+	if (player == nullptr)
+		return false;
+
+	RoomRef room = player->_room.load().lock();
+	if (room == nullptr)
+		return false;
+
+	room->DoAsync(&Room::HandleEquipItem, pkt);
+	return false;
+}

@@ -11,10 +11,12 @@
 #include "Data/L1UIData.h"
 #include "Item/Fragments/L1ItemFragment_Equipable_Weapon.h"
 #include "Item/Managers/L1EquipManagerComponent.h"
-// #include "Item/Managers/L1ItemManagerComponent.h" // SSG: 
 #include "Item/Managers/L1InventoryManagerComponent.h"
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/Inventory/L1InventoryEntryWidget.h"
+#include "Network/NetworkUtils.h"
+#include "Network/L1NetworkManager.h"
+#include "Player/LyraPlayerState.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1EquipmentSlotWeaponWidget)
 
@@ -121,19 +123,23 @@ bool UL1EquipmentSlotWeaponWidget::NativeOnDrop(const FGeometry& InGeometry, con
 	if (FromItemInstance == nullptr)
 		return false;
 
-	
-	// SSG: 아이템 옮기기 테스트 함수
 	if (const UL1ItemFragment_Equipable_Weapon* FromWeaponFragment = FromItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable_Weapon>())
 	{
 		EEquipmentSlotType ToEquipmentSlotType = UL1EquipManagerComponent::ConvertToEquipmentSlotType(FromWeaponFragment->WeaponHandType, WeaponSlotType);
 	
 		if (UL1InventoryManagerComponent* FromInventoryManager = ItemDragDrop->FromInventoryManager)
 		{
-			InventoryToEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, EquipmentManager, ToEquipmentSlotType);
+			if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
+			{
+				NetworkManager->Check_InventoryToEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, EquipmentManager, ToEquipmentSlotType);
+			}
 		}
 		else if (UL1EquipmentManagerComponent* FromEquipmentManager = ItemDragDrop->FromEquipmentManager)
 		{
-			EquipmentToEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, EquipmentManager, ToEquipmentSlotType);
+			if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
+			{
+				NetworkManager->Check_EquipmentToEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, EquipmentManager, ToEquipmentSlotType);
+			}
 		}
 	}
 	return true;
@@ -201,56 +207,4 @@ void UL1EquipmentSlotWeaponWidget::OnEquipmentEntryChanged(EWeaponHandType InWea
 	}
 	
 	Switcher_WeaponHandEntry->SetActiveWidgetIndex(ActiveWidgetIndex);
-}
-
-void UL1EquipmentSlotWeaponWidget::InventoryToEquipment(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType)
-{
-	if (FromInventoryManager == nullptr || ToEquipmentManager == nullptr)
-		return;
-
-	int32 MovableCount = ToEquipmentManager->CanMoveOrMergeEquipment(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType);
-	if (MovableCount > 0)
-	{
-		UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
-		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstance, MovableCount);
-	}
-	else
-	{
-		FIntPoint ToItemSlotPos;
-		if (ToEquipmentManager->CanSwapEquipment(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType, ToItemSlotPos))
-		{
-			const int32 FromItemCount = FromInventoryManager->GetItemCount(FromItemSlotPos);
-			const int32 ToItemCount = ToEquipmentManager->GetItemCount(ToEquipmentSlotType);
-
-			UL1ItemInstance* RemovedItemInstanceFrom = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
-			UL1ItemInstance* RemovedItemInstanceTo = ToEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
-			FromInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstanceTo, ToItemCount);
-			ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
-		}
-	}
-}
-
-void UL1EquipmentSlotWeaponWidget::EquipmentToEquipment(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType)
-{
-	if (FromEquipmentManager == nullptr || ToEquipmentManager == nullptr)
-		return;
-	if (FromEquipmentManager == ToEquipmentManager && FromEquipmentSlotType == ToEquipmentSlotType)
-		return;
-
-	int32 MovableCount = ToEquipmentManager->CanMoveOrMergeEquipment(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType);
-	if (MovableCount > 0)
-	{
-		UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
-		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstance, MovableCount);
-	}
-	else if (ToEquipmentManager->CanSwapEquipment(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType))
-	{
-		const int32 FromItemCount = FromEquipmentManager->GetItemCount(FromEquipmentSlotType);
-		const int32 ToItemCount = ToEquipmentManager->GetItemCount(ToEquipmentSlotType);
-
-		UL1ItemInstance* RemovedItemInstanceFrom = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, FromItemCount);
-		UL1ItemInstance* RemovedItemInstanceTo = ToEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
-		FromEquipmentManager->AddEquipment_Unsafe(FromEquipmentSlotType, RemovedItemInstanceTo, ToItemCount);
-		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
-	}
 }

@@ -89,3 +89,15 @@ message S_MOVE_ITEM
 	int32 to_slot_pos_y							= 9;
 	int32 movable_Count							= 10;
 }
+
+message C_EQUIP_ITEM
+{
+	uint64	object_id		= 1;
+	EquipState equip_state	= 2;
+}
+
+message S_EQUIP_ITEM
+{
+	uint64	object_id		= 1;
+	EquipState equip_state	= 2;
+}
