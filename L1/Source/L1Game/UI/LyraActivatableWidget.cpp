@@ -15,6 +15,7 @@ ULyraActivatableWidget::ULyraActivatableWidget(const FObjectInitializer& ObjectI
 
 TOptional<FUIInputConfig> ULyraActivatableWidget::GetDesiredInputConfig() const
 {
+	// TODO: 마우스 입력 처리해야함
 	switch (InputConfig)
 	{
 	case ELyraWidgetInputMode::GameAndMenu:

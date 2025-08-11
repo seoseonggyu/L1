@@ -50,6 +50,19 @@ message S_DESPAWN
 	repeated uint64 object_ids = 1;
 }
 
+
+message C_SELECTCLASS
+{
+	uint64 object_id = 1;
+	CharacterClassType class_type = 2;
+}
+
+message S_SELECTCLASS
+{
+	uint64 object_id = 1;
+	CharacterClassType class_type = 2;
+}
+
 message C_MOVE
 {
 	PosInfo info = 1;

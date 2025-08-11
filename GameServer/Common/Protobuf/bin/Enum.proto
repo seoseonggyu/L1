@@ -44,6 +44,8 @@ enum ItemTransferType
 	Equipment_To_Equipment	= 2;
 	Inventory_To_Equipment	= 3;
 	Inventory_To_Inventory	= 4;
+	Quick_From_Inventory	= 5;
+	Quick_From_Equipment	= 6;
 }
 
 enum EquipState

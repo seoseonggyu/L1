@@ -4,6 +4,7 @@
 #include "Item/L1ItemTemplate.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "Data/L1ItemData.h"
+#include "Network/L1NetworkCharacter.h"
 
 UL1ItemInstance* FL1InventoryEntry::Init(int32 InItemTemplateID, int32 InItemCount, EItemRarity InItemRarity)
 {
@@ -411,8 +412,6 @@ bool UL1InventoryManagerComponent::TryRemoveItem(int32 ItemTemplateID, int32 Ite
 
 void UL1InventoryManagerComponent::AddItem_Unsafe(const FIntPoint& ItemSlotPos, UL1ItemInstance* ItemInstance, int32 ItemCount)
 {
-	check(GetOwner()->HasAuthority());
-
 	const int32 Index = ItemSlotPos.Y * InventorySlotCount.X + ItemSlotPos.X;
 	FL1InventoryEntry& Entry = Entries[Index];
 

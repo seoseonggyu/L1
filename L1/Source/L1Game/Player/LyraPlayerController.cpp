@@ -25,12 +25,6 @@
 #include "Development/LyraDeveloperSettings.h"
 #include "GameMapsSettings.h"
 
-// SSG: 옮겨야 함
-#include "Input/CommonUIActionRouterBase.h"
-#include "Input/UIActionBinding.h"
-#include "Input/UIActionBindingHandle.h"
-#include "Input/CommonUIInputTypes.h"
-
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerController)
 
 namespace Lyra

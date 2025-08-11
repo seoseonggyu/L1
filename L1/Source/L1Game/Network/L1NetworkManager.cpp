@@ -11,6 +11,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Data/L1ClassData.h"
 #include "Data/L1NetworkPawnData.h"
+#include "Item/L1ItemInstance.h"
+#include "Item/Fragments/L1ItemFragment_Equipable.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
@@ -75,10 +77,10 @@ void UL1NetworkManager::SendPacket_SelectClass(ECharacterClassType ClassType, AL
 		// 서버 연결: 서버한테 캐릭터 직업 선택 보낸다.
 		Protocol::CharacterClassType ToClassType = NetworkUtils::ConvertProtoFromClass(ClassType);
 
-		Protocol::C_ENTER_GAME EnterGamePkt;
-		EnterGamePkt.set_class_type(ToClassType);
-		EnterGamePkt.set_playerindex(0);
-		SendPacket(EnterGamePkt);
+		Protocol::C_SELECTCLASS selectClassPkt;
+		selectClassPkt.set_object_id(Character->GetPlayerId());
+		selectClassPkt.set_class_type(ToClassType);
+		SendPacket(selectClassPkt);
 	}
 	else {
 		// 서버랑 연결이 안됐으면 자체적으로 직업 선택한다.
@@ -240,6 +242,44 @@ void UL1NetworkManager::Check_EquipmentToEquipment(UL1EquipmentManagerComponent*
 
 }
 
+void UL1NetworkManager::Check_QuickFromInventory(ALyraCharacter* ToCharacter, UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos)
+{
+	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromInventoryManager->GetOwner());
+	
+	if (FromInventoryManager == nullptr || FromCharacter == nullptr)
+		return;
+
+	UL1InventoryManagerComponent* MyInventoryManager = GetCharacterInventoryManager(ToCharacter);
+	UL1EquipmentManagerComponent* MyEquipmentManager = GetCharacterEquipmentManager(ToCharacter);
+
+	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
+		return;
+
+	UL1ItemInstance* FromItemInstance = FromInventoryManager->GetItemInstance(FromItemSlotPos);
+	if (FromItemInstance == nullptr)
+		return;
+
+	// TODO: 체크안하고 일단 보냄.. 그냥 쌩으로 보내자!
+	SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), EEquipmentSlotType::Count, EEquipmentSlotType::Count, Protocol::ItemTransferType::Quick_From_Inventory, FromItemSlotPos, FIntPoint(0, 0), 0);
+}
+
+void UL1NetworkManager::Check_QuickFromEquipment(ALyraCharacter* ToCharacter, UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType)
+{
+	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromEquipmentManager->GetOwner());
+	if (FromCharacter == nullptr) return;
+	
+	if (FromEquipmentManager == nullptr || FromEquipmentSlotType == EEquipmentSlotType::Count)
+		return;
+
+	UL1InventoryManagerComponent* MyInventoryManager = GetCharacterInventoryManager(ToCharacter);
+	UL1EquipmentManagerComponent* MyEquipmentManager = GetCharacterEquipmentManager(ToCharacter);
+	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
+		return;
+
+	// TODO: 체크안하고 일단 보냄.. 그냥 쌩으로 보내자!
+	SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, EEquipmentSlotType::Count, Protocol::ItemTransferType::Quick_From_Equipment, FIntPoint(0, 0), FIntPoint(0, 0), 0);
+}
+
 void UL1NetworkManager::EquipmentToInventory(ALyraCharacter* FromPlayer, EEquipmentSlotType FromEquipmentSlotType, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovableCount)
 {
 	if (UL1EquipmentManagerComponent* FromEquipmentManager = FromPlayer->GetComponentByClass<UL1EquipmentManagerComponent>())
@@ -311,6 +351,161 @@ void UL1NetworkManager::EquipmentToEquipment(ALyraCharacter* FromPlayer, ALyraCh
 		UL1ItemInstance* RemovedItemInstanceTo = ToEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
 		FromEquipmentManager->AddEquipment_Unsafe(FromEquipmentSlotType, RemovedItemInstanceTo, ToItemCount);
 		ToEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
+	}
+}
+
+void UL1NetworkManager::QuickFromInventory(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, const FIntPoint& FromItemSlotPos)
+{
+	UL1InventoryManagerComponent* FromInventoryManager = GetCharacterInventoryManager(FromPlayer);
+	if (FromInventoryManager == nullptr)
+		return;
+
+	UL1InventoryManagerComponent* MyInventoryManager = GetCharacterInventoryManager(ToPlayer);
+	UL1EquipmentManagerComponent* MyEquipmentManager = GetCharacterEquipmentManager(ToPlayer);
+	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
+		return;
+
+	UL1ItemInstance* FromItemInstance = FromInventoryManager->GetItemInstance(FromItemSlotPos);
+	if (FromItemInstance == nullptr)
+		return;
+
+	if (FromItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable>())
+	{
+		// 1. [장비]
+		// 1-1. [내 인벤토리] -> 내 장비 교체 -> 내 장비 장착 
+		// 1-2. [다른 인벤토리] -> 내 장비 교체 -> 내 장비 장착 -> 내 인벤토리
+
+		EEquipmentSlotType ToEquipmentSlotType;
+		FIntPoint ToItemSlotPos;
+		if (MyEquipmentManager->CanSwapEquipment_Quick(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType, ToItemSlotPos))
+		{
+			const int32 FromItemCount = FromInventoryManager->GetItemCount(FromItemSlotPos);
+			const int32 ToItemCount = MyEquipmentManager->GetItemCount(ToEquipmentSlotType);
+
+			UL1ItemInstance* RemovedItemInstanceFrom = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
+			UL1ItemInstance* RemovedItemInstanceTo = MyEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
+			FromInventoryManager->AddItem_Unsafe(ToItemSlotPos, RemovedItemInstanceTo, ToItemCount);
+			MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
+		}
+		else
+		{
+			int32 MovableCount = MyEquipmentManager->CanMoveOrMergeEquipment_Quick(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType);
+			if (MovableCount > 0)
+			{
+				UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
+				MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstance, MovableCount);
+			}
+			else
+			{
+				if (MyInventoryManager != FromInventoryManager)
+				{
+					TArray<FIntPoint> OutToItemSlotPoses;
+					TArray<int32> OutToItemCounts;
+					MovableCount = MyInventoryManager->CanMoveOrMergeItem_Quick(FromInventoryManager, FromItemSlotPos, OutToItemSlotPoses, OutToItemCounts);
+					if (MovableCount > 0)
+					{
+						UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableCount);
+						for (int32 i = 0; i < OutToItemSlotPoses.Num(); i++)
+						{
+							MyInventoryManager->AddItem_Unsafe(OutToItemSlotPoses[i], RemovedItemInstance, OutToItemCounts[i]);
+						}
+						return;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		// 2. [일반 아이템]
+		// 2-1. [내 인벤토리] -> X
+		// 2-2. [다른 인벤토리] -> 내 인벤토리
+
+		if (MyInventoryManager != FromInventoryManager)
+		{
+			TArray<FIntPoint> ToItemSlotPoses;
+			TArray<int32> ToItemCounts;
+
+			int32 MovableItemCount = MyInventoryManager->CanMoveOrMergeItem_Quick(FromInventoryManager, FromItemSlotPos, ToItemSlotPoses, ToItemCounts);
+			if (MovableItemCount > 0)
+			{
+				UL1ItemInstance* RemovedItemInstance = FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, MovableItemCount);
+				for (int32 i = 0; i < ToItemSlotPoses.Num(); i++)
+				{
+					MyInventoryManager->AddItem_Unsafe(ToItemSlotPoses[i], RemovedItemInstance, ToItemCounts[i]);
+				}
+			}
+		}
+	}
+}
+
+void UL1NetworkManager::QuickFromEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType FromEquipmentSlotType)
+{
+	UL1EquipmentManagerComponent* FromEquipmentManager = GetCharacterEquipmentManager(FromPlayer);
+
+	if (FromEquipmentManager == nullptr || FromEquipmentSlotType == EEquipmentSlotType::Count)
+		return;
+
+	// 1. [내 장비창] -> 내 인벤토리
+	// 2. [다른 장비창] -> 내 장비 교체 -> 내 장비 장착 -> 내 인벤토리 
+
+	UL1InventoryManagerComponent* MyInventoryManager = GetCharacterInventoryManager(ToPlayer);
+	UL1EquipmentManagerComponent* MyEquipmentManager = GetCharacterEquipmentManager(ToPlayer);
+	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
+		return;
+
+	if (MyEquipmentManager == FromEquipmentManager)
+	{
+		TArray<FIntPoint> ToItemSlotPoses;
+		TArray<int32> ToItemCounts;
+
+		int32 MovableCount = MyInventoryManager->CanMoveOrMergeItem_Quick(FromEquipmentManager, FromEquipmentSlotType, ToItemSlotPoses, ToItemCounts);
+		if (MovableCount > 0)
+		{
+			UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
+			for (int32 i = 0; i < ToItemSlotPoses.Num(); i++)
+			{
+				MyInventoryManager->AddItem_Unsafe(ToItemSlotPoses[i], RemovedItemInstance, ToItemCounts[i]);
+			}
+		}
+	}
+	else
+	{
+		EEquipmentSlotType ToEquipmentSlotType;
+		if (MyEquipmentManager->CanSwapEquipment_Quick(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType))
+		{
+			const int32 FromItemCount = FromEquipmentManager->GetItemCount(FromEquipmentSlotType);
+			const int32 ToItemCount = MyEquipmentManager->GetItemCount(ToEquipmentSlotType);
+
+			UL1ItemInstance* RemovedItemInstanceFrom = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, FromItemCount);
+			UL1ItemInstance* RemovedItemInstanceTo = MyEquipmentManager->RemoveEquipment_Unsafe(ToEquipmentSlotType, ToItemCount);
+			FromEquipmentManager->AddEquipment_Unsafe(FromEquipmentSlotType, RemovedItemInstanceTo, ToItemCount);
+			MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstanceFrom, FromItemCount);
+		}
+		else
+		{
+			int32 MovableCount = MyEquipmentManager->CanMoveOrMergeEquipment_Quick(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType);
+			if (MovableCount > 0)
+			{
+				UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
+				MyEquipmentManager->AddEquipment_Unsafe(ToEquipmentSlotType, RemovedItemInstance, MovableCount);
+			}
+			else
+			{
+				TArray<FIntPoint> ToItemSlotPoses;
+				TArray<int32> ToItemCounts;
+
+				MovableCount = MyInventoryManager->CanMoveOrMergeItem_Quick(FromEquipmentManager, FromEquipmentSlotType, ToItemSlotPoses, ToItemCounts);
+				if (MovableCount > 0)
+				{
+					UL1ItemInstance* RemovedItemInstance = FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, MovableCount);
+					for (int32 i = 0; i < ToItemSlotPoses.Num(); i++)
+					{
+						MyInventoryManager->AddItem_Unsafe(ToItemSlotPoses[i], RemovedItemInstance, ToItemCounts[i]);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -405,6 +600,24 @@ void UL1NetworkManager::HandleDespawn(const Protocol::S_DESPAWN& DespawnPkt)
 	}
 }
 
+void UL1NetworkManager::HandleSelectClass(const Protocol::S_SELECTCLASS& SelectClassPkt)
+{
+	if (Socket == nullptr || GameServerSession == nullptr)
+		return;
+
+	auto* World = GetWorld();
+	if (World == nullptr)
+		return;
+
+	const uint64 ObjectId = SelectClassPkt.object_id();
+	ALyraCharacter* FindActor = *(Players.Find(ObjectId));
+	if (FindActor == nullptr)
+		return;
+
+	ECharacterClassType ClassType = NetworkUtils::ConvertClassFromProto(SelectClassPkt.class_type());
+	SelectClass(ClassType, FindActor);
+}
+
 void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 {
 	if (Socket == nullptr || GameServerSession == nullptr)
@@ -445,6 +658,7 @@ void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)
 
 	ALyraCharacter* FromPlayer = *(Players.Find(FromId));
 	ALyraCharacter* ToPlayer = *(Players.Find(ToId));
+	if (FromPlayer == nullptr || ToPlayer == nullptr) return;
 	
 	switch (TransferType)
 	{
@@ -452,6 +666,8 @@ void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)
 	case Protocol::Equipment_To_Equipment:	EquipmentToEquipment(FromPlayer, ToPlayer, FromEquipmentSlotType, ToEquipmentSlotType, MovableCount); break;
 	case Protocol::Inventory_To_Equipment:	InventoryToEquipment(FromPlayer, ToPlayer, ToEquipmentSlotType, FromItemSlotPos, ToItemSlotPos, MovableCount); break;
 	case Protocol::Inventory_To_Inventory:	InventoryToInventory(FromPlayer, FromItemSlotPos, ToPlayer, ToItemSlotPos, MovableCount); break;
+	case Protocol::Quick_From_Inventory:	QuickFromInventory(FromPlayer, ToPlayer, FromItemSlotPos);
+	case Protocol::Quick_From_Equipment:	QuickFromEquipment(FromPlayer, ToPlayer, FromEquipmentSlotType);
 	default: break;
 	}
 }
@@ -469,4 +685,26 @@ void UL1NetworkManager::HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemP
 	FGameplayEventData Payload;
 	Payload.EventMagnitude = (int32)UEEquipState;
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(FindActor, L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+}
+
+UL1InventoryManagerComponent* UL1NetworkManager::GetCharacterInventoryManager(ALyraCharacter* LyraCharacter) const
+{
+	UL1InventoryManagerComponent* MyInventoryManager = nullptr;
+	if (LyraCharacter)
+	{
+		MyInventoryManager = LyraCharacter->GetComponentByClass<UL1InventoryManagerComponent>();
+	}
+
+	return MyInventoryManager;
+}
+
+UL1EquipmentManagerComponent* UL1NetworkManager::GetCharacterEquipmentManager(ALyraCharacter* LyraCharacter) const
+{
+	UL1EquipmentManagerComponent* MyEquipmentManager = nullptr;
+	if (LyraCharacter)
+	{
+		MyEquipmentManager = LyraCharacter->GetComponentByClass<UL1EquipmentManagerComponent>();
+	}
+
+	return MyEquipmentManager;
 }

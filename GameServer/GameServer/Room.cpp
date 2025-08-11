@@ -122,6 +122,24 @@ bool Room::HandleLeavePlayer(PlayerRef player)
 	return LeaveRoom(player);
 }
 
+void Room::HandleSelcetClass(Protocol::C_SELECTCLASS pkt)
+{
+	const uint64 objectId = pkt.object_id();
+	if (_objects.find(objectId) == _objects.end())
+		return;
+	
+	PlayerRef player = dynamic_pointer_cast<Player>(_objects[objectId]);
+	player->_objectInfo->set_character_classtype(pkt.class_type());
+
+	{
+		Protocol::S_SELECTCLASS selectClassPkt;
+		selectClassPkt.set_object_id(objectId);
+		selectClassPkt.set_class_type(pkt.class_type());
+		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(selectClassPkt);
+		Broadcast(sendBuffer);
+	}
+}
+
 void Room::HandleMove(Protocol::C_MOVE pkt)
 {
 	const uint64 objectId = pkt.info().object_id();
