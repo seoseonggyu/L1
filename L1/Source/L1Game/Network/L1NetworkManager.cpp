@@ -112,7 +112,6 @@ void UL1NetworkManager::SendPacket_ItemMove(int32 FromId, int32 ToId, EEquipment
 	}
 }
 
-
 void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
 {
 	if (ClassType == ECharacterClassType::Count || ClassType == Character->CharacterClassType)
@@ -558,8 +557,6 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 		Player->SetActorLocation(SpawnLocation);
 		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		Player->SetDestInfo(ObjectInfo.pos_info());
-
-		SelectClass(ClassType, Player);
 	}
 }
 
