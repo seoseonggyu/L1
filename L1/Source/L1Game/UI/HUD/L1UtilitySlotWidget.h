@@ -24,6 +24,9 @@ protected:
 	virtual void NativeDestruct() override;
 
 private:
+	void HandleNewPawn(APawn* NewPawn);
+
+private:
 	void OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSlotType, UL1ItemInstance* ItemInstance, int32 ItemCount);
 	void OnEquipStateChanged(EEquipState PrevEquipState, EEquipState NewEquipState);
 	

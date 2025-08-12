@@ -86,6 +86,11 @@ protected:
 	void Input_SetDestination(const FInputActionValue& InputActionValue);
 
 	void Input_ChangeEquip_Weapon_Primary();
+	void Input_ChangeEquip_Weapon_Secondary();
+	void Input_ChangeEquip_Utility_Primary();
+	void Input_ChangeEquip_Utility_Secondary();
+	void Input_ChangeEquip_Utility_Tertiary();
+	void Input_ChangeEquip_Utility_Quaternary();
 
 	void Input_LocalInputConfirm();
 	void Input_LocalInputCancel();

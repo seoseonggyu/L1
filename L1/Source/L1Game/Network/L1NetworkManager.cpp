@@ -538,7 +538,6 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 	}
 	else
 	{
-		// SSG: 내 캐릭가 아닐 경우 수동으로 어빌리티 추가해야함
 		const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
 		Player = Cast<AL1NetworkCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
 		if (Player == nullptr) return;

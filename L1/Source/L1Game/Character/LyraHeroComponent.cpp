@@ -291,6 +291,11 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 
 
 					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Primary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Weapon_Primary, /*bLogIfNotFound=*/ false);
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Secondary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Weapon_Secondary, /*bLogIfNotFound=*/ false);
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Tertiary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Utility_Primary, /*bLogIfNotFound=*/ false);
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Quaternary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Utility_Secondary, /*bLogIfNotFound=*/ false);
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Quinary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Utility_Tertiary, /*bLogIfNotFound=*/ false);
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Senary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Utility_Quaternary, /*bLogIfNotFound=*/ false);
 
 					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Ability_Confirm, ETriggerEvent::Triggered, this, &ThisClass::Input_LocalInputConfirm, /*bLogIfNotFound=*/ false);
 					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Ability_Cancel, ETriggerEvent::Triggered, this, &ThisClass::Input_LocalInputCancel, /*bLogIfNotFound=*/ false);
@@ -436,6 +441,91 @@ void ULyraHeroComponent::Input_ChangeEquip_Weapon_Primary()
 	{
 		FGameplayEventData Payload;
 		Payload.EventMagnitude = (int32)EEquipState::Weapon_Primary;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	}
+}
+
+void ULyraHeroComponent::Input_ChangeEquip_Weapon_Secondary()
+{
+	if (GetNetworkManager()->bConnected)
+	{
+		Protocol::C_EQUIP_ITEM EquipItemPkt;
+		EquipItemPkt.set_object_id(Cast<ALyraCharacter>(GetPawn<APawn>())->GetPlayerId());
+		EquipItemPkt.set_equip_state(Protocol::Equip_State_Weapon_Secondary);
+		GetNetworkManager()->SendPacket(EquipItemPkt);
+	}
+	else
+	{
+		FGameplayEventData Payload;
+		Payload.EventMagnitude = (int32)EEquipState::Weapon_Secondary;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	}
+}
+
+void ULyraHeroComponent::Input_ChangeEquip_Utility_Primary()
+{
+	if (GetNetworkManager()->bConnected)
+	{
+		Protocol::C_EQUIP_ITEM EquipItemPkt;
+		EquipItemPkt.set_object_id(Cast<ALyraCharacter>(GetPawn<APawn>())->GetPlayerId());
+		EquipItemPkt.set_equip_state(Protocol::Equip_State_Utility_Primary);
+		GetNetworkManager()->SendPacket(EquipItemPkt);
+	}
+	else
+	{
+		FGameplayEventData Payload;
+		Payload.EventMagnitude = (int32)EEquipState::Utility_Primary;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	}
+}
+
+void ULyraHeroComponent::Input_ChangeEquip_Utility_Secondary()
+{
+	if (GetNetworkManager()->bConnected)
+	{
+		Protocol::C_EQUIP_ITEM EquipItemPkt;
+		EquipItemPkt.set_object_id(Cast<ALyraCharacter>(GetPawn<APawn>())->GetPlayerId());
+		EquipItemPkt.set_equip_state(Protocol::Equip_State_Utility_Secondary);
+		GetNetworkManager()->SendPacket(EquipItemPkt);
+	}
+	else
+	{
+		FGameplayEventData Payload;
+		Payload.EventMagnitude = (int32)EEquipState::Utility_Secondary;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	}
+}
+
+void ULyraHeroComponent::Input_ChangeEquip_Utility_Tertiary()
+{
+	if (GetNetworkManager()->bConnected)
+	{
+		Protocol::C_EQUIP_ITEM EquipItemPkt;
+		EquipItemPkt.set_object_id(Cast<ALyraCharacter>(GetPawn<APawn>())->GetPlayerId());
+		EquipItemPkt.set_equip_state(Protocol::Equip_State_Utility_Tertiary);
+		GetNetworkManager()->SendPacket(EquipItemPkt);
+	}
+	else
+	{
+		FGameplayEventData Payload;
+		Payload.EventMagnitude = (int32)EEquipState::Utility_Tertiary;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	}
+}
+
+void ULyraHeroComponent::Input_ChangeEquip_Utility_Quaternary()
+{
+	if (GetNetworkManager()->bConnected)
+	{
+		Protocol::C_EQUIP_ITEM EquipItemPkt;
+		EquipItemPkt.set_object_id(Cast<ALyraCharacter>(GetPawn<APawn>())->GetPlayerId());
+		EquipItemPkt.set_equip_state(Protocol::Equip_State_Utility_Quaternary);
+		GetNetworkManager()->SendPacket(EquipItemPkt);
+	}
+	else
+	{
+		FGameplayEventData Payload;
+		Payload.EventMagnitude = (int32)EEquipState::Utility_Quaternary;
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
 	}
 }
