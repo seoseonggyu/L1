@@ -6,6 +6,7 @@
 #include "GameplayCueInterface.h"
 #include "GameplayTagAssetInterface.h"
 #include "ModularCharacter.h"
+#include "Interaction/L1Interactable.h"
 #include "Teams/LyraTeamAgentInterface.h"
 #include "Protocol.pb.h"
 
@@ -96,7 +97,7 @@ struct TStructOpsTypeTraits<FSharedRepMovement> : public TStructOpsTypeTraitsBas
  *	New behavior should be added via pawn components when possible.
  */
 UCLASS(Config = Game, Meta = (ShortTooltip = "The base character pawn class used by this project."))
-class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public ILyraTeamAgentInterface
+class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public ILyraTeamAgentInterface, public IL1Interactable
 {
 	GENERATED_BODY()
 
@@ -228,6 +229,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_MyTeamID(FGenericTeamId OldTeamID);
+
+public:
+	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
 public:
 	void SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo);

@@ -6,7 +6,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitConfirmCancel.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
-// #include "Actors/L1AOEBase.h" // SSG: AOE
+#include "Actors/L1AOEBase.h" 
 #include "Actors/L1EquipmentBase.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "UI/HUD/L1SkillInputWidget.h"
@@ -65,9 +65,8 @@ void UL1GameplayAbility_Skill_AOE::EndAbility(const FGameplayAbilitySpecHandle H
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
-	// SSG: AOE
-	/*FlushPressedInput(MainHandInputAction);
-	FlushPressedInput(OffHandInputAction);*/
+	FlushPressedInput(MainHandInputAction);
+	FlushPressedInput(OffHandInputAction);
 }
 
 void UL1GameplayAbility_Skill_AOE::ConfirmSkill()
@@ -83,20 +82,18 @@ void UL1GameplayAbility_Skill_AOE::ConfirmSkill()
 		SpellMontageTask->ReadyForActivation();
 	}
 
-	if (HasAuthority(&CurrentActivationInfo))
+	if (UAbilityTask_WaitGameplayEvent* SpellBeginEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, L1GameplayTags::GameplayEvent_Montage_Begin, nullptr, true, true))
 	{
-		if (UAbilityTask_WaitGameplayEvent* SpellBeginEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, L1GameplayTags::GameplayEvent_Montage_Begin, nullptr, true, true))
-		{
-			SpellBeginEventTask->EventReceived.AddDynamic(this, &ThisClass::OnSpellBegin);
-			SpellBeginEventTask->ReadyForActivation();
-		}
-
-		if (UAbilityTask_WaitGameplayEvent* SpellEndEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, L1GameplayTags::GameplayEvent_Montage_End, nullptr, true, true))
-		{
-			SpellEndEventTask->EventReceived.AddDynamic(this, &ThisClass::OnSpellEnd);
-			SpellEndEventTask->ReadyForActivation();
-		}
+		SpellBeginEventTask->EventReceived.AddDynamic(this, &ThisClass::OnSpellBegin);
+		SpellBeginEventTask->ReadyForActivation();
 	}
+
+	if (UAbilityTask_WaitGameplayEvent* SpellEndEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, L1GameplayTags::GameplayEvent_Montage_End, nullptr, true, true))
+	{
+		SpellEndEventTask->EventReceived.AddDynamic(this, &ThisClass::OnSpellEnd);
+		SpellEndEventTask->ReadyForActivation();
+	}
+
 }
 
 void UL1GameplayAbility_Skill_AOE::CancelSkill()
@@ -173,9 +170,6 @@ void UL1GameplayAbility_Skill_AOE::OnCastStartBegin(FGameplayEventData Payload)
 
 void UL1GameplayAbility_Skill_AOE::OnSpellBegin(FGameplayEventData Payload)
 {
-	if (HasAuthority(&CurrentActivationInfo) == false)
-		return;
-	
 	if (TargetDataHandle.Data.IsValidIndex(0))
 	{
 		if (FGameplayAbilityTargetData* TargetData = TargetDataHandle.Data[0].Get())
@@ -192,8 +186,7 @@ void UL1GameplayAbility_Skill_AOE::OnSpellBegin(FGameplayEventData Payload)
 				FTransform SpawnTransform = FTransform::Identity;
 				SpawnTransform.SetLocation(HitResult.Location);
 				
-				// SSG: 
-				/*AL1AOEBase* AOE = GetWorld()->SpawnActorDeferred<AL1AOEBase>(
+				AL1AOEBase* AOE = GetWorld()->SpawnActorDeferred<AL1AOEBase>(
 					AOESpawnerClass,
 					SpawnTransform,
 					GetAvatarActorFromActorInfo(),
@@ -201,7 +194,7 @@ void UL1GameplayAbility_Skill_AOE::OnSpellBegin(FGameplayEventData Payload)
 					ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 				);
 	
-				AOE->FinishSpawning(SpawnTransform);*/
+				AOE->FinishSpawning(SpawnTransform);
 			}
 		}
 	}

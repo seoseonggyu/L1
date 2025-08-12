@@ -63,9 +63,8 @@ void UL1GameplayAbility_Skill_Targeting::EndAbility(const FGameplayAbilitySpecHa
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	
-	// SSG: AOE
-	/*FlushPressedInput(MainHandInputAction);
-	FlushPressedInput(OffHandInputAction);*/
+	FlushPressedInput(MainHandInputAction);
+	FlushPressedInput(OffHandInputAction);
 }
 
 void UL1GameplayAbility_Skill_Targeting::ConfirmSkill()
@@ -81,13 +80,10 @@ void UL1GameplayAbility_Skill_Targeting::ConfirmSkill()
 		SpellMontageTask->ReadyForActivation();
 	}
 
-	if (HasAuthority(&CurrentActivationInfo))
+	if (UAbilityTask_WaitGameplayEvent* SpellBeginEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, L1GameplayTags::GameplayEvent_Montage_Begin, nullptr, true, true))
 	{
-		if (UAbilityTask_WaitGameplayEvent* SpellBeginEventTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, L1GameplayTags::GameplayEvent_Montage_Begin, nullptr, true, true))
-		{
-			SpellBeginEventTask->EventReceived.AddDynamic(this, &ThisClass::OnSpellBegin);
-			SpellBeginEventTask->ReadyForActivation();
-		}
+		SpellBeginEventTask->EventReceived.AddDynamic(this, &ThisClass::OnSpellBegin);
+		SpellBeginEventTask->ReadyForActivation();
 	}
 }
 
@@ -147,9 +143,6 @@ void UL1GameplayAbility_Skill_Targeting::OnCastStartBegin(FGameplayEventData Pay
 
 void UL1GameplayAbility_Skill_Targeting::OnSpellBegin(FGameplayEventData Payload)
 {
-	if (HasAuthority(&CurrentActivationInfo) == false)
-		return;
-	
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (SourceASC == nullptr)
 		return;
@@ -178,8 +171,7 @@ void UL1GameplayAbility_Skill_Targeting::OnSpellBegin(FGameplayEventData Payload
 					}
 				}
 
-				// SSG: AOE
-				/*UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
+				UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
 				if (TargetASC && BurstGameplayCueTag.IsValid())
 				{
 					FGameplayCueParameters GameplayCueParams;
@@ -191,7 +183,7 @@ void UL1GameplayAbility_Skill_Targeting::OnSpellBegin(FGameplayEventData Payload
 					GameplayCueParams.Normal = HitResult.ImpactNormal;
 					GameplayCueParams.PhysicalMaterial = HitResult.PhysMaterial;
 					TargetASC->ExecuteGameplayCue(BurstGameplayCueTag, GameplayCueParams);
-				}*/
+				}
 			}
 		}
 	}

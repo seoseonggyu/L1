@@ -38,8 +38,6 @@ void AL1WorldPickupable::OnRep_PickupInfo()
 
 void AL1WorldPickupable::SetPickupInfo(const FL1PickupInfo& InPickupInfo)
 {
-	if (HasAuthority() == false)
-		return;
 	
 	if (InPickupInfo.PickupInstance.ItemInstance || InPickupInfo.PickupTemplate.ItemTemplateClass)
 	{

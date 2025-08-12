@@ -6,6 +6,7 @@
 
 #include "LyraGameplayAbility.generated.h"
 
+class UInputMappingContext;
 struct FGameplayAbilityActivationInfo;
 struct FGameplayAbilitySpec;
 struct FGameplayAbilitySpecHandle;
@@ -214,6 +215,17 @@ protected:
 	TSubclassOf<ULyraCameraMode> ActiveCameraMode;
 
 public:
+	UFUNCTION(BlueprintCallable)
+	void FlushPressedKeys();
+
+	UFUNCTION(BlueprintCallable)
+	void FlushPressedInput(UInputAction* InputAction);
+
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Ability")
+	TObjectPtr<UInputMappingContext> InputMappingContext;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Ability")
 	TObjectPtr<UTexture2D> Icon;
 

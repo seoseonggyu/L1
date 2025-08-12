@@ -11,6 +11,7 @@
 #include "Character/LyraHeroComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
+#include "EnhancedInputSubsystems.h"
 #include "LyraAbilitySimpleFailureMessage.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "AbilitySystem/LyraAbilitySourceInterface.h"
@@ -18,6 +19,8 @@
 #include "Physics/PhysicalMaterialWithTags.h"
 #include "GameFramework/PlayerState.h"
 #include "Camera/LyraCameraMode.h"
+#include "Input/L1EnhancedPlayerInput.h"
+#include "Player/LyraLocalPlayer.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraGameplayAbility)
 
@@ -189,11 +192,45 @@ void ULyraGameplayAbility::OnRemoveAbility(const FGameplayAbilityActorInfo* Acto
 void ULyraGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (InputMappingContext)
+	{
+		if (const APlayerController* PC = GetLyraPlayerControllerFromActorInfo())
+		{
+			if (const ULyraLocalPlayer* LP = Cast<ULyraLocalPlayer>(PC->GetLocalPlayer()))
+			{
+				if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+				{
+					FModifyContextOptions Options;
+					Options.bForceImmediately = true;
+					Options.bIgnoreAllPressedKeysUntilRelease = true;
+					Subsystem->AddMappingContext(InputMappingContext, 1, Options);
+				}
+			}
+		}
+	}
 }
 
 void ULyraGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	ClearCameraMode();
+
+	if (InputMappingContext)
+	{
+		if (const APlayerController* PC = GetLyraPlayerControllerFromActorInfo())
+		{
+			if (const ULyraLocalPlayer* LP = Cast<ULyraLocalPlayer>(PC->GetLocalPlayer()))
+			{
+				if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+				{
+					FModifyContextOptions Options;
+					Options.bForceImmediately = true;
+					Options.bIgnoreAllPressedKeysUntilRelease = false;
+					Subsystem->RemoveMappingContext(InputMappingContext, Options);
+				}
+			}
+		}
+	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -436,6 +473,28 @@ void ULyraGameplayAbility::GetAbilitySource(FGameplayAbilitySpecHandle Handle, c
 	UObject* SourceObject = GetSourceObject(Handle, ActorInfo);
 
 	OutAbilitySource = Cast<ILyraAbilitySourceInterface>(SourceObject);
+}
+
+void ULyraGameplayAbility::FlushPressedKeys()
+{
+	if (ALyraPlayerController* PC = GetLyraPlayerControllerFromActorInfo())
+	{
+		PC->FlushPressedKeys();
+	}
+}
+
+void ULyraGameplayAbility::FlushPressedInput(UInputAction* InputAction)
+{
+	if (CurrentActorInfo)
+	{
+		if (APlayerController* PlayerController = CurrentActorInfo->PlayerController.Get())
+		{
+			if (UL1EnhancedPlayerInput* PlayerInput = Cast<UL1EnhancedPlayerInput>(PlayerController->PlayerInput))
+			{
+				PlayerInput->FlushPressedInput(InputAction);
+			}
+		}
+	}
 }
 
 void ULyraGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) const

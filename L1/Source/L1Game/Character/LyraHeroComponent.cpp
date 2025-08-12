@@ -292,6 +292,9 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 
 					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_ChangeEquip_Primary, ETriggerEvent::Triggered, this, &ThisClass::Input_ChangeEquip_Weapon_Primary, /*bLogIfNotFound=*/ false);
 
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Ability_Confirm, ETriggerEvent::Triggered, this, &ThisClass::Input_LocalInputConfirm, /*bLogIfNotFound=*/ false);
+					LyraIC->BindNativeAction(InputConfig, L1GameplayTags::InputTag_Ability_Cancel, ETriggerEvent::Triggered, this, &ThisClass::Input_LocalInputCancel, /*bLogIfNotFound=*/ false);
+
 				}
 			}
 		}
@@ -434,6 +437,34 @@ void ULyraHeroComponent::Input_ChangeEquip_Weapon_Primary()
 		FGameplayEventData Payload;
 		Payload.EventMagnitude = (int32)EEquipState::Weapon_Primary;
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+	}
+}
+
+void ULyraHeroComponent::Input_LocalInputConfirm()
+{
+	if (const APawn* Pawn = GetPawn<APawn>())
+	{
+		if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+		{
+			if (ULyraAbilitySystemComponent* LyraASC = PawnExtComp->GetLyraAbilitySystemComponent())
+			{
+				LyraASC->LocalInputConfirm();
+			}
+		}
+	}
+}
+
+void ULyraHeroComponent::Input_LocalInputCancel()
+{
+	if (const APawn* Pawn = GetPawn<APawn>())
+	{
+		if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+		{
+			if (ULyraAbilitySystemComponent* LyraASC = PawnExtComp->GetLyraAbilitySystemComponent())
+			{
+				LyraASC->LocalInputCancel();
+			}
+		}
 	}
 }
 

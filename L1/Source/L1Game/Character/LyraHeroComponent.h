@@ -87,6 +87,9 @@ protected:
 
 	void Input_ChangeEquip_Weapon_Primary();
 
+	void Input_LocalInputConfirm();
+	void Input_LocalInputCancel();
+
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 	
 	void OnInputConfigActivated(const FLoadedMappableConfigPair& ConfigPair);

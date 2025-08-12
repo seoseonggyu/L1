@@ -71,12 +71,12 @@ protected:
 	TArray<TSubclassOf<UGameplayEffect>> GameplayEffectClasses;
 	
 protected:
-	// SSG: 
-	/*UPROPERTY(EditDefaultsOnly, Category="L1|Targeting")
+
+	UPROPERTY(EditDefaultsOnly, Category="L1|Targeting")
 	TObjectPtr<UInputAction> MainHandInputAction;
 
 	UPROPERTY(EditDefaultsOnly, Category="L1|Targeting")
-	TObjectPtr<UInputAction> OffHandInputAction;*/
+	TObjectPtr<UInputAction> OffHandInputAction;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="L1|Targeting")

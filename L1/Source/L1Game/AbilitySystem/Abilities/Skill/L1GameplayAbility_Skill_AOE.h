@@ -78,12 +78,11 @@ protected:
 	TSubclassOf<AActor> AOESpawnerClass;
 
 protected:
-	// SSG: AOE
-	/*UPROPERTY(EditDefaultsOnly, Category="L1|AOE")
+	UPROPERTY(EditDefaultsOnly, Category="L1|AOE")
 	TObjectPtr<UInputAction> MainHandInputAction;
 
 	UPROPERTY(EditDefaultsOnly, Category="L1|AOE")
-	TObjectPtr<UInputAction> OffHandInputAction;*/
+	TObjectPtr<UInputAction> OffHandInputAction;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="L1|AOE")

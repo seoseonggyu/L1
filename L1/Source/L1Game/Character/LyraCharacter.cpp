@@ -11,6 +11,7 @@
 #include "LyraCharacterMovementComponent.h"
 #include "L1GameplayTags.h"
 #include "L1LogChannels.h"
+#include "Item/Managers/L1CosmeticManagerComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/LyraPlayerController.h"
 #include "Player/LyraPlayerState.h"
@@ -558,6 +559,16 @@ void ALyraCharacter::OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, 
 void ALyraCharacter::OnRep_MyTeamID(FGenericTeamId OldTeamID)
 {
 	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
+}
+
+void ALyraCharacter::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
+{
+	OutMeshComponents.Add(GetMesh());
+
+	if (UL1CosmeticManagerComponent* CosmeticManager = GetComponentByClass<UL1CosmeticManagerComponent>())
+	{
+		CosmeticManager->GetMeshComponents(OutMeshComponents);
+	}
 }
 
 void ALyraCharacter::SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo)

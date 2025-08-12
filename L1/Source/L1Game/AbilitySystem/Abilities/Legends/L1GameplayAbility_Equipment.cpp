@@ -17,8 +17,7 @@
 UL1GameplayAbility_Equipment::UL1GameplayAbility_Equipment(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bServerRespectsRemoteAbilityCancellation = false;
-	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ServerOnlyTermination;
+
 }
 
 void UL1GameplayAbility_Equipment::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
