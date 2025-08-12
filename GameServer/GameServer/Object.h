@@ -7,9 +7,6 @@ public:
 	virtual ~Object();
 
 	bool IsPlayer() { return _isPlayer; }
-	bool IsMove() { return _isMove; }
-
-	void SetMove(bool isMove) { _isMove = isMove; }
 
 public:
 	Protocol::ObjectInfo*	_objectInfo;
@@ -21,8 +18,5 @@ public:
 
 protected:
 	bool _isPlayer = false;
-	
-	// SSG: 
-	bool _isMove = false;
 };
 

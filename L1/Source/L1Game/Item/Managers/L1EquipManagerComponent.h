@@ -92,6 +92,7 @@ private:
 	UFUNCTION()
 	void CurrentEquip(EEquipState PrevEquipState);
 
+	void BroadcastChangedMessage(EEquipState PrevEquipState, EEquipState NewEquipState);
 public:
 	ALyraCharacter* GetCharacter() const;
 	ALyraPlayerController* GetPlayerController() const;

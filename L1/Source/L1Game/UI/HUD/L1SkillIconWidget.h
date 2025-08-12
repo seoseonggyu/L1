@@ -23,6 +23,9 @@ protected:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
+	void HandleNewPawn(APawn* NewPawn);
+
+private:
 	UFUNCTION()
 	void OnAbilitySystemInitialized();
 	

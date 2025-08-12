@@ -366,6 +366,8 @@ void UL1EquipManagerComponent::UnequipCurrentSlots()
 
 void UL1EquipManagerComponent::ChangeEquipState(EEquipState NewEquipState)
 {
+	EEquipState PreEquipState = CurrentEquipState;
+
 	if (CanChangeEquipState(NewEquipState))
 	{
 		if (CurrentEquipState == NewEquipState)
@@ -376,6 +378,10 @@ void UL1EquipManagerComponent::ChangeEquipState(EEquipState NewEquipState)
 		UnequipCurrentSlots();
 		CurrentEquipState = NewEquipState;
 		EquipCurrentSlots();
+	}
+
+	if (PreEquipState != CurrentEquipState) {
+		BroadcastChangedMessage(PreEquipState, CurrentEquipState);
 	}
 }
 
@@ -399,6 +405,14 @@ bool UL1EquipManagerComponent::CanChangeEquipState(EEquipState NewEquipState) co
 
 void UL1EquipManagerComponent::CurrentEquip(EEquipState PrevEquipState)
 {
+}
+
+void UL1EquipManagerComponent::BroadcastChangedMessage(EEquipState PrevEquipState, EEquipState NewEquipState)
+{
+	if (OnEquipStateChanged.IsBound())
+	{
+		OnEquipStateChanged.Broadcast(PrevEquipState, NewEquipState);
+	}
 }
 
 ALyraCharacter* UL1EquipManagerComponent::GetCharacter() const

@@ -33,29 +33,18 @@ void UL1WeaponSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(GetOwningPlayerPawn());
-	if (LyraCharacter == nullptr)
-		return;
-	
-	EquipManager = LyraCharacter->GetComponentByClass<UL1EquipManagerComponent>();
-	EquipmentManager = LyraCharacter->GetComponentByClass<UL1EquipmentManagerComponent>();
-	if (EquipManager == nullptr || EquipmentManager == nullptr)
-		return;
-
-	const TArray<FL1EquipmentEntry>& Entries = EquipmentManager->GetEntries();
-	for (int32 i = 0; i < Entries.Num(); i++)
+	// TEMP: 캐릭터가 완료되지 않아서 Possessed 되면 추가하기!
+	if (APlayerController* PC = GetOwningPlayer())
 	{
-		const FL1EquipmentEntry& Entry = Entries[i];
-		if (UL1ItemInstance* ItemInstance = Entry.GetItemInstance())
+		// Pawn 변경 이벤트 구독
+		PC->GetOnNewPawnNotifier().AddUObject(this, &UL1WeaponSlotWidget::HandleNewPawn);
+
+		// 이미 Pawn이 있다면 즉시 초기화
+		if (APawn* CurrentPawn = PC->GetPawn())
 		{
-			OnEquipmentEntryChanged((EEquipmentSlotType)i, ItemInstance, Entry.GetItemCount());
+			HandleNewPawn(CurrentPawn);
 		}
 	}
-	EntryChangedDelegateHandle = EquipmentManager->OnEquipmentEntryChanged.AddUObject(this, &ThisClass::OnEquipmentEntryChanged);
-	
-	EEquipState CurrentEquipState = EquipManager->GetCurrentEquipState();
-	OnEquipStateChanged(CurrentEquipState, CurrentEquipState);
-	EquipStateChangedDelegateHandle = EquipManager->OnEquipStateChanged.AddUObject(this, &ThisClass::OnEquipStateChanged);
 }
 
 void UL1WeaponSlotWidget::NativeDestruct()
@@ -73,6 +62,35 @@ void UL1WeaponSlotWidget::NativeDestruct()
 	}
 	
 	Super::NativeDestruct();
+}
+
+void UL1WeaponSlotWidget::HandleNewPawn(APawn* NewPawn)
+{
+	if (NewPawn == nullptr) return;
+
+	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(NewPawn);
+	if (LyraCharacter == nullptr)
+		return;
+
+	EquipManager = LyraCharacter->GetComponentByClass<UL1EquipManagerComponent>();
+	EquipmentManager = LyraCharacter->GetComponentByClass<UL1EquipmentManagerComponent>();
+	if (EquipManager == nullptr || EquipmentManager == nullptr)
+		return;
+
+	const TArray<FL1EquipmentEntry>& Entries = EquipmentManager->GetEntries();
+	for (int32 i = 0; i < Entries.Num(); i++)
+	{
+		const FL1EquipmentEntry& Entry = Entries[i];
+		if (UL1ItemInstance* ItemInstance = Entry.GetItemInstance())
+		{
+			OnEquipmentEntryChanged((EEquipmentSlotType)i, ItemInstance, Entry.GetItemCount());
+		}
+	}
+	EntryChangedDelegateHandle = EquipmentManager->OnEquipmentEntryChanged.AddUObject(this, &ThisClass::OnEquipmentEntryChanged);
+
+	EEquipState CurrentEquipState = EquipManager->GetCurrentEquipState();
+	OnEquipStateChanged(CurrentEquipState, CurrentEquipState);
+	EquipStateChangedDelegateHandle = EquipManager->OnEquipStateChanged.AddUObject(this, &ThisClass::OnEquipStateChanged);
 }
 
 void UL1WeaponSlotWidget::OnEquipmentEntryChanged(EEquipmentSlotType EquipmentSlotType, UL1ItemInstance* ItemInstance, int32 ItemCount)

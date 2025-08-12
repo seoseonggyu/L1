@@ -23,20 +23,27 @@ void UL1SkillIconWidget::NativeOnInitialized()
 	
 	SetVisibility(ESlateVisibility::Hidden);
 
-	if (ULyraPawnExtensionComponent* PawnExtensionComponent = ULyraPawnExtensionComponent::FindPawnExtensionComponent(GetOwningPlayerPawn()))
+	// TEMP: 캐릭터가 완료되지 않아서 Possessed 되면 추가하기!
+	if (APlayerController* PC = GetOwningPlayer())
 	{
-		PawnExtensionComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
+		// Pawn 변경 이벤트 구독
+		PC->GetOnNewPawnNotifier().AddUObject(this, &UL1SkillIconWidget::HandleNewPawn);
+
+		// 이미 Pawn이 있다면 즉시 초기화
+		if (APawn* CurrentPawn = PC->GetPawn())
+		{
+			HandleNewPawn(CurrentPawn);
+		}
 	}
 }
 
 void UL1SkillIconWidget::NativeDestruct()
 {
-	// SSG: 
-	/*if (ULyraAbilitySystemComponent* LyraASC = Cast<ULyraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwningPlayerPawn())))
+	if (ULyraAbilitySystemComponent* LyraASC = Cast<ULyraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwningPlayerPawn())))
 	{
 		LyraASC->AbilityChangedDelegate.Remove(AbilityDelegateHandle);
 		AbilityDelegateHandle.Reset();
-	}*/
+	}
 	
 	Super::NativeDestruct();
 }
@@ -46,6 +53,16 @@ void UL1SkillIconWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	RefreshUI();
+}
+
+void UL1SkillIconWidget::HandleNewPawn(APawn* NewPawn)
+{
+	if (NewPawn == nullptr) return;
+
+	if (ULyraPawnExtensionComponent* PawnExtensionComponent = ULyraPawnExtensionComponent::FindPawnExtensionComponent(GetOwningPlayerPawn()))
+	{
+		PawnExtensionComponent->OnAbilitySystemInitialized_RegisterAndCall(FSimpleMulticastDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilitySystemInitialized));
+	}
 }
 
 void UL1SkillIconWidget::RefreshUI()
@@ -104,9 +121,7 @@ void UL1SkillIconWidget::OnAbilitySystemInitialized()
 				break;
 			}
 		}
-		
-		// SSG: 
-		// AbilityDelegateHandle = LyraASC->AbilityChangedDelegate.AddUObject(this, &ThisClass::OnAbilityChanged);
+		AbilityDelegateHandle = LyraASC->AbilityChangedDelegate.AddUObject(this, &ThisClass::OnAbilityChanged);
 	}
 }
 

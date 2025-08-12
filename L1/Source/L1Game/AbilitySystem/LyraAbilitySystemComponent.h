@@ -16,7 +16,7 @@ struct FFrame;
 struct FGameplayAbilityTargetDataHandle;
 
 L1GAME_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Gameplay_AbilityInputBlocked);
-
+DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityChangedDelegate, FGameplayAbilitySpecHandle, bool/*bGiven*/);
 
 /**
  * ULyraAbilitySystemComponent
@@ -37,6 +37,9 @@ public:
 	//~End of UActorComponent interface
 
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
+
+	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
+	virtual void OnRemoveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 
 	typedef TFunctionRef<bool(const ULyraGameplayAbility* LyraAbility, FGameplayAbilitySpecHandle Handle)> TShouldCancelAbilityFunc;
 	void CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility);
@@ -104,4 +107,7 @@ protected:
 
 	// Number of abilities running in each activation group.
 	int32 ActivationGroupCounts[(uint8)ELyraAbilityActivationGroup::MAX];
+
+public:
+	FAbilityChangedDelegate AbilityChangedDelegate;
 };

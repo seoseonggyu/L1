@@ -148,12 +148,19 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 
 	PlayerRef player = dynamic_pointer_cast<Player>(_objects[objectId]);
 	player->_destinationInfo->CopyFrom(pkt.info());
+	player->_posInfo->CopyFrom(pkt.info());
+	
+	{
+		Protocol::S_MOVE movePkt;
+		Protocol::PosInfo* info = movePkt.mutable_info();
+		info->CopyFrom(*player->_posInfo); // SSG: Tick 贸府肺 官层具 窃
 
-	// SSG:
-	if (player->IsMove()) return;
+		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
+		Broadcast(sendBuffer);
+	}
 
-	TestTick(player);
-
+	// TODO: Tick 贸府秦具塞
+	// TestTick(player);
 }
 
 void Room::HandleMoveItem(Protocol::C_MOVE_ITEM pkt)
@@ -189,9 +196,8 @@ void Room::HandleEquipItem(Protocol::C_EQUIP_ITEM pkt)
 
 void Room::TestTick(PlayerRef player)
 {
+	return;
 	if (player == nullptr) return;
-	
-	player->SetMove(true);
 	
 	bool isTick = true;
 	float DeltaTime = 1.0f / 30.0f;
@@ -215,7 +221,6 @@ void Room::TestTick(PlayerRef player)
 	if (MoveDistance >= Distance) {
 		player->_posInfo->CopyFrom(*player->_destinationInfo);
 		isTick = false;
-		player->SetMove(false);
 	}
 	else {
 		location = location + Direction * MoveDistance;

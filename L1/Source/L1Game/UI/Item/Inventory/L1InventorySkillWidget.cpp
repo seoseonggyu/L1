@@ -31,9 +31,8 @@ void UL1InventorySkillWidget::NativeDestruct()
 {
 	if (ULyraAbilitySystemComponent* LyraASC = Cast<ULyraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwningPlayerPawn())))
 	{
-		// SSG: 
-		/*LyraASC->AbilityChangedDelegate.Remove(AbilityDelegateHandle);
-		AbilityDelegateHandle.Reset();*/
+		LyraASC->AbilityChangedDelegate.Remove(AbilityDelegateHandle);
+		AbilityDelegateHandle.Reset();
 	}
 
 	if (HoverWidget)
@@ -129,7 +128,7 @@ void UL1InventorySkillWidget::OnAbilitySystemInitialized()
 			}
 		}
 		
-		// AbilityDelegateHandle = LyraASC->AbilityChangedDelegate.AddUObject(this, &ThisClass::OnAbilityChanged); // SSG: 
+		AbilityDelegateHandle = LyraASC->AbilityChangedDelegate.AddUObject(this, &ThisClass::OnAbilityChanged);
 	}
 }
 
