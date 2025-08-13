@@ -85,7 +85,7 @@ bool UL1GameplayAbility_Equipment::CanActivateAbility(const FGameplayAbilitySpec
 	if (LyraCharacter == nullptr)
 		return false;
 
-	UL1EquipManagerComponent* EquipManager = LyraCharacter->FindComponentByClass<UL1EquipManagerComponent>();
+ 	UL1EquipManagerComponent* EquipManager = LyraCharacter->FindComponentByClass<UL1EquipManagerComponent>();
 	if (EquipManager == nullptr)
 		return false;
 	
