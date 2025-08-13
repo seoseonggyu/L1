@@ -119,7 +119,7 @@ void ALyraCharacter::Tick(float DeltaTime)
 
 	FVector CurrentLocation = GetActorLocation();
 	FVector ToDestination = Destination - CurrentLocation;
-	float Distance = ToDestination.Size();
+	float Distance = ToDestination.Size2D();
 
 	// 1. 일정 거리 이내면 멈춤
 	float StopThreshold = 10.0f; // 10cm 이내 도달로 간주
@@ -132,7 +132,6 @@ void ALyraCharacter::Tick(float DeltaTime)
 	}
 	else
 	{
-		// 4. 도달 후 멈춤 처리 필요 시 여기에 작성
 	}
 
 	SetPlayerInfo(GetActorLocation());

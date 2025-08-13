@@ -21,7 +21,7 @@
 #include "GameModes/LyraExperienceManagerComponent.h"
 #include "GameModes/LyraUserFacingExperienceDefinition.h"
 #include "Kismet/GameplayStatics.h"
-#include "Development/LyraDeveloperSettings.h"
+#include "Development/L1DeveloperSettings.h"
 #include "Player/LyraPlayerSpawningManagerComponent.h"
 #include "CommonUserSubsystem.h"
 #include "CommonSessionSubsystem.h"
@@ -110,7 +110,7 @@ void ALyraGameMode::HandleMatchAssignmentIfNotExpectingOne()
 
 	if (!ExperienceId.IsValid() && World->IsPlayInEditor())
 	{
-		ExperienceId = GetDefault<ULyraDeveloperSettings>()->ExperienceOverride;
+		ExperienceId = GetDefault<UL1DeveloperSettings>()->ExperienceOverride;
 		ExperienceIdSource = TEXT("DeveloperSettings");
 	}
 

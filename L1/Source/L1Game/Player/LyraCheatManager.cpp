@@ -16,7 +16,7 @@
 #include "Character/LyraHealthComponent.h"
 #include "Character/LyraPawnExtensionComponent.h"
 #include "System/LyraSystemStatics.h"
-#include "Development/LyraDeveloperSettings.h"
+#include "Development/L1DeveloperSettings.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCheatManager)
 
@@ -55,7 +55,7 @@ void ULyraCheatManager::InitCheatManager()
 	if (GIsEditor)
 	{
 		APlayerController* PC = GetOuterAPlayerController();
-		for (const FLyraCheatToRun& CheatRow : GetDefault<ULyraDeveloperSettings>()->CheatsToRun)
+		for (const FLyraCheatToRun& CheatRow : GetDefault<UL1DeveloperSettings>()->CheatsToRun)
 		{
 			if (CheatRow.Phase == ECheatExecutionTime::OnCheatManagerCreated)
 			{

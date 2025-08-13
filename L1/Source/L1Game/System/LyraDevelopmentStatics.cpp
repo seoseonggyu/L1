@@ -3,7 +3,7 @@
 #include "LyraDevelopmentStatics.h"
 #include "AssetRegistry/ARFilter.h"
 #include "AssetRegistry/AssetData.h"
-#include "Development/LyraDeveloperSettings.h"
+#include "Development/L1DeveloperSettings.h"
 #include "Engine/Blueprint.h"
 #include "Engine/Engine.h"
 #include "AssetRegistry/AssetRegistryModule.h"
@@ -18,7 +18,7 @@ bool ULyraDevelopmentStatics::ShouldSkipDirectlyToGameplay()
 #if WITH_EDITOR
 	if (GIsEditor)
 	{
-		return !GetDefault<ULyraDeveloperSettings>()->bTestFullGameFlowInPIE;
+		return !GetDefault<UL1DeveloperSettings>()->bTestFullGameFlowInPIE;
 	}
 #endif
 	return false;
@@ -29,7 +29,7 @@ bool ULyraDevelopmentStatics::ShouldLoadCosmeticBackgrounds()
 #if WITH_EDITOR
 	if (GIsEditor)
 	{
-		return !GetDefault<ULyraDeveloperSettings>()->bSkipLoadingCosmeticBackgroundsInPIE;
+		return !GetDefault<UL1DeveloperSettings>()->bSkipLoadingCosmeticBackgroundsInPIE;
 	}
 #endif
 	return true;
@@ -40,7 +40,7 @@ bool ULyraDevelopmentStatics::CanPlayerBotsAttack()
 #if WITH_EDITOR
 	if (GIsEditor)
 	{
-		return GetDefault<ULyraDeveloperSettings>()->bAllowPlayerBotsToAttack;
+		return GetDefault<UL1DeveloperSettings>()->bAllowMonstersAttackPlayer;
 	}
 #endif
 	return true;

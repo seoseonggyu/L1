@@ -27,7 +27,7 @@ UL1GameplayAbility_Skill_AOE::UL1GameplayAbility_Skill_AOE(const FObjectInitiali
 
 void UL1GameplayAbility_Skill_AOE::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData); 
 	
 	if (K2_CheckAbilityCooldown() == false || K2_CheckAbilityCost() == false)
 	{
@@ -93,7 +93,6 @@ void UL1GameplayAbility_Skill_AOE::ConfirmSkill()
 		SpellEndEventTask->EventReceived.AddDynamic(this, &ThisClass::OnSpellEnd);
 		SpellEndEventTask->ReadyForActivation();
 	}
-
 }
 
 void UL1GameplayAbility_Skill_AOE::CancelSkill()

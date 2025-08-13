@@ -22,7 +22,7 @@
 #include "Settings/LyraSettingsShared.h"
 #include "Replays/LyraReplaySubsystem.h"
 #include "ReplaySubsystem.h"
-#include "Development/LyraDeveloperSettings.h"
+#include "Development/L1DeveloperSettings.h"
 #include "GameMapsSettings.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerController)
@@ -350,7 +350,7 @@ void ALyraPlayerController::OnPossess(APawn* InPawn)
 #if WITH_SERVER_CODE && WITH_EDITOR
 	if (GIsEditor && (InPawn != nullptr) && (GetPawn() == InPawn))
 	{
-		for (const FLyraCheatToRun& CheatRow : GetDefault<ULyraDeveloperSettings>()->CheatsToRun)
+		for (const FLyraCheatToRun& CheatRow : GetDefault<UL1DeveloperSettings>()->CheatsToRun)
 		{
 			if (CheatRow.Phase == ECheatExecutionTime::OnPlayerPawnPossession)
 			{
