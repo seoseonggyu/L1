@@ -2,8 +2,8 @@
 
 #include "LyraPlayerState.h"
 
-#include "AbilitySystem/Attributes/LyraCombatSet.h"
-#include "AbilitySystem/Attributes/LyraHealthSet.h"
+#include "AbilitySystem/Attributes/L1CombatSet.h"
+#include "AbilitySystem/Attributes/L1VitalSet.h"
 #include "AbilitySystem/LyraAbilitySet.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Character/LyraPawnData.h"
@@ -36,8 +36,8 @@ ALyraPlayerState::ALyraPlayerState(const FObjectInitializer& ObjectInitializer)
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	// These attribute sets will be detected by AbilitySystemComponent::InitializeComponent. Keeping a reference so that the sets don't get garbage collected before that.
-	HealthSet = CreateDefaultSubobject<ULyraHealthSet>(TEXT("HealthSet"));
-	CombatSet = CreateDefaultSubobject<ULyraCombatSet>(TEXT("CombatSet"));
+	HealthSet = CreateDefaultSubobject<UL1VitalSet>(TEXT("VitalSet"));
+	CombatSet = CreateDefaultSubobject<UL1CombatSet>(TEXT("CombatSet"));
 
 	// AbilitySystemComponent needs to be updated at a high frequency.
 	NetUpdateFrequency = 100.0f;

@@ -26,5 +26,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "L1|Network", meta = (Categories = "Network"))
 	FGameplayTag ResetSendSkillTag;
-
 };

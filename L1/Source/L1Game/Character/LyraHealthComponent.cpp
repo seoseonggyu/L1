@@ -2,7 +2,7 @@
 
 #include "Character/LyraHealthComponent.h"
 
-#include "AbilitySystem/Attributes/LyraAttributeSet.h"
+#include "AbilitySystem/Attributes/L1AttributeSet.h"
 #include "L1LogChannels.h"
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
@@ -10,7 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/LyraHealthSet.h"
+#include "AbilitySystem/Attributes/L1VitalSet.h"
 #include "Messages/LyraVerbMessage.h"
 #include "Messages/LyraVerbMessageHelpers.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
@@ -67,7 +67,7 @@ void ULyraHealthComponent::InitializeWithAbilitySystem(ULyraAbilitySystemCompone
 		return;
 	}
 
-	HealthSet = AbilitySystemComponent->GetSet<ULyraHealthSet>();
+	HealthSet = AbilitySystemComponent->GetSet<UL1VitalSet>();
 	if (!HealthSet)
 	{
 		UE_LOG(LogL1, Error, TEXT("LyraHealthComponent: Cannot initialize health component for owner [%s] with NULL health set on the ability system."), *GetNameSafe(Owner));
@@ -80,7 +80,7 @@ void ULyraHealthComponent::InitializeWithAbilitySystem(ULyraAbilitySystemCompone
 	HealthSet->OnOutOfHealth.AddUObject(this, &ThisClass::HandleOutOfHealth);
 
 	// TEMP: Reset attributes to default values.  Eventually this will be driven by a spread sheet.
-	AbilitySystemComponent->SetNumericAttributeBase(ULyraHealthSet::GetHealthAttribute(), HealthSet->GetMaxHealth());
+	AbilitySystemComponent->SetNumericAttributeBase(UL1VitalSet::GetHealthAttribute(), HealthSet->GetMaxHealth());
 
 	ClearGameplayTags();
 

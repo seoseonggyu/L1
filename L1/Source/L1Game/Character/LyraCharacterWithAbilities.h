@@ -32,8 +32,8 @@ private:
 	
 	// Health attribute set used by this actor.
 	UPROPERTY()
-	TObjectPtr<const class ULyraHealthSet> HealthSet;
+	TObjectPtr<const class UL1VitalSet> HealthSet;
 	// Combat attribute set used by this actor.
 	UPROPERTY()
-	TObjectPtr<const class ULyraCombatSet> CombatSet;
+	TObjectPtr<const class UL1CombatSet> CombatSet;
 };
