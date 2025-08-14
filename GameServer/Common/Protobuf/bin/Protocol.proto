@@ -114,3 +114,13 @@ message S_EQUIP_ITEM
 	uint64	object_id		= 1;
 	EquipState equip_state	= 2;
 }
+
+message C_SKILL_IMMEDIATE_CAST
+{
+	uint64	object_id		= 1;
+}
+
+message S_SKILL_IMMEDIATE_CAST
+{
+	uint64	object_id		= 1;
+}

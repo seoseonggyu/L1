@@ -685,6 +685,12 @@ void UL1NetworkManager::HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemP
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(FindActor, L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
 }
 
+void UL1NetworkManager::HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt)
+{
+	uint64 ObjectId = SkillImmediatePkt.object_id();
+
+}
+
 UL1InventoryManagerComponent* UL1NetworkManager::GetCharacterInventoryManager(ALyraCharacter* LyraCharacter) const
 {
 	UL1InventoryManagerComponent* MyInventoryManager = nullptr;

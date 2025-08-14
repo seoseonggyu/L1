@@ -17,6 +17,7 @@ public:
 	void HandleMove(Protocol::C_MOVE pkt);
 	void HandleMoveItem(Protocol::C_MOVE_ITEM pkt);
 	void HandleEquipItem(Protocol::C_EQUIP_ITEM pkt);
+	void HandleSkillImmediateCast(Protocol::C_SKILL_IMMEDIATE_CAST pkt);
 
 
 public:

@@ -96,9 +96,6 @@ void UL1GameplayAbility_Skill_GroundBreaker::OnMontageFinished()
 
 void UL1GameplayAbility_Skill_GroundBreaker::ExecuteGroundBreaker()
 {
-	if (HasAuthority(&CurrentActivationInfo) == false)
-		return;
-
 	AL1EquipmentBase* EquipmentActor = GetFirstEquipmentActor();
 	check(EquipmentActor);
 	

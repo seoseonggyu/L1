@@ -27,6 +27,8 @@ enum : uint16
 	PKT_S_MOVE_ITEM = 1013,
 	PKT_C_EQUIP_ITEM = 1014,
 	PKT_S_EQUIP_ITEM = 1015,
+	PKT_C_SKILL_IMMEDIATE_CAST = 1016,
+	PKT_S_SKILL_IMMEDIATE_CAST = 1017,
 };
 
 // Custom Handlers
@@ -40,6 +42,7 @@ bool Handle_S_SELECTCLASS(PacketSessionRef& session, Protocol::S_SELECTCLASS& pk
 bool Handle_S_MOVE(PacketSessionRef& session, Protocol::S_MOVE& pkt);
 bool Handle_S_MOVE_ITEM(PacketSessionRef& session, Protocol::S_MOVE_ITEM& pkt);
 bool Handle_S_EQUIP_ITEM(PacketSessionRef& session, Protocol::S_EQUIP_ITEM& pkt);
+bool Handle_S_SKILL_IMMEDIATE_CAST(PacketSessionRef& session, Protocol::S_SKILL_IMMEDIATE_CAST& pkt);
 
 class ServerPacketHandler
 {
@@ -57,6 +60,7 @@ public:
 		GPacketHandler[PKT_S_MOVE] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MOVE>(Handle_S_MOVE, session, buffer, len); };
 		GPacketHandler[PKT_S_MOVE_ITEM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MOVE_ITEM>(Handle_S_MOVE_ITEM, session, buffer, len); };
 		GPacketHandler[PKT_S_EQUIP_ITEM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_EQUIP_ITEM>(Handle_S_EQUIP_ITEM, session, buffer, len); };
+		GPacketHandler[PKT_S_SKILL_IMMEDIATE_CAST] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SKILL_IMMEDIATE_CAST>(Handle_S_SKILL_IMMEDIATE_CAST, session, buffer, len); };
 	}
 
 	static bool HandlePacket(PacketSessionRef& session, BYTE* buffer, int32 len)
@@ -71,6 +75,7 @@ public:
 	static SendBufferRef MakeSendBuffer(Protocol::C_MOVE& pkt) { return MakeSendBuffer(pkt, PKT_C_MOVE); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_MOVE_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_C_MOVE_ITEM); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_EQUIP_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_C_EQUIP_ITEM); }
+	static SendBufferRef MakeSendBuffer(Protocol::C_SKILL_IMMEDIATE_CAST& pkt) { return MakeSendBuffer(pkt, PKT_C_SKILL_IMMEDIATE_CAST); }
 
 private:
 	template<typename PacketType, typename ProcessFunc>

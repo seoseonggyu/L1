@@ -75,6 +75,7 @@ public:
 	void HandleMove(const Protocol::S_MOVE& MovePkt);
 	void HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt);
 	void HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemPkt);
+	void HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt);
 
 private:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
