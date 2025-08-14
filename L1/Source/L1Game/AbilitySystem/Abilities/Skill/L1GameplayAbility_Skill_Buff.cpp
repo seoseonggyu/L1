@@ -65,6 +65,15 @@ void UL1GameplayAbility_Skill_Buff::ActivateAbility(const FGameplayAbilitySpecHa
 		LyraPlayerController->SetIgnoreMoveInput(true);
 		LyraPlayerController->SetIgnoreLookInput(true);
 	}
+	else if (CharacterMovement)
+	{
+		CachedWalkSpeed = CharacterMovement->MaxWalkSpeed;
+		CachedRotationYaw = CharacterMovement->RotationRate.Yaw;
+
+		CharacterMovement->MaxWalkSpeed = 0.f;
+		CharacterMovement->RotationRate.Yaw = 0.f;
+	}
+
 
 	if (UAbilityTask_PlayMontageAndWait* BuffMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("BuffMontage"), BuffMontage, 1.f, NAME_None, true))
 	{
@@ -88,6 +97,15 @@ void UL1GameplayAbility_Skill_Buff::EndAbility(const FGameplayAbilitySpecHandle 
 		LyraPlayerController->SetIgnoreMoveInput(false);
 		LyraPlayerController->SetIgnoreLookInput(false);
 	}
+	else if (UCharacterMovementComponent* CharacterMovement = GetLyraCharacterFromActorInfo()->GetCharacterMovement())
+	{
+		CharacterMovement->MaxWalkSpeed = CachedWalkSpeed;
+		CharacterMovement->RotationRate.Yaw = CachedRotationYaw;
+
+	}
+
+	// TODO: 여기서 스킬 리셋
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetLyraCharacterFromActorInfo(), L1GameplayTags::GameplayEvent_Reset_Skill_2, FGameplayEventData());
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

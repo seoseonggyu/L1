@@ -89,7 +89,10 @@ void UL1GameplayAbility_Skill_GroundBreaker::EndAbility(const FGameplayAbilitySp
 	{
 		LyraPlayerController->SetIgnoreLookInput(false);
 	}
-	
+
+	// TODO: 여기서 스킬 리셋
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetLyraCharacterFromActorInfo(), L1GameplayTags::GameplayEvent_Reset_Skill_1, FGameplayEventData());
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

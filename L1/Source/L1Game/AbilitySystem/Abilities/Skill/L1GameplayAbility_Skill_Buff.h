@@ -36,4 +36,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="L1|Buff")
 	TObjectPtr<UNiagaraSystem> BuffEffect;
+
+private:
+	float CachedWalkSpeed = 0.f;
+	float CachedRotationYaw = 0.f;
 };
