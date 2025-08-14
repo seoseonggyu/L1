@@ -118,9 +118,11 @@ message S_EQUIP_ITEM
 message C_SKILL_IMMEDIATE_CAST
 {
 	uint64	object_id		= 1;
+	SkillType skill_type	= 2;
 }
 
 message S_SKILL_IMMEDIATE_CAST
 {
 	uint64	object_id		= 1;
+	SkillType skill_type	= 2;
 }

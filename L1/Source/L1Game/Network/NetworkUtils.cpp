@@ -109,6 +109,46 @@ Protocol::EquipState NetworkUtils::ConvertProtoFromEquipState(EEquipState UEType
     }
 }
 
+ESkillType NetworkUtils::ConvertSkillTypeFromProto(Protocol::SkillType protoType)
+{
+    switch (protoType)
+    {
+    case Protocol::SkillType_Skill_1:   return ESkillType::Skill_1;
+    case Protocol::SkillType_Skill_2:   return ESkillType::Skill_2;
+    default:                            return ESkillType::Count;
+    }
+}
+
+FGameplayTag NetworkUtils::ConvertGameplayTagFromSkillType(ESkillType UEType)
+{
+    switch (UEType)
+    {
+    case ESkillType::Skill_1:       return L1GameplayTags::GameplayEvent_Skill_1;
+    case ESkillType::Skill_2:       return L1GameplayTags::GameplayEvent_Skill_2;
+    default:                        return FGameplayTag();
+    }
+}
+
+Protocol::SkillType NetworkUtils::ConvertProtoFromSkillType(ESkillType UEType)
+{
+    switch (UEType)
+    {
+    case ESkillType::Skill_1:       return Protocol::SkillType_Skill_1;
+    case ESkillType::Skill_2:       return Protocol::SkillType_Skill_2;
+    default:                        return Protocol::SkillType_None;
+    }
+}
+
+Protocol::SkillType NetworkUtils::ConvertPortoFromGameplayTag(FGameplayTag GameplayTag)
+{
+    // SSG: 스위치 못 바꾸나?
+
+    if(GameplayTag == L1GameplayTags::GameplayEvent_Skill_1) return Protocol::SkillType_Skill_1;
+    if(GameplayTag == L1GameplayTags::GameplayEvent_Skill_2) return Protocol::SkillType_Skill_2;
+
+    return Protocol::SkillType_None;
+}
+
 UL1NetworkManager* NetworkUtils::GetNetworkManager(ALyraPlayerState* LyraPlayerState)
 {
     if (LyraPlayerState)

@@ -24,11 +24,25 @@ UL1GameplayAbility_Skill_GroundBreaker::UL1GameplayAbility_Skill_GroundBreaker(c
 	EquipmentInfo.WeaponHandType = EWeaponHandType::TwoHand;
 	EquipmentInfo.RequiredWeaponType = EWeaponType::GreatSword;
 	EquipmentInfos.Add(EquipmentInfo);
+
+	if (HasAnyFlags(RF_ClassDefaultObject))
+	{
+		FAbilityTriggerData TriggerData;
+		TriggerData.TriggerTag = L1GameplayTags::GameplayEvent_Skill_1;
+		TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+		AbilityTriggers.Add(TriggerData);
+	}
 }
 
 void UL1GameplayAbility_Skill_GroundBreaker::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (TriggerEventData == nullptr)
+	{
+		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		return;
+	}
 
 	if (K2_CheckAbilityCooldown() == false || K2_CheckAbilityCost() == false)
 	{

@@ -688,7 +688,16 @@ void UL1NetworkManager::HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemP
 void UL1NetworkManager::HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt)
 {
 	uint64 ObjectId = SkillImmediatePkt.object_id();
+	ESkillType SkillType = NetworkUtils::ConvertSkillTypeFromProto(SkillImmediatePkt.skill_type());
+	FGameplayTag GameplayTag = NetworkUtils::ConvertGameplayTagFromSkillType(SkillType);
+	
+	ALyraCharacter* FindActor = *(Players.Find(ObjectId));
+	if (FindActor == nullptr)
+		return;
 
+	FGameplayEventData Payload;
+	Payload.EventMagnitude = (int32)SkillType;
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(FindActor, GameplayTag, Payload);
 }
 
 UL1InventoryManagerComponent* UL1NetworkManager::GetCharacterInventoryManager(ALyraCharacter* LyraCharacter) const

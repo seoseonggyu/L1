@@ -60,6 +60,13 @@ enum EquipState
 	Equip_State_Utility_Quaternary	= 7;
 }
 
+enum SkillType
+{
+	SkillType_None		= 0;
+	SkillType_Skill_1	= 1;
+	SkillType_Skill_2	= 2;
+}
+
 enum MoveState
 {
 	MOVE_STATE_NONE		= 0;

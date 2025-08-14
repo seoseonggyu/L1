@@ -33,6 +33,7 @@ void UL1ClassEntryWidget::InitializeUI(UL1ClassSelectionWidget* OwnerWidget, ECh
 	
 	if (ULyraAbilitySet* AbilitySet = ClassEntry.ClassAbilitySet)
 	{
+		// TODO: 처음에 캐릭터 고를 때 스킬 UI 설명 설정해야함
 		const TArray<FLyraAbilitySet_GameplayAbility>& AbilitySetAbilities = AbilitySet->GetGrantedGameplayAbilities();
 		for (int i = 0; i < 2; i++)
 		{

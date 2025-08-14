@@ -199,6 +199,7 @@ void Room::HandleSkillImmediateCast(Protocol::C_SKILL_IMMEDIATE_CAST pkt)
 	// TODO: Validation Check
 	Protocol::S_SKILL_IMMEDIATE_CAST skillImmediatePkt;
 	skillImmediatePkt.set_object_id(pkt.object_id());
+	skillImmediatePkt.set_skill_type(pkt.skill_type());
 
 	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(skillImmediatePkt);
 	Broadcast(sendBuffer);

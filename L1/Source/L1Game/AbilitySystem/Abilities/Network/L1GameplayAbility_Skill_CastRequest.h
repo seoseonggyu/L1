@@ -15,4 +15,7 @@ public:
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "L1|Network", meta = (Categories = "Network"))
+	FGameplayTag SendSkillTag;
 };

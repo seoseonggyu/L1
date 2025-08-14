@@ -126,6 +126,8 @@ namespace L1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Stun, "GameplayEvent.Stun");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Bow_ADS, "GameplayEvent.Bow.ADS");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_HitReact, "GameplayEvent.HitReact");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Skill_1, "GameplayEvent.Skill_1");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Skill_2, "GameplayEvent.skill_2");
 
 	// Cheat
 	UE_DEFINE_GAMEPLAY_TAG(Cheat_GodMode, "Cheat.GodMode");

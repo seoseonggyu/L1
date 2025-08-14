@@ -169,3 +169,12 @@ enum class ECharacterClassType : uint8
 
 	Count	UMETA(Hidden)
 };
+
+UENUM(BlueprintType)
+enum class ESkillType : uint8
+{
+	Skill_1,
+	Skill_2,
+
+	Count	UMETA(Hidden)
+};

@@ -31,6 +31,7 @@ void UL1GameplayAbility_Skill_CastRequest::ActivateAbility(const FGameplayAbilit
 	{
 		Protocol::C_SKILL_IMMEDIATE_CAST SkillImmediatePkt;
 		SkillImmediatePkt.set_object_id(LyraCharacter->GetPlayerId());
+		SkillImmediatePkt.set_skill_type(NetworkUtils::ConvertPortoFromGameplayTag(SendSkillTag));
 		NetworkManager->SendPacket(SkillImmediatePkt);
 	}
 }
