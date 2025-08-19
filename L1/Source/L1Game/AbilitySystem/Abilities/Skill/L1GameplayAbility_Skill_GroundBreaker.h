@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "AbilitySystem/Abilities/Weapon/L1GameplayAbility_Weapon_Melee.h"
+#include "AbilitySystem/Abilities/Weapon/L1GameplayAbility_Melee.h"
 #include "L1GameplayAbility_Skill_GroundBreaker.generated.h"
 
 UCLASS()
-class UL1GameplayAbility_Skill_GroundBreaker : public UL1GameplayAbility_Weapon_Melee
+class UL1GameplayAbility_Skill_GroundBreaker : public UL1GameplayAbility_Melee
 {
 	GENERATED_BODY()
 	

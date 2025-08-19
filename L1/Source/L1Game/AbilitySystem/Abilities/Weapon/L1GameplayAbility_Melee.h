@@ -1,17 +1,17 @@
 ﻿#pragma once
 
 #include "AbilitySystem/Abilities/Legends/L1GameplayAbility_Equipment.h"
-#include "L1GameplayAbility_Weapon_Melee.generated.h"
+#include "L1GameplayAbility_Melee.generated.h"
 
 class AL1EquipmentBase;
 
 UCLASS()
-class UL1GameplayAbility_Weapon_Melee : public UL1GameplayAbility_Equipment
+class UL1GameplayAbility_Melee : public UL1GameplayAbility_Equipment
 {
 	GENERATED_BODY()
 	
 public:
-	UL1GameplayAbility_Weapon_Melee(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	UL1GameplayAbility_Melee(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

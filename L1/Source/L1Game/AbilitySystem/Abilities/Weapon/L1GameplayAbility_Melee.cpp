@@ -1,4 +1,4 @@
-﻿#include "L1GameplayAbility_Weapon_Melee.h"
+﻿#include "L1GameplayAbility_Melee.h"
 
 #include "AbilitySystemGlobals.h"
 #include "L1GameplayTags.h"
@@ -9,22 +9,22 @@
 #include "System/LyraAssetManager.h"
 #include "System/LyraGameData.h"
 
-#include UE_INLINE_GENERATED_CPP_BY_NAME(L1GameplayAbility_Weapon_Melee)
+#include UE_INLINE_GENERATED_CPP_BY_NAME(L1GameplayAbility_Melee)
 
-UL1GameplayAbility_Weapon_Melee::UL1GameplayAbility_Weapon_Melee(const FObjectInitializer& ObjectInitializer)
+UL1GameplayAbility_Melee::UL1GameplayAbility_Melee(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	
 }
 
-void UL1GameplayAbility_Weapon_Melee::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UL1GameplayAbility_Melee::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	ResetHitActors();
 }
 
-void UL1GameplayAbility_Weapon_Melee::ParseTargetData(const FGameplayAbilityTargetDataHandle& InTargetDataHandle, TArray<int32>& OutCharacterHitIndexes, TArray<int32>& OutBlockHitIndexes)
+void UL1GameplayAbility_Melee::ParseTargetData(const FGameplayAbilityTargetDataHandle& InTargetDataHandle, TArray<int32>& OutCharacterHitIndexes, TArray<int32>& OutBlockHitIndexes)
 {
 	for (int32 i = 0; i < InTargetDataHandle.Data.Num(); i++)
 	{
@@ -70,7 +70,7 @@ void UL1GameplayAbility_Weapon_Melee::ParseTargetData(const FGameplayAbilityTarg
 	}
 }
 
-void UL1GameplayAbility_Weapon_Melee::ProcessHitResult(FHitResult HitResult, float Damage, bool bBlockingHit, UAnimMontage* BackwardMontage, AL1EquipmentBase* WeaponActor)
+void UL1GameplayAbility_Melee::ProcessHitResult(FHitResult HitResult, float Damage, bool bBlockingHit, UAnimMontage* BackwardMontage, AL1EquipmentBase* WeaponActor)
 {
 	ULyraAbilitySystemComponent* SourceASC = GetLyraAbilitySystemComponentFromActorInfo();
 	if (SourceASC == nullptr)
@@ -121,12 +121,12 @@ void UL1GameplayAbility_Weapon_Melee::ProcessHitResult(FHitResult HitResult, flo
 	DrawDebugHitPoint(HitResult);
 }
 
-void UL1GameplayAbility_Weapon_Melee::ResetHitActors()
+void UL1GameplayAbility_Melee::ResetHitActors()
 {
 	CachedHitActors.Reset();
 }
 
-void UL1GameplayAbility_Weapon_Melee::DrawDebugHitPoint(const FHitResult& HitResult)
+void UL1GameplayAbility_Melee::DrawDebugHitPoint(const FHitResult& HitResult)
 {
 #if UE_EDITOR
 	if (GIsEditor)
@@ -141,7 +141,7 @@ void UL1GameplayAbility_Weapon_Melee::DrawDebugHitPoint(const FHitResult& HitRes
 #endif // UE_EDITOR
 }
 
-bool UL1GameplayAbility_Weapon_Melee::IsCharacterBlockingHit(ALyraCharacter* TargetCharacter)
+bool UL1GameplayAbility_Melee::IsCharacterBlockingHit(ALyraCharacter* TargetCharacter)
 {
 	UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetCharacter);
 	if (TargetASC && TargetASC->HasMatchingGameplayTag(L1GameplayTags::Status_Block))
