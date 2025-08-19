@@ -17,16 +17,12 @@ public:
 		BaseDamageDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetBaseDamageAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
 		StrengthDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetStrengthAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
 		DefenseDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetDefenseAttribute(), EGameplayEffectAttributeCaptureSource::Target, true);
-		DrainLifePercentDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetDrainLifePercentAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
-		DamageReductionPercentDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetDamageReductionPercentAttribute(), EGameplayEffectAttributeCaptureSource::Target, true);
 	}
 
 public:
 	FGameplayEffectAttributeCaptureDefinition BaseDamageDef;
 	FGameplayEffectAttributeCaptureDefinition StrengthDef;
 	FGameplayEffectAttributeCaptureDefinition DefenseDef;
-	FGameplayEffectAttributeCaptureDefinition DrainLifePercentDef;
-	FGameplayEffectAttributeCaptureDefinition DamageReductionPercentDef;
 };
 
 static FDamageStatics& DamageStatics()
@@ -40,8 +36,6 @@ UL1DamageExecution::UL1DamageExecution()
 	RelevantAttributesToCapture.Add(DamageStatics().BaseDamageDef);
 	RelevantAttributesToCapture.Add(DamageStatics().StrengthDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DefenseDef);
-	RelevantAttributesToCapture.Add(DamageStatics().DrainLifePercentDef);
-	RelevantAttributesToCapture.Add(DamageStatics().DamageReductionPercentDef);
 }
 
 void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -66,12 +60,6 @@ void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 
 	float Defense = 0.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DefenseDef, EvaluateParameters, Defense);
-
-	float DrainLifePercent = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DrainLifePercentDef, EvaluateParameters, DrainLifePercent);
-
-	float DamageReductionPercent = 0.f;
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageReductionPercentDef, EvaluateParameters, DamageReductionPercent);
 
 	const AActor* EffectCauser = TypedContext->GetEffectCauser();
 	const FHitResult* HitActorResult = TypedContext->GetHitResult();
@@ -107,7 +95,7 @@ void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 	}
 	
 	float DamageDone = FMath::Max(Damage * PhysicalMaterialAttenuation * DamageInteractionAllowedMultiplier, 0.0f);
-	DamageDone -= DamageDone * (DamageReductionPercent / 100.f);
+	DamageDone -= DamageDone * 100.f;
 	
 	if (DamageDone > 0.0f)
 	{
@@ -115,7 +103,7 @@ void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 
 		if (UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent())
 		{
-			SourceASC->ApplyModToAttribute(UL1VitalSet::GetHealthAttribute(), EGameplayModOp::Additive, DamageDone * (DrainLifePercent / 100.f));
+			// SourceASC->ApplyModToAttribute(UL1VitalSet::GetHealthAttribute(), EGameplayModOp::Additive, DamageDone * (DrainLifePercent / 100.f));
 		}
 	}
 #endif // WITH_SERVER_CODE

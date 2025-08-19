@@ -18,6 +18,7 @@
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Network/NetworkUtils.h"
 #include "L1GameplayTags.h"
+#include "System/LyraGameData.h"
 
 void UL1NetworkManager::ConnectToGameServer()
 {
@@ -558,6 +559,23 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 		Player->SetActorLocation(SpawnLocation);
 		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		Player->SetDestInfo(ObjectInfo.pos_info());
+
+		if (UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent())
+		{
+			// TODO: 캐릭터 체력 업로드
+			float TempBaseHp = 100.f;
+			float TempBaseMana = 100.f;
+
+			TSubclassOf<UGameplayEffect> InitialGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().InitialGameplayEffect_SetByCaller);
+			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
+			if (EffectSpecHandle.IsValid())
+			{
+				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, TempBaseHp);
+				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Mana, TempBaseMana);
+			}
+			
+			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		}
 	}
 }
 

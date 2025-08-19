@@ -81,8 +81,11 @@ public class L1Game : ModuleRules
 				"EngineSettings",
 				"DTLSHandlerComponent",
 				"PocketWorlds",
-
-                "ProtobufCore",
+				"NavigationSystem",
+				"NiagaraAnimNotifies",
+				"GameplayCameras",
+                
+				"ProtobufCore",
             }
         );
 

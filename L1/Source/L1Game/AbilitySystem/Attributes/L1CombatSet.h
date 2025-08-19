@@ -34,30 +34,6 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData BaseMana;
-	
-public:
-	ATTRIBUTE_ACCESSORS(ThisClass, MoveSpeed);
-	ATTRIBUTE_ACCESSORS(ThisClass, MoveSpeedPercent);
-	ATTRIBUTE_ACCESSORS(ThisClass, AttackSpeedPercent);
-	ATTRIBUTE_ACCESSORS(ThisClass, DrainLifePercent);
-	ATTRIBUTE_ACCESSORS(ThisClass, DamageReductionPercent);
-
-private:
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData MoveSpeed;
-
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData MoveSpeedPercent;
-
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData AttackSpeedPercent;
-
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData DrainLifePercent;
-
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData DamageReductionPercent;
-	
 public:
 	ATTRIBUTE_ACCESSORS(ThisClass, Strength);
 	ATTRIBUTE_ACCESSORS(ThisClass, Defense);

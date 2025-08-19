@@ -50,12 +50,6 @@ private:
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData MaxMana;
 
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData Stamina;
-
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData MaxStamina;
-
 public:
 	ATTRIBUTE_ACCESSORS(ThisClass, IncomingHealth);
 	ATTRIBUTE_ACCESSORS(ThisClass, IncomingMana);

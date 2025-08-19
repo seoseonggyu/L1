@@ -158,6 +158,8 @@ namespace L1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Message_HUD_Spell_Progress_Refresh, "Message.HUD.Spell.Progress.Refresh");
 
 	// SetByCaller
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_InitialAttribute_Health, "SetByCaller.InitialAttribute.Health");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_InitialAttribute_Mana, "SetByCaller.InitialAttribute.Mana");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseDamage, "SetByCaller.BaseDamage");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseHealth, "SetByCaller.BaseHealth");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_BaseMana, "SetByCaller.BaseMana");

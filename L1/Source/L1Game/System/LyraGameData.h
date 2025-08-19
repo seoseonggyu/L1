@@ -22,6 +22,8 @@ public:
 	static const ULyraGameData& Get();
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects", meta = (DisplayName = "Initial Stats Gameplay Effect (SetByCaller)"))
+	TSoftClassPtr<UGameplayEffect> InitialGameplayEffect_SetByCaller;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Default Gameplay Effects", meta = (DisplayName = "Damage Gameplay Effect (SetByCaller)"))
 	TSoftClassPtr<UGameplayEffect> DamageGameplayEffect_SetByCaller;

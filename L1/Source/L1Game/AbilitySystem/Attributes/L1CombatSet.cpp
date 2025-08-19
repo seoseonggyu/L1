@@ -27,16 +27,5 @@ void UL1CombatSet::PreAttributeChange(const FGameplayAttribute& Attribute, float
 
 void UL1CombatSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	if (Attribute == GetAttackSpeedPercentAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, -50.f, 50.f);
-	}
-	else if (Attribute == GetDrainLifePercentAttribute())
-	{
-		NewValue = FMath::Max(0.f, NewValue);
-	}
-	else if (Attribute == GetDamageReductionPercentAttribute())
-	{
-		NewValue = FMath::Max(0.f, NewValue);
-	}
+
 }

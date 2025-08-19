@@ -28,4 +28,11 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "L1|NetworkCharacter")
 	TObjectPtr<ULyraAbilitySystemComponent> AbilitySystemComponent;
+
+	// Health attribute set used by this actor.
+	UPROPERTY()
+	TObjectPtr<const class UL1VitalSet> HealthSet;
+	// Combat attribute set used by this actor.
+	UPROPERTY()
+	TObjectPtr<const class UL1CombatSet> CombatSet;
 };
