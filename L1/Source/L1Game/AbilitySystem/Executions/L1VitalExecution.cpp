@@ -33,7 +33,6 @@ UL1VitalExecution::UL1VitalExecution()
 
 void UL1VitalExecution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-#if WITH_SERVER_CODE
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
@@ -55,5 +54,4 @@ void UL1VitalExecution::Execute_Implementation(const FGameplayEffectCustomExecut
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UL1VitalSet::GetIncomingHealthAttribute(), EGameplayModOp::Additive, BaseHealth));
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UL1VitalSet::GetIncomingManaAttribute(), EGameplayModOp::Additive, BaseMana));
 	
-#endif // #if WITH_SERVER_CODE
 }

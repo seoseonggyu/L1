@@ -59,12 +59,7 @@ void UL1GameplayAbility_Skill_WhirlwindSlash::ActivateAbility(const FGameplayAbi
 	
 	SetCameraMode(CameraModeClass);
 
-	if (ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo())
-	{
-		LyraPlayerController->SetIgnoreMoveInput(true);
-	}
-
-	LyraCharacter->bUseControllerRotationYaw = false;
+	// TODO: 애니메이션 걷는 속도랑, 마지막 도중 움직이는거 멈춰야함
 
 	if (UAbilityTask_PlayMontageAndWait* WhirlwindSlashMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("WhirlwindSlashMontage"), WhirlwindSlashMontage, 1.f, NAME_None, true))
 	{
@@ -104,16 +99,8 @@ void UL1GameplayAbility_Skill_WhirlwindSlash::EndAbility(const FGameplayAbilityS
 {
 	ClearCameraMode();
 
-	if (ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo())
-	{
-		LyraPlayerController->SetIgnoreMoveInput(false);
-		LyraPlayerController->SetIgnoreLookInput(false);
-	}
-
-	if (ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo())
-	{
-		LyraCharacter->bUseControllerRotationYaw = true;
-	}
+	// TODO: 여기서 스킬 리셋
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetLyraCharacterFromActorInfo(), L1GameplayTags::GameplayEvent_Reset_Skill_1, FGameplayEventData());
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -156,24 +143,11 @@ void UL1GameplayAbility_Skill_WhirlwindSlash::OnReset(FGameplayEventData Payload
 
 void UL1GameplayAbility_Skill_WhirlwindSlash::OnWhirlwindSlashBegin(FGameplayEventData Payload)
 {
-	if (ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo())
-	{
-		LyraPlayerController->SetIgnoreMoveInput(false);
-	}
+
 }
 
 void UL1GameplayAbility_Skill_WhirlwindSlash::OnWhirlwindSlashEnd(FGameplayEventData Payload)
 {
-	if (ALyraPlayerController* LyraPlayerController = GetLyraPlayerControllerFromActorInfo())
-	{
-		LyraPlayerController->SetIgnoreMoveInput(true);
-		LyraPlayerController->SetIgnoreLookInput(true);
-	}
-	
-	if (ALyraCharacter* LyraCharacter = GetLyraCharacterFromActorInfo())
-	{
-		LyraCharacter->bUseControllerRotationYaw = true;
-	}
 }
 
 void UL1GameplayAbility_Skill_WhirlwindSlash::OnMontageFinished()

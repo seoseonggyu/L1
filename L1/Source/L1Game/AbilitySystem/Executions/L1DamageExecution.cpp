@@ -40,7 +40,6 @@ UL1DamageExecution::UL1DamageExecution()
 
 void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
-#if WITH_SERVER_CODE
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	FLyraGameplayEffectContext* TypedContext = FLyraGameplayEffectContext::ExtractEffectContext(Spec.GetContext());
 	check(TypedContext);
@@ -97,14 +96,16 @@ void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 	float DamageDone = FMath::Max(Damage * PhysicalMaterialAttenuation * DamageInteractionAllowedMultiplier, 0.0f);
 	DamageDone -= DamageDone * 100.f;
 	
+	// TODO: 데미지 숫자 처리
+	DamageDone = 20.f;
 	if (DamageDone > 0.0f)
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UL1VitalSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, DamageDone));
 
 		if (UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent())
 		{
-			// SourceASC->ApplyModToAttribute(UL1VitalSet::GetHealthAttribute(), EGameplayModOp::Additive, DamageDone * (DrainLifePercent / 100.f));
+			
+			 SourceASC->ApplyModToAttribute(UL1VitalSet::GetHealthAttribute(), EGameplayModOp::Additive, DamageDone /** (DrainLifePercent / 100.f)*/);
 		}
 	}
-#endif // WITH_SERVER_CODE
 }

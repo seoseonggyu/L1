@@ -78,6 +78,7 @@ void UL1GameplayAbility_Melee::ProcessHitResult(FHitResult HitResult, float Dama
 	
 	FScopedPredictionWindow	ScopedPrediction(SourceASC, GetCurrentActivationInfo().GetActivationPredictionKey());
 	
+	// 피격 이펙트 적용
 	FGameplayCueParameters SourceCueParams;
 	SourceCueParams.Location = HitResult.ImpactPoint;
 	SourceCueParams.Normal = HitResult.ImpactNormal;
@@ -89,34 +90,32 @@ void UL1GameplayAbility_Melee::ProcessHitResult(FHitResult HitResult, float Dama
 		// SSG: Atack
 		// SourceASC->BlockAnimMontageForSeconds(BackwardMontage);
 	}
-	
-	if (HasAuthority(&CurrentActivationInfo))
-	{
-		if (BackwardMontage)
-		{
-			FOnMontageEnded MontageEnded = FOnMontageEnded::CreateWeakLambda(this, [this](UAnimMontage* AnimMontage, bool bInterrupted)
-			{
-				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-			});
-			UAnimInstance* AnimInstance = SourceASC->AbilityActorInfo->GetAnimInstance();
-			AnimInstance->Montage_SetEndDelegate(MontageEnded, BackwardMontage);
-		}
-		
-		FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor());
-		const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
 
-		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-		HitResult.bBlockingHit = bBlockingHit;
-		EffectContextHandle.AddHitResult(HitResult);
-		EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
-		EffectSpecHandle.Data->SetContext(EffectContextHandle);
-		
-		Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
-		
-		EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseDamage, Damage);
-		ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+	if (BackwardMontage)
+	{
+		FOnMontageEnded MontageEnded = FOnMontageEnded::CreateWeakLambda(this, [this](UAnimMontage* AnimMontage, bool bInterrupted)
+		{
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		});
+		UAnimInstance* AnimInstance = SourceASC->AbilityActorInfo->GetAnimInstance();
+		AnimInstance->Montage_SetEndDelegate(MontageEnded, BackwardMontage);
 	}
+	
+	FGameplayAbilityTargetDataHandle TargetDataHandle = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(HitResult.GetActor());
+	const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+	FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGE);
+
+	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+	HitResult.bBlockingHit = bBlockingHit;
+	EffectContextHandle.AddHitResult(HitResult);
+	EffectContextHandle.AddInstigator(SourceASC->AbilityActorInfo->OwnerActor.Get(), WeaponActor);
+	EffectSpecHandle.Data->SetContext(EffectContextHandle);
+	
+	Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
+	
+	// 데미지 GameplayEffect를 만들어서 피격 상대에게 적용
+	EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseDamage, Damage);
+	ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
 	
 	DrawDebugHitPoint(HitResult);
 }
