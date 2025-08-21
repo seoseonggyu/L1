@@ -36,7 +36,7 @@ public:
 
 	void SendPacket_SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
 	void SendPacket_ItemMove(int32 FromId, int32 ToId, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount);
-	void SendPacket_Hit(int32 AttackId, TArray<int32> TargetIds, ESkillType SkillType);
+	void SendPacket_Hit(int32 AttackId, TArray<int32>& TargetIds, ESkillType SkillType);
 
 private:
 	UFUNCTION(BlueprintCallable)

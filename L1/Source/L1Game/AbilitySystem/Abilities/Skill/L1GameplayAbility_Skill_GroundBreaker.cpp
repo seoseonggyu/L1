@@ -9,6 +9,10 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/LyraPlayerController.h"
+#include "Player/LyraPlayerState.h"
+
+#include "Network/NetworkUtils.h"
+#include "Network/L1NetworkManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1GameplayAbility_Skill_GroundBreaker)
 
@@ -157,7 +161,20 @@ void UL1GameplayAbility_Skill_GroundBreaker::ExecuteGroundBreaker()
 			}
 		}
 
-		for (const auto& HitInfo : HitInfos)
+		if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(LyraCharacter->GetPlayerState())))
+		{
+			TArray<int32> TargetIds;
+			for (auto& Elem : HitInfos)
+			{
+				if (Elem.Key)
+				{
+					TargetIds.Add(Elem.Key->GetPlayerId());
+				}
+			}
+			NetworkManager->SendPacket_Hit(LyraCharacter->GetPlayerId(), TargetIds, ESkillType::Skill_1);
+		}
+
+		/*for (const auto& HitInfo : HitInfos)
 		{
 			const int32 HitResultIndex = HitInfo.Value.Key;
 			const FHitResult& HitResult = OutHitResults[HitResultIndex];
@@ -166,6 +183,6 @@ void UL1GameplayAbility_Skill_GroundBreaker::ExecuteGroundBreaker()
 			FGameplayEventData EventData;
 			EventData.EventMagnitude = StunDruation;
 			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitResult.GetActor(), L1GameplayTags::GameplayEvent_Stun, EventData);
-		}
+		}*/
 	}
 }

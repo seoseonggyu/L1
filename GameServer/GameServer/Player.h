@@ -10,7 +10,9 @@ public:
 	virtual ~Player();
 
 public:
+	float GetDamage(Protocol::SkillType skillType);
+
+public:
 	weak_ptr<GameSession> _session;
 	
 };
-

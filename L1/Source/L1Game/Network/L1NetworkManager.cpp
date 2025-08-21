@@ -113,9 +113,18 @@ void UL1NetworkManager::SendPacket_ItemMove(int32 FromId, int32 ToId, EEquipment
 	}
 }
 
-void UL1NetworkManager::SendPacket_Hit(int32 AttackId, TArray<int32> TargetIds, ESkillType SkillType)
+void UL1NetworkManager::SendPacket_Hit(int32 AttackId, TArray<int32>& TargetIds, ESkillType SkillType)
 {
+	Protocol::SkillType ProtoSkillType = NetworkUtils::ConvertProtoFromSkillType(SkillType);
+
 	Protocol::C_HIT HitPkt;
+	HitPkt.set_attack_object_id(AttackId);
+	for (int32& TargetId : TargetIds)
+	{
+		HitPkt.add_target_object_ids(TargetId);
+	}
+	HitPkt.set_skill_type(ProtoSkillType);
+	SendPacket(HitPkt);
 }
 
 void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
@@ -661,6 +670,7 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 
 void UL1NetworkManager::HandleHit(const Protocol::S_HIT& HitPkt)
 {
+	// TODO: Hit Ã³¸®
 	const uint64 ObjectId = HitPkt.attack_object_id();
 
 	for (const auto& HitTarget : HitPkt.hit_targets())

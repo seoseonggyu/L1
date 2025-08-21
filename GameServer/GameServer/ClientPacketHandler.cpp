@@ -33,6 +33,8 @@ bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 	player->_vitalInfo->set_max_hp(100);
 	player->_vitalInfo->set_mp(100);
 	player->_vitalInfo->set_max_mp(100);
+	
+	player->_combatInfo->set_damage(10);
 
 	GRoom->DoAsync(&Room::HandleEnterPlayer, player);
 

@@ -175,6 +175,8 @@ enum class ESkillType : uint8
 {
 	Skill_1,
 	Skill_2,
+	Skill_Default_Left = 3,
+	Skill_Default_Right = 4,
 
 	Count	UMETA(Hidden)
 };

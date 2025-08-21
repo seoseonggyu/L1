@@ -20,6 +20,8 @@ public:
 	void HandleEquipItem(Protocol::C_EQUIP_ITEM pkt);
 	void HandleSkillImmediateCast(Protocol::C_SKILL_IMMEDIATE_CAST pkt);
 
+private:
+	void ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::HitTargetInfo>& outTargetInfos);
 
 public:
 	// SSG:

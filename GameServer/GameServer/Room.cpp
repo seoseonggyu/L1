@@ -165,21 +165,29 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 
 void Room::HandleHit(Protocol::C_HIT pkt)
 {
-	// TODO: 캐릭터 피격 처리
-	const uint64 attack_objectId = pkt.attack_object_id();
-	Protocol::SkillType skillType = pkt.skill_type();
-	for (const auto& target_object_id : pkt.target_object_ids())
-	{
-	}
-	
-	{
-		// TODO: 캐릭터들 정보 전달
-		Protocol::S_HIT hitPkt;
-		Protocol::HitTargetInfo* targetInfo = hitPkt.add_hit_targets();
+	Vector<Protocol::HitTargetInfo> outTargetInfos;
+	ParseHitPacketToTargetInfos(pkt, outTargetInfos);
 
-		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(hitPkt);
-		Broadcast(sendBuffer);
+	Protocol::S_HIT hitPkt;
+	hitPkt.set_attack_object_id(pkt.attack_object_id());
+	for (int32 i = 0; i < outTargetInfos.size(); ++i)
+	{
+		Protocol::HitTargetInfo* targetInfo = hitPkt.add_hit_targets();
+		targetInfo->CopyFrom(outTargetInfos[i]);
 	}
+
+	cout << "======피격 당하는 오브젝트 정보======\n";
+
+	for (int32 i = 0; i < outTargetInfos.size(); ++i)
+	{
+		cout << "피격 ID: " << outTargetInfos[i].target_object_id();
+		cout << "  데미지: " << 	outTargetInfos[i].damage();
+		cout << "  남아있는 HP" << outTargetInfos[i].remaining_hp() << endl;
+	}
+
+	cout << "\n\n";
+	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(hitPkt);
+	Broadcast(sendBuffer);
 }
 
 void Room::HandleMoveItem(Protocol::C_MOVE_ITEM pkt)
@@ -224,6 +232,40 @@ void Room::HandleSkillImmediateCast(Protocol::C_SKILL_IMMEDIATE_CAST pkt)
 
 	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(skillImmediatePkt);
 	Broadcast(sendBuffer);
+}
+
+void Room::ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::HitTargetInfo>& outTargetInfos)
+{
+	const uint64 attack_objectId = pkt.attack_object_id();
+	Protocol::SkillType skillType = pkt.skill_type();
+
+	if (_objects.find(attack_objectId) == _objects.end())
+		return;
+
+	PlayerRef attackPlayer = dynamic_pointer_cast<Player>(_objects[attack_objectId]);
+	if (attackPlayer == nullptr) return;
+
+	float attackDamage = attackPlayer->GetDamage(skillType);
+
+	for (uint64 target_id : pkt.target_object_ids())
+	{
+		if (_objects.find(target_id) == _objects.end())
+			continue;
+
+		// TODO: 옮기기
+		float cachedHp = _objects[target_id]->_vitalInfo->hp();
+		cachedHp -= attackDamage;
+		if (cachedHp < 0.f) cachedHp = 0.f;
+
+		_objects[target_id]->_vitalInfo->set_hp(cachedHp);
+
+		Protocol::HitTargetInfo targetInfo;
+		targetInfo.set_damage(attackDamage);
+		targetInfo.set_remaining_hp(cachedHp);
+		targetInfo.set_target_object_id(target_id);
+		
+		outTargetInfos.push_back(targetInfo);
+	}
 }
 
 void Room::TestTick(PlayerRef player)
