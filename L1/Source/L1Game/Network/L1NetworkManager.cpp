@@ -113,6 +113,11 @@ void UL1NetworkManager::SendPacket_ItemMove(int32 FromId, int32 ToId, EEquipment
 	}
 }
 
+void UL1NetworkManager::SendPacket_Hit(int32 AttackId, TArray<int32> TargetIds, ESkillType SkillType)
+{
+	Protocol::C_HIT HitPkt;
+}
+
 void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
 {
 	if (ClassType == ECharacterClassType::Count || ClassType == Character->CharacterClassType)
@@ -652,6 +657,18 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 	if (Player == nullptr) return;
 
 	Player->SetDestInfo(MovePkt.info());
+}
+
+void UL1NetworkManager::HandleHit(const Protocol::S_HIT& HitPkt)
+{
+	const uint64 ObjectId = HitPkt.attack_object_id();
+
+	for (const auto& HitTarget : HitPkt.hit_targets())
+	{
+		const uint64 TargetId = HitTarget.target_object_id();
+		float Damage = HitTarget.damage();
+		float RemainHp = HitTarget.remaining_hp();
+	}
 }
 
 void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)

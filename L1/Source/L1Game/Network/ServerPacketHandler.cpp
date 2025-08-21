@@ -95,6 +95,16 @@ bool Handle_S_MOVE(PacketSessionRef& session, Protocol::S_MOVE& pkt)
 	return true;
 }
 
+bool Handle_S_HIT(PacketSessionRef& session, Protocol::S_HIT& pkt)
+{
+	if (UL1NetworkManager* GameNetwork = GetWorldNetwork(session))
+	{
+		GameNetwork->HandleHit(pkt);
+	}
+
+	return true;
+}
+
 bool Handle_S_MOVE_ITEM(PacketSessionRef& session, Protocol::S_MOVE_ITEM& pkt)
 {
 	if (UL1NetworkManager* GameNetwork = GetWorldNetwork(session))

@@ -23,12 +23,14 @@ enum : uint16
 	PKT_S_SELECTCLASS = 1009,
 	PKT_C_MOVE = 1010,
 	PKT_S_MOVE = 1011,
-	PKT_C_MOVE_ITEM = 1012,
-	PKT_S_MOVE_ITEM = 1013,
-	PKT_C_EQUIP_ITEM = 1014,
-	PKT_S_EQUIP_ITEM = 1015,
-	PKT_C_SKILL_IMMEDIATE_CAST = 1016,
-	PKT_S_SKILL_IMMEDIATE_CAST = 1017,
+	PKT_C_HIT = 1012,
+	PKT_S_HIT = 1013,
+	PKT_C_MOVE_ITEM = 1014,
+	PKT_S_MOVE_ITEM = 1015,
+	PKT_C_EQUIP_ITEM = 1016,
+	PKT_S_EQUIP_ITEM = 1017,
+	PKT_C_SKILL_IMMEDIATE_CAST = 1018,
+	PKT_S_SKILL_IMMEDIATE_CAST = 1019,
 };
 
 // Custom Handlers
@@ -40,6 +42,7 @@ bool Handle_S_SPAWN(PacketSessionRef& session, Protocol::S_SPAWN& pkt);
 bool Handle_S_DESPAWN(PacketSessionRef& session, Protocol::S_DESPAWN& pkt);
 bool Handle_S_SELECTCLASS(PacketSessionRef& session, Protocol::S_SELECTCLASS& pkt);
 bool Handle_S_MOVE(PacketSessionRef& session, Protocol::S_MOVE& pkt);
+bool Handle_S_HIT(PacketSessionRef& session, Protocol::S_HIT& pkt);
 bool Handle_S_MOVE_ITEM(PacketSessionRef& session, Protocol::S_MOVE_ITEM& pkt);
 bool Handle_S_EQUIP_ITEM(PacketSessionRef& session, Protocol::S_EQUIP_ITEM& pkt);
 bool Handle_S_SKILL_IMMEDIATE_CAST(PacketSessionRef& session, Protocol::S_SKILL_IMMEDIATE_CAST& pkt);
@@ -58,6 +61,7 @@ public:
 		GPacketHandler[PKT_S_DESPAWN] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_DESPAWN>(Handle_S_DESPAWN, session, buffer, len); };
 		GPacketHandler[PKT_S_SELECTCLASS] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SELECTCLASS>(Handle_S_SELECTCLASS, session, buffer, len); };
 		GPacketHandler[PKT_S_MOVE] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MOVE>(Handle_S_MOVE, session, buffer, len); };
+		GPacketHandler[PKT_S_HIT] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_HIT>(Handle_S_HIT, session, buffer, len); };
 		GPacketHandler[PKT_S_MOVE_ITEM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MOVE_ITEM>(Handle_S_MOVE_ITEM, session, buffer, len); };
 		GPacketHandler[PKT_S_EQUIP_ITEM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_EQUIP_ITEM>(Handle_S_EQUIP_ITEM, session, buffer, len); };
 		GPacketHandler[PKT_S_SKILL_IMMEDIATE_CAST] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SKILL_IMMEDIATE_CAST>(Handle_S_SKILL_IMMEDIATE_CAST, session, buffer, len); };
@@ -73,6 +77,7 @@ public:
 	static SendBufferRef MakeSendBuffer(Protocol::C_LEAVE_GAME& pkt) { return MakeSendBuffer(pkt, PKT_C_LEAVE_GAME); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_SELECTCLASS& pkt) { return MakeSendBuffer(pkt, PKT_C_SELECTCLASS); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_MOVE& pkt) { return MakeSendBuffer(pkt, PKT_C_MOVE); }
+	static SendBufferRef MakeSendBuffer(Protocol::C_HIT& pkt) { return MakeSendBuffer(pkt, PKT_C_HIT); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_MOVE_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_C_MOVE_ITEM); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_EQUIP_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_C_EQUIP_ITEM); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_SKILL_IMMEDIATE_CAST& pkt) { return MakeSendBuffer(pkt, PKT_C_SKILL_IMMEDIATE_CAST); }

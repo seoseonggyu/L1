@@ -163,6 +163,25 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 	// TestTick(player);
 }
 
+void Room::HandleHit(Protocol::C_HIT pkt)
+{
+	// TODO: 캐릭터 피격 처리
+	const uint64 attack_objectId = pkt.attack_object_id();
+	Protocol::SkillType skillType = pkt.skill_type();
+	for (const auto& target_object_id : pkt.target_object_ids())
+	{
+	}
+	
+	{
+		// TODO: 캐릭터들 정보 전달
+		Protocol::S_HIT hitPkt;
+		Protocol::HitTargetInfo* targetInfo = hitPkt.add_hit_targets();
+
+		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(hitPkt);
+		Broadcast(sendBuffer);
+	}
+}
+
 void Room::HandleMoveItem(Protocol::C_MOVE_ITEM pkt)
 {
 	// SSG: 안전 체크 없이 일단 사용, 일단 모두에게 데이터 전송

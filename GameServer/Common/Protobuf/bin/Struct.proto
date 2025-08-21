@@ -28,3 +28,12 @@ message ObjectInfo
 	PosInfo				pos_info			= 3;
 	VitalInfo			vital_info			= 4;
 }
+
+// ========
+
+message HitTargetInfo
+{
+	uint64 target_object_id = 1;
+	float  damage = 2;
+	float  remaining_hp = 3;
+}
