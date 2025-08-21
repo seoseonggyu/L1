@@ -153,6 +153,8 @@ public:
 
 	virtual bool UpdateSharedReplication();
 
+	void SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass);
+
 protected:
 
 	virtual void OnAbilitySystemInitialized();
@@ -243,6 +245,7 @@ public:
 	void SetPlayerInfo(const FVector& InPlayerInfo);
 	void SetDestInfo(const Protocol::PosInfo& InDestInfo);
 	void SetDestInfo(const FVector& InDestInfo);
+	void SetVitalInfo(const Protocol::VitalInfo& InVitalInfo);
 
 public:
 	int32 GetPlayerId() { return PlayerInfo->object_id(); }
@@ -250,6 +253,7 @@ public:
 public:
 	Protocol::PosInfo* PlayerInfo;	// 현재 위치
 	Protocol::PosInfo* DestInfo;	// 목적지
+	Protocol::VitalInfo* VitalInfo;
 
 	UPROPERTY()
 	ECharacterClassType CharacterClassType = ECharacterClassType::Count;

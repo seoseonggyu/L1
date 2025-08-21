@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "L1NetworkPawnData.generated.h"
 
@@ -20,10 +19,12 @@ public:
 	static const UL1NetworkPawnData& Get();
 
 public:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|NetworkPawn")
 	TSubclassOf<APawn> PawnClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Abilities")
 	TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Widget") // TODO: 임시로 여기다가 사용, 따로 옮겨야 함
+	TSubclassOf<UUserWidget> WidgetClass; 
 };

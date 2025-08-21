@@ -18,6 +18,7 @@
 #include "Player/LyraPlayerState.h"
 #include "System/LyraSignificanceManager.h"
 #include "TimerManager.h"
+#include "UI/HUD/L1TopDownWidget.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
 
@@ -80,7 +81,6 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	OverheadWidgetComponent->SetupAttachment(CapsuleComp);
 	OverheadWidgetComponent->SetRelativeLocation(FVector(0, 0.0f, 200.f));
 
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -90,6 +90,7 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 
 	PlayerInfo = new Protocol::PosInfo();
 	DestInfo = new Protocol::PosInfo();
+	VitalInfo = new Protocol::VitalInfo();
 
 	LyraMoveComp->bRunPhysicsWithNoController = true;
 }
@@ -158,6 +159,9 @@ void ALyraCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 			SignificanceManager->UnregisterObject(this);
 		}
 	}
+	if (PlayerInfo) delete PlayerInfo;
+	if (DestInfo) delete DestInfo;
+	if (VitalInfo) delete VitalInfo;
 }
 
 void ALyraCharacter::Reset()
@@ -603,6 +607,11 @@ void ALyraCharacter::SetDestInfo(const FVector& InDestInfo)
 	DestInfo->set_z(InDestInfo.Z);
 }
 
+void ALyraCharacter::SetVitalInfo(const Protocol::VitalInfo& InVitalInfo)
+{
+	VitalInfo->CopyFrom(InVitalInfo);
+}
+
 bool ALyraCharacter::UpdateSharedReplication()
 {
 	if (GetLocalRole() == ROLE_Authority)
@@ -627,6 +636,15 @@ bool ALyraCharacter::UpdateSharedReplication()
 
 	// We cannot fastrep right now. Don't send anything.
 	return false;
+}
+
+void ALyraCharacter::SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass)
+{
+	OverheadWidgetComponent->SetWidgetClass(InWidgetClass);
+	if (UL1TopDownWidget* TopDownWidget = Cast<UL1TopDownWidget>(OverheadWidgetComponent->GetWidget()))
+	{
+		TopDownWidget->SetCharacter(this);
+	}
 }
 
 void ALyraCharacter::FastSharedReplication_Implementation(const FSharedRepMovement& SharedRepMovement)

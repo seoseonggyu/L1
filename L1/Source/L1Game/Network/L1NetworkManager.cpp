@@ -536,8 +536,9 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 	if (Players.Find(ObjectId) != nullptr)
 		return;
 
+	const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
+	
 	FVector SpawnLocation(ObjectInfo.pos_info().x(), ObjectInfo.pos_info().y(), ObjectInfo.pos_info().z());
-
 	ALyraCharacter* Player = nullptr;
 	ECharacterClassType ClassType = NetworkUtils::ConvertClassFromProto(ObjectInfo.character_classtype());
 
@@ -553,7 +554,6 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 	}
 	else
 	{
-		const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
 		Player = Cast<AL1NetworkCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
 		if (Player == nullptr) return;
 
@@ -573,6 +573,9 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 		Player->SetActorLocation(SpawnLocation);
 		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		Player->SetDestInfo(ObjectInfo.pos_info());
+		Player->SetVitalInfo(ObjectInfo.vital_info());
+
+		Player->SetOverHeadWidget(NetworkPawnData.WidgetClass);
 
 		if (UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent())
 		{
@@ -671,13 +674,28 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 void UL1NetworkManager::HandleHit(const Protocol::S_HIT& HitPkt)
 {
 	// TODO: Hit Ã³¸®
-	const uint64 ObjectId = HitPkt.attack_object_id();
-
+	const uint64 AttackId = HitPkt.attack_object_id();
 	for (const auto& HitTarget : HitPkt.hit_targets())
 	{
 		const uint64 TargetId = HitTarget.target_object_id();
 		float Damage = HitTarget.damage();
 		float RemainHp = HitTarget.remaining_hp();
+
+		ALyraCharacter** FindActor = Players.Find(TargetId);
+		if (FindActor == nullptr) continue;
+		ALyraCharacter* Player = (*FindActor);
+		if (Player == nullptr) continue;
+
+		ULyraAbilitySystemComponent* SourceASC = Player->GetLyraAbilitySystemComponent();
+		if (SourceASC == nullptr) continue;
+
+		const TSubclassOf<UGameplayEffect> DamageGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().DamageGameplayEffect_SetByCaller);
+		FGameplayEffectSpecHandle EffectSpecHandle = SourceASC->MakeOutgoingSpec(DamageGE, 0, SourceASC->MakeEffectContext());
+
+		EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseDamage, Damage);
+		SourceASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		Player->VitalInfo->set_hp(RemainHp);
+
 	}
 }
 

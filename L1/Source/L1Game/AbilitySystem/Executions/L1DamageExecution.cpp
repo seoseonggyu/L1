@@ -40,10 +40,12 @@ UL1DamageExecution::UL1DamageExecution()
 
 void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
+
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	FLyraGameplayEffectContext* TypedContext = FLyraGameplayEffectContext::ExtractEffectContext(Spec.GetContext());
 	check(TypedContext);
 
+	/*
 	const FGameplayTagContainer* SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	const FGameplayTagContainer* TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
@@ -59,6 +61,7 @@ void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 
 	float Defense = 0.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DefenseDef, EvaluateParameters, Defense);
+	*/
 
 	const AActor* EffectCauser = TypedContext->GetEffectCauser();
 	const FHitResult* HitActorResult = TypedContext->GetHitResult();
@@ -70,8 +73,9 @@ void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 		HitActor = CurrHitResult.HitObjectHandle.FetchActor();
 	}
 	
-	float Damage = UKismetMathLibrary::SafeDivide(BaseDamage + Strength, FMath::Pow(FMath::Max(Defense, 1.f), 0.3f));
+	// float Damage = UKismetMathLibrary::SafeDivide(BaseDamage + Strength, FMath::Pow(FMath::Max(Defense, 1.f), 0.3f));
 
+	/*
 	// Apply rules for team damage
 	float DamageInteractionAllowedMultiplier = 0.0f;
 	if (HitActor)
@@ -95,17 +99,19 @@ void UL1DamageExecution::Execute_Implementation(const FGameplayEffectCustomExecu
 	
 	float DamageDone = FMath::Max(Damage * PhysicalMaterialAttenuation * DamageInteractionAllowedMultiplier, 0.0f);
 	DamageDone -= DamageDone * 100.f;
-	
+	*/
+
 	// TODO: 데미지 숫자 처리
-	DamageDone = 20.f;
+	float DamageDone = 20.f;
 	if (DamageDone > 0.0f)
 	{
 		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UL1VitalSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, DamageDone));
 
-		if (UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent())
-		{
-			
-			 SourceASC->ApplyModToAttribute(UL1VitalSet::GetHealthAttribute(), EGameplayModOp::Additive, DamageDone /** (DrainLifePercent / 100.f)*/);
-		}
+		
+		//if (UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent())
+		//{
+		//	
+		//	 SourceASC->ApplyModToAttribute(UL1VitalSet::GetHealthAttribute(), EGameplayModOp::Additive, DamageDone /** (DrainLifePercent / 100.f)*/);
+		//}
 	}
 }
