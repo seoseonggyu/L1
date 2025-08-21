@@ -8,6 +8,7 @@
 #include "Character/LyraPawnExtensionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/WidgetComponent.h"
 #include "LyraCharacterMovementComponent.h"
 #include "L1GameplayTags.h"
 #include "L1LogChannels.h"
@@ -31,7 +32,6 @@ static FName NAME_LyraCharacterCollisionProfile_Mesh(TEXT("LyraPawnMesh"));
 ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<ULyraCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
-
 	// Lyra는 Tick을 사용하지 않지만 나는 사용하기로 한다.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -73,6 +73,13 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 
 	CameraComponent = CreateDefaultSubobject<ULyraCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetRelativeLocation(FVector(-300.0f, 0.0f, 75.0f));
+
+	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	OverheadWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	OverheadWidgetComponent->SetDrawSize(FVector2D(200.f, 30.f));
+	OverheadWidgetComponent->SetupAttachment(CapsuleComp);
+	OverheadWidgetComponent->SetRelativeLocation(FVector(0, 0.0f, 200.f));
+
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;

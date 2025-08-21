@@ -12,6 +12,7 @@ public:
 	Protocol::ObjectInfo*	_objectInfo;
 	Protocol::PosInfo*		_posInfo;
 	Protocol::PosInfo*		_destinationInfo;
+	Protocol::VitalInfo*	_vitalInfo;
 
 public:
 	atomic<weak_ptr<Room>> _room;

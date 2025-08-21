@@ -114,7 +114,7 @@ void UL1GameplayAbility_Melee::ProcessHitResult(FHitResult HitResult, float Dama
 	Damage = bBlockingHit ? Damage * BlockHitDamageMultiplier : Damage;
 	
 	// 데미지 GameplayEffect를 만들어서 피격 상대에게 적용
-	EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseDamage, Damage);
+	// EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseDamage, Damage);
 	ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
 	
 	DrawDebugHitPoint(HitResult);

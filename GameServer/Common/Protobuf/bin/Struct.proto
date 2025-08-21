@@ -13,9 +13,18 @@ message PosInfo
 	MoveState	state = 6;
 }
 
+message VitalInfo
+{
+	float hp		= 1;
+	float max_hp	= 2;
+	float mp		= 3;
+	float max_mp	= 4;
+}
+
 message ObjectInfo
 {
 	uint64				object_id			= 1;
 	CharacterClassType  character_classType = 2;
 	PosInfo				pos_info			= 3;
+	VitalInfo			vital_info			= 4;
 }

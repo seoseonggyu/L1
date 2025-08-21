@@ -28,6 +28,12 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 {
 	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session), pkt.class_type());
+	// TODO: DB에서 캐릭터 스탯 관리
+	player->_vitalInfo->set_hp(100);
+	player->_vitalInfo->set_max_hp(100);
+	player->_vitalInfo->set_mp(100);
+	player->_vitalInfo->set_max_mp(100);
+
 	GRoom->DoAsync(&Room::HandleEnterPlayer, player);
 
 	return true;

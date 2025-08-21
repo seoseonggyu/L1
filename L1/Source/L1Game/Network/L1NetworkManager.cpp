@@ -563,15 +563,15 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 		if (UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent())
 		{
 			// TODO: 캐릭터 체력 업로드
-			float TempBaseHp = 100.f;
-			float TempBaseMana = 100.f;
+			float Helath = ObjectInfo.vital_info().max_hp();
+			float Mana = ObjectInfo.vital_info().max_mp();
 
 			TSubclassOf<UGameplayEffect> InitialGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().InitialGameplayEffect_SetByCaller);
 			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
 			if (EffectSpecHandle.IsValid())
 			{
-				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, TempBaseHp);
-				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Mana, TempBaseMana);
+				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
+				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Mana, Mana);
 			}
 			
 			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
