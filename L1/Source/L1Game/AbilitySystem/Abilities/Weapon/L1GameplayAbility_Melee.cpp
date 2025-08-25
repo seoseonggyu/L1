@@ -39,11 +39,6 @@ void UL1GameplayAbility_Melee::ParseTargetData(const FGameplayAbilityTargetDataH
 				{
 					TargetCharacter = Cast<ALyraCharacter>(HitActor->GetOwner());
 				}
-
-				// SSG: Team
-				/*IL1TeamAgentInterface* TeamAgentInterface = Cast<IL1TeamAgentInterface>(TargetCharacter);
-				if (TeamAgentInterface && (TeamAgentInterface->GetTeamAttitudeTowards(*GetLyraCharacterFromActorInfo()) != ETeamAttitude::Hostile))
-					continue;*/
 				
 				bool bIsCharacterBlockingHit = TargetCharacter ? IsCharacterBlockingHit(TargetCharacter) : false;
 				

@@ -141,8 +141,6 @@ Protocol::SkillType NetworkUtils::ConvertProtoFromSkillType(ESkillType UEType)
 
 Protocol::SkillType NetworkUtils::ConvertPortoFromGameplayTag(FGameplayTag GameplayTag)
 {
-    // SSG: 스위치 못 바꾸나?
-
     if(GameplayTag == L1GameplayTags::GameplayEvent_Skill_1) return Protocol::SkillType_Skill_1;
     if(GameplayTag == L1GameplayTags::GameplayEvent_Skill_2) return Protocol::SkillType_Skill_2;
 

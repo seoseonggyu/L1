@@ -3,7 +3,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "L1InteractionInfo.h"
 #include "L1InteractionQuery.h"
-// #include "AbilitySystem/Attributes/L1CombatSet.h" // SSG: 
+#include "AbilitySystem/Attributes/L1CombatSet.h"
 #include "UObject/Interface.h"
 #include "L1Interactable.generated.h"
 

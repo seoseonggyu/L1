@@ -28,6 +28,7 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 		object->_posInfo->set_y(y);
 		object->_posInfo->set_z(z);
 		object->_posInfo->set_yaw(yaw);
+		object->_destinationInfo->CopyFrom(*(object->_posInfo));
 	}
 
 	// 입장 사실을 신입 플레이어에게 알린다
@@ -142,6 +143,7 @@ void Room::HandleSelcetClass(Protocol::C_SELECTCLASS pkt)
 
 void Room::HandleMove(Protocol::C_MOVE pkt)
 {
+	// SSG: Tick으로 처리해야힘
 	const uint64 objectId = pkt.info().object_id();
 	if (_objects.find(objectId) == _objects.end())
 		return;
@@ -153,13 +155,12 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 	{
 		Protocol::S_MOVE movePkt;
 		Protocol::PosInfo* info = movePkt.mutable_info();
-		info->CopyFrom(*player->_posInfo); // SSG: Tick 처리로 바꿔야 함
+		info->CopyFrom(*player->_posInfo);
 
 		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
 		Broadcast(sendBuffer);
 	}
 
-	// TODO: Tick 처리해야힘
 	// TestTick(player);
 }
 
@@ -192,8 +193,7 @@ void Room::HandleHit(Protocol::C_HIT pkt)
 
 void Room::HandleMoveItem(Protocol::C_MOVE_ITEM pkt)
 {
-	// SSG: 안전 체크 없이 일단 사용, 일단 모두에게 데이터 전송
-	// TODO: Validation Check
+	// SSG: Validation Check
 	Protocol::S_MOVE_ITEM moveItemPkt;
 	moveItemPkt.set_from_object_id(pkt.from_object_id());
 	moveItemPkt.set_to_object_id(pkt.to_object_id());
@@ -212,7 +212,7 @@ void Room::HandleMoveItem(Protocol::C_MOVE_ITEM pkt)
 
 void Room::HandleEquipItem(Protocol::C_EQUIP_ITEM pkt)
 {
-	// TODO: Validation Check
+	// SSG: Validation Check
 	Protocol::S_EQUIP_ITEM equipItemPkt;
 	equipItemPkt.set_object_id(pkt.object_id());
 	equipItemPkt.set_equip_state(pkt.equip_state());
@@ -223,12 +223,10 @@ void Room::HandleEquipItem(Protocol::C_EQUIP_ITEM pkt)
 
 void Room::HandleSkillImmediateCast(Protocol::C_SKILL_IMMEDIATE_CAST pkt)
 {
-	// TODO: Validation Check
+	// SSG: Validation Check
 	Protocol::S_SKILL_IMMEDIATE_CAST skillImmediatePkt;
 	skillImmediatePkt.set_object_id(pkt.object_id());
 	skillImmediatePkt.set_skill_type(pkt.skill_type());
-
-
 
 	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(skillImmediatePkt);
 	Broadcast(sendBuffer);
@@ -252,7 +250,7 @@ void Room::ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::Hi
 		if (_objects.find(target_id) == _objects.end())
 			continue;
 
-		// TODO: 옮기기
+		// SSG: 옮기기
 		float cachedHp = _objects[target_id]->_vitalInfo->hp();
 		cachedHp -= attackDamage;
 		if (cachedHp < 0.f) cachedHp = 0.f;

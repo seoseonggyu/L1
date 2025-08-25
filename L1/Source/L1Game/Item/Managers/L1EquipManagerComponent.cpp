@@ -12,7 +12,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Actors/L1EquipmentBase.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
-// #include "AbilitySystem/Attributes/L1CombatSet.h" // SSG: 
+#include "AbilitySystem/Attributes/L1CombatSet.h"
 #include "Character/LyraCharacter.h"
 #include "Player/LyraPlayerController.h"
 #include "PocketWorld/L1PocketStage.h"

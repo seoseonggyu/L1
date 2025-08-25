@@ -615,7 +615,6 @@ void UL1EquipmentManagerComponent::AddEquipment_Unsafe(EEquipmentSlotType Equipm
 		Entry.Init(ItemInstance, ItemCount);
 	}
 
-	// SSG: 테스트 용도
 	BroadcastChangedMessage(EquipmentSlotType, ItemInstance, ItemCount);
 }
 
@@ -686,7 +685,7 @@ void UL1EquipmentManagerComponent::SetEquipment(EEquipmentSlotType EquipmentSlot
 	AddedItemInstance->Init(ItemTemplateID, ItemRarity);
 	Entry.Init(AddedItemInstance, ItemCount);
 
-	BroadcastChangedMessage(EquipmentSlotType, AddedItemInstance, ItemCount); // SSG: 임시적 사용
+	BroadcastChangedMessage(EquipmentSlotType, AddedItemInstance, ItemCount);
 
 	if (IsWeaponSlot(EquipmentSlotType))
 	{

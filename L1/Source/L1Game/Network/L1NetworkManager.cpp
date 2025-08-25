@@ -160,7 +160,7 @@ void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacte
 	}
 }
 
-// TODO: 코드 옮기기
+// SSG: 코드 옮기기
 void UL1NetworkManager::Check_EquipmentToInventory(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
 {
 	if (FromEquipmentManager == nullptr || ToInventoryManager == nullptr)
@@ -273,7 +273,7 @@ void UL1NetworkManager::Check_QuickFromInventory(ALyraCharacter* ToCharacter, UL
 	if (FromItemInstance == nullptr)
 		return;
 
-	// TODO: 체크안하고 일단 보냄.. 그냥 쌩으로 보내자!
+	// SSG: 체크안하고 일단 보냄.. 그냥 쌩으로 보내자!
 	SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), EEquipmentSlotType::Count, EEquipmentSlotType::Count, Protocol::ItemTransferType::Quick_From_Inventory, FromItemSlotPos, FIntPoint(0, 0), 0);
 }
 
@@ -290,7 +290,7 @@ void UL1NetworkManager::Check_QuickFromEquipment(ALyraCharacter* ToCharacter, UL
 	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
 		return;
 
-	// TODO: 체크안하고 일단 보냄.. 그냥 쌩으로 보내자!
+	// SSG: 체크안하고 일단 보냄.. 그냥 쌩으로 보내자!
 	SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, EEquipmentSlotType::Count, Protocol::ItemTransferType::Quick_From_Equipment, FIntPoint(0, 0), FIntPoint(0, 0), 0);
 }
 
@@ -571,7 +571,6 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 		Players.Add(ObjectInfo.object_id(), Player);
 		
 		Player->SetActorLocation(SpawnLocation);
-		Player->SetPlayerInfo(ObjectInfo.pos_info());
 		Player->SetDestInfo(ObjectInfo.pos_info());
 		Player->SetVitalInfo(ObjectInfo.vital_info());
 
@@ -579,7 +578,6 @@ void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool
 
 		if (UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent())
 		{
-			// TODO: 캐릭터 체력 업로드
 			float Helath = ObjectInfo.vital_info().max_hp();
 			float Mana = ObjectInfo.vital_info().max_mp();
 
@@ -673,7 +671,6 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 
 void UL1NetworkManager::HandleHit(const Protocol::S_HIT& HitPkt)
 {
-	// TODO: Hit 처리
 	const uint64 AttackId = HitPkt.attack_object_id();
 	for (const auto& HitTarget : HitPkt.hit_targets())
 	{

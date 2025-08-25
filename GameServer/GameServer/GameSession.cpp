@@ -21,7 +21,6 @@ void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 	PacketSessionRef seesion = GetPacketSessionRef();
 	PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
 
-	// TODO : packetId 대역 체크
 	ClientPacketHandler::HandlePacket(seesion, buffer, len);
 
 }

@@ -47,7 +47,7 @@ protected:
 	virtual void InitializeComponent() override;
 
 private:
-	void BroadcastChangedMessage(const FIntPoint& ItemSlotPos, UL1ItemInstance* ItemInstance, int32 ItemCount); // SSG: 아이템 옮기기 테스트
+	void BroadcastChangedMessage(const FIntPoint& ItemSlotPos, UL1ItemInstance* ItemInstance, int32 ItemCount);
 
 public:
 	int32 CanMoveOrMergeItem(UL1InventoryManagerComponent* OtherComponent, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos) const;

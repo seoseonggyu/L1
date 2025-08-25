@@ -88,7 +88,6 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	BaseEyeHeight = 80.0f;
 	CrouchedEyeHeight = 50.0f;
 
-	PlayerInfo = new Protocol::PosInfo();
 	DestInfo = new Protocol::PosInfo();
 	VitalInfo = new Protocol::VitalInfo();
 
@@ -141,8 +140,6 @@ void ALyraCharacter::Tick(float DeltaTime)
 	else
 	{
 	}
-
-	SetPlayerInfo(GetActorLocation());
 }
 
 void ALyraCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -159,7 +156,6 @@ void ALyraCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 			SignificanceManager->UnregisterObject(this);
 		}
 	}
-	if (PlayerInfo) delete PlayerInfo;
 	if (DestInfo) delete DestInfo;
 	if (VitalInfo) delete VitalInfo;
 }
@@ -580,20 +576,6 @@ void ALyraCharacter::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponent
 		CosmeticManager->GetMeshComponents(OutMeshComponents);
 	}
 }
-
-void ALyraCharacter::SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo)
-{
-	if(PlayerInfo)
-		PlayerInfo->CopyFrom(InPlayerInfo);
-}
-
-void ALyraCharacter::SetPlayerInfo(const FVector& InPlayerInfo)
-{
-	if (PlayerInfo) {
-		PlayerInfo->set_x(InPlayerInfo.X);
-		PlayerInfo->set_y(InPlayerInfo.Y);
-		PlayerInfo->set_z(InPlayerInfo.Z);
-	}}
 
 void ALyraCharacter::SetDestInfo(const Protocol::PosInfo& InDestInfo)
 {

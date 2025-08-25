@@ -24,7 +24,6 @@ private:
 	void ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::HitTargetInfo>& outTargetInfos);
 
 public:
-	// SSG:
 	void TestTick(PlayerRef player);
 	
 	RoomRef GetRoomRef();

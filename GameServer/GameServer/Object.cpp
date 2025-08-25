@@ -19,3 +19,8 @@ Object::~Object()
 	delete _objectInfo;
 	delete _destinationInfo;
 }
+
+float Object::GetDamage(Protocol::SkillType skillType)
+{
+	return 0.0f;
+}

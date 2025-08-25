@@ -104,7 +104,7 @@ void UL1GameplayAbility_Skill_Buff::EndAbility(const FGameplayAbilitySpecHandle 
 
 	}
 
-	// TODO: 여기서 스킬 리셋
+	// SSG: 여기서 스킬 리셋
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetLyraCharacterFromActorInfo(), L1GameplayTags::GameplayEvent_Reset_Skill_2, FGameplayEventData());
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

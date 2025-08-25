@@ -58,7 +58,7 @@ protected:
 	virtual void InitializeComponent() override;
 
 private:
-	void BroadcastChangedMessage(EEquipmentSlotType EquipmentSlotType, UL1ItemInstance* ItemInstance, int32 ItemCount); // SSG: 테스트 용도
+	void BroadcastChangedMessage(EEquipmentSlotType EquipmentSlotType, UL1ItemInstance* ItemInstance, int32 ItemCount);
 
 public:
 	int32 CanMoveOrMergeEquipment(UL1EquipmentManagerComponent* OtherComponent, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType) const;

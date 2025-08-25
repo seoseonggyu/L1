@@ -241,17 +241,14 @@ public:
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
 public:
-	void SetPlayerInfo(const Protocol::PosInfo& InPlayerInfo);
-	void SetPlayerInfo(const FVector& InPlayerInfo);
 	void SetDestInfo(const Protocol::PosInfo& InDestInfo);
 	void SetDestInfo(const FVector& InDestInfo);
 	void SetVitalInfo(const Protocol::VitalInfo& InVitalInfo);
 
 public:
-	int32 GetPlayerId() { return PlayerInfo->object_id(); }
+	int32 GetPlayerId() { return DestInfo->object_id(); }
 
 public:
-	Protocol::PosInfo* PlayerInfo;	// 현재 위치
 	Protocol::PosInfo* DestInfo;	// 목적지
 	Protocol::VitalInfo* VitalInfo;
 

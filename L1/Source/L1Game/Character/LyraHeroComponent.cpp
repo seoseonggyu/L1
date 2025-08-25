@@ -410,7 +410,7 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 					Protocol::C_MOVE MovePkt;
 					Protocol::PosInfo* Info = MovePkt.mutable_info();
 
-					Info->set_object_id(Character->PlayerInfo->object_id());
+					Info->set_object_id(Character->GetPlayerId());
 					Info->set_x(CachedDestination.X);
 					Info->set_y(CachedDestination.Y);
 					Info->set_z(CachedDestination.Z);

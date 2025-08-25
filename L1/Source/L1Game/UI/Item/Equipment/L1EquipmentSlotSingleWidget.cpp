@@ -131,11 +131,6 @@ bool UL1EquipmentSlotSingleWidget::NativeOnDrop(const FGeometry& InGeometry, con
 	if (FromItemInstance == nullptr)
 		return false;
 
-	// SSG: 
-	/*UL1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UL1ItemManagerComponent>();
-	if (ItemManager == nullptr)
-		return false;*/
-
 	EEquipmentSlotType ToEquipmentSlotType = GetEquipmentSlotType();
 	if (ToEquipmentSlotType == EEquipmentSlotType::Count)
 		return false;

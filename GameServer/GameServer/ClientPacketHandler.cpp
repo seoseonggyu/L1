@@ -10,7 +10,6 @@ PacketHandlerFunc GPacketHandler[UINT16_MAX];
 bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len)
 {
 	PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
-	// TODO : Log
 	return false;
 
 }
@@ -28,13 +27,17 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 {
 	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session), pkt.class_type());
-	// TODO: DB에서 캐릭터 스탯 관리
+	// SSG: DB에서 캐릭터 스탯 관리
 	player->_vitalInfo->set_hp(100);
 	player->_vitalInfo->set_max_hp(100);
 	player->_vitalInfo->set_mp(100);
 	player->_vitalInfo->set_max_mp(100);
 	
-	player->_combatInfo->set_damage(10);
+	player->_combatInfo->set_strength(10);
+	player->_combatInfo->set_defense(10);
+	player->_combatInfo->set_vigor(10);
+	player->_combatInfo->set_agility(10);
+	player->_combatInfo->set_resourcefulness(10);
 
 	GRoom->DoAsync(&Room::HandleEnterPlayer, player);
 

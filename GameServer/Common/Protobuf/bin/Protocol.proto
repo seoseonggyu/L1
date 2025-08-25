@@ -21,7 +21,6 @@ message S_LOGIN
 message C_ENTER_GAME
 {
 	uint64 playerIndex = 1;
-	CharacterClassType class_type = 2; // SSG: 캐릭터 클래스 선택 임시로
 }
 
 message S_ENTER_GAME
@@ -87,7 +86,7 @@ message S_HIT
 
 message C_MOVE_ITEM
 {
-	// TODO: struct으로 묶을까?
+	// SSG: struct으로 묶을까?
 	uint64 from_object_id						= 1;
 	uint64 to_object_id							= 2;
 	EquipmentSlotType from_equipment_slot_type	= 3;
@@ -102,7 +101,6 @@ message C_MOVE_ITEM
 
 message S_MOVE_ITEM
 {
-	// TODO: struct으로 묶을까?
 	uint64 from_object_id						= 1;
 	uint64 to_object_id							= 2;
 	EquipmentSlotType from_equipment_slot_type	= 3;

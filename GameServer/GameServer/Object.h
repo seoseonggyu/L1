@@ -6,7 +6,12 @@ public:
 	Object();
 	virtual ~Object();
 
+public:
+	virtual float GetDamage(Protocol::SkillType skillType);
+
 	bool IsPlayer() { return _isPlayer; }
+
+
 
 public:
 	Protocol::ObjectInfo*	_objectInfo;

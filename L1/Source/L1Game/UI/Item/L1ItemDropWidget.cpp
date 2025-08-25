@@ -2,7 +2,6 @@
 
 #include "L1ItemDragDrop.h"
 #include "L1ItemEntryWidget.h"
-// #include "Item/Managers/L1ItemManagerComponent.h" // SSG: 
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1ItemDropWidget)
 
