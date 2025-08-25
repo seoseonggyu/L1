@@ -26,7 +26,7 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 
 bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 {
-	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session), pkt.class_type());
+	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session), Protocol::CHARACTER_CLASS_TYPE_NONE);
 	// SSG: DB에서 캐릭터 스탯 관리
 	player->_vitalInfo->set_hp(100);
 	player->_vitalInfo->set_max_hp(100);

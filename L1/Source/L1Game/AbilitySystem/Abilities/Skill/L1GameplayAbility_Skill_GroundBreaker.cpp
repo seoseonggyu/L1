@@ -161,6 +161,7 @@ void UL1GameplayAbility_Skill_GroundBreaker::ExecuteGroundBreaker()
 			}
 		}
 
+		// SSG: 매번 여기서 보낼게 아니라, 따로 처리를 해서 보내자!
 		if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(LyraCharacter->GetPlayerState())))
 		{
 			TArray<int32> TargetIds;
