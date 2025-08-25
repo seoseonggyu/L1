@@ -104,15 +104,6 @@ void ALyraCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	UWorld* World = GetWorld();
-
-	const bool bRegisterWithSignificanceManager = !IsNetMode(NM_DedicatedServer);
-	if (bRegisterWithSignificanceManager)
-	{
-		if (ULyraSignificanceManager* SignificanceManager = USignificanceManager::Get<ULyraSignificanceManager>(World))
-		{
-//@TODO: SignificanceManager->RegisterObject(this, (EFortSignificanceType)SignificanceType);
-		}
-	}
 }
 
 void ALyraCharacter::Tick(float DeltaTime)
@@ -148,14 +139,6 @@ void ALyraCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	UWorld* World = GetWorld();
 
-	const bool bRegisterWithSignificanceManager = !IsNetMode(NM_DedicatedServer);
-	if (bRegisterWithSignificanceManager)
-	{
-		if (ULyraSignificanceManager* SignificanceManager = USignificanceManager::Get<ULyraSignificanceManager>(World))
-		{
-			SignificanceManager->UnregisterObject(this);
-		}
-	}
 	if (DestInfo) delete DestInfo;
 	if (VitalInfo) delete VitalInfo;
 }
@@ -169,47 +152,9 @@ void ALyraCharacter::Reset()
 	UninitAndDestroy();
 }
 
-void ALyraCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(ThisClass, ReplicatedAcceleration, COND_SimulatedOnly);
-	DOREPLIFETIME(ThisClass, MyTeamID)
-}
-
-void ALyraCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
-{
-	Super::PreReplication(ChangedPropertyTracker);
-
-	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
-	{
-		// Compress Acceleration: XY components as direction + magnitude, Z component as direct value
-		const double MaxAccel = MovementComponent->MaxAcceleration;
-		const FVector CurrentAccel = MovementComponent->GetCurrentAcceleration();
-		double AccelXYRadians, AccelXYMagnitude;
-		FMath::CartesianToPolar(CurrentAccel.X, CurrentAccel.Y, AccelXYMagnitude, AccelXYRadians);
-
-		ReplicatedAcceleration.AccelXYRadians   = FMath::FloorToInt((AccelXYRadians / TWO_PI) * 255.0);     // [0, 2PI] -> [0, 255]
-		ReplicatedAcceleration.AccelXYMagnitude = FMath::FloorToInt((AccelXYMagnitude / MaxAccel) * 255.0);	// [0, MaxAccel] -> [0, 255]
-		ReplicatedAcceleration.AccelZ           = FMath::FloorToInt((CurrentAccel.Z / MaxAccel) * 127.0);   // [-MaxAccel, MaxAccel] -> [-127, 127]
-	}
-}
-
 void ALyraCharacter::NotifyControllerChanged()
 {
-	const FGenericTeamId OldTeamId = GetGenericTeamId();
-
 	Super::NotifyControllerChanged();
-
-	// Update our team ID based on the controller
-	if (HasAuthority() && (Controller != nullptr))
-	{
-		if (ILyraTeamAgentInterface* ControllerWithTeam = Cast<ILyraTeamAgentInterface>(Controller))
-		{
-			MyTeamID = ControllerWithTeam->GetGenericTeamId();
-			ConditionalBroadcastTeamChanged(this, OldTeamId, MyTeamID);
-		}
-	}
 }
 
 ALyraPlayerController* ALyraCharacter::GetLyraPlayerController() const
@@ -254,53 +199,16 @@ void ALyraCharacter::OnAbilitySystemUninitialized()
 
 void ALyraCharacter::PossessedBy(AController* NewController)
 {
-	const FGenericTeamId OldTeamID = MyTeamID;
-
 	Super::PossessedBy(NewController);
 
 	PawnExtComponent->HandleControllerChanged();
-
-	// Grab the current team ID and listen for future changes
-	if (ILyraTeamAgentInterface* ControllerAsTeamProvider = Cast<ILyraTeamAgentInterface>(NewController))
-	{
-		MyTeamID = ControllerAsTeamProvider->GetGenericTeamId();
-		ControllerAsTeamProvider->GetTeamChangedDelegateChecked().AddDynamic(this, &ThisClass::OnControllerChangedTeam);
-	}
-	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
 }
 
 void ALyraCharacter::UnPossessed()
 {
-	AController* const OldController = Controller;
-
-	// Stop listening for changes from the old controller
-	const FGenericTeamId OldTeamID = MyTeamID;
-	if (ILyraTeamAgentInterface* ControllerAsTeamProvider = Cast<ILyraTeamAgentInterface>(OldController))
-	{
-		ControllerAsTeamProvider->GetTeamChangedDelegateChecked().RemoveAll(this);
-	}
-
 	Super::UnPossessed();
 
 	PawnExtComponent->HandleControllerChanged();
-
-	// Determine what the new team ID should be afterwards
-	MyTeamID = DetermineNewTeamAfterPossessionEnds(OldTeamID);
-	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
-}
-
-void ALyraCharacter::OnRep_Controller()
-{
-	Super::OnRep_Controller();
-
-	PawnExtComponent->HandleControllerChanged();
-}
-
-void ALyraCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	PawnExtComponent->HandlePlayerStateReplicated();
 }
 
 void ALyraCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -507,66 +415,6 @@ bool ALyraCharacter::CanJumpInternal_Implementation() const
 	return JumpIsAllowedInternal();
 }
 
-void ALyraCharacter::OnRep_ReplicatedAcceleration()
-{
-	if (ULyraCharacterMovementComponent* LyraMovementComponent = Cast<ULyraCharacterMovementComponent>(GetCharacterMovement()))
-	{
-		// Decompress Acceleration
-		const double MaxAccel         = LyraMovementComponent->MaxAcceleration;
-		const double AccelXYMagnitude = double(ReplicatedAcceleration.AccelXYMagnitude) * MaxAccel / 255.0; // [0, 255] -> [0, MaxAccel]
-		const double AccelXYRadians   = double(ReplicatedAcceleration.AccelXYRadians) * TWO_PI / 255.0;     // [0, 255] -> [0, 2PI]
-
-		FVector UnpackedAcceleration(FVector::ZeroVector);
-		FMath::PolarToCartesian(AccelXYMagnitude, AccelXYRadians, UnpackedAcceleration.X, UnpackedAcceleration.Y);
-		UnpackedAcceleration.Z = double(ReplicatedAcceleration.AccelZ) * MaxAccel / 127.0; // [-127, 127] -> [-MaxAccel, MaxAccel]
-
-		LyraMovementComponent->SetReplicatedAcceleration(UnpackedAcceleration);
-	}
-}
-
-void ALyraCharacter::SetGenericTeamId(const FGenericTeamId& NewTeamID)
-{
-	if (GetController() == nullptr)
-	{
-		if (HasAuthority())
-		{
-			const FGenericTeamId OldTeamID = MyTeamID;
-			MyTeamID = NewTeamID;
-			ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
-		}
-		else
-		{
-			UE_LOG(LogL1Teams, Error, TEXT("You can't set the team ID on a character (%s) except on the authority"), *GetPathNameSafe(this));
-		}
-	}
-	else
-	{
-		UE_LOG(LogL1Teams, Error, TEXT("You can't set the team ID on a possessed character (%s); it's driven by the associated controller"), *GetPathNameSafe(this));
-	}
-}
-
-FGenericTeamId ALyraCharacter::GetGenericTeamId() const
-{
-	return MyTeamID;
-}
-
-FOnLyraTeamIndexChangedDelegate* ALyraCharacter::GetOnTeamIndexChangedDelegate()
-{
-	return &OnTeamChangedDelegate;
-}
-
-void ALyraCharacter::OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
-{
-	const FGenericTeamId MyOldTeamID = MyTeamID;
-	MyTeamID = IntegerToGenericTeamId(NewTeam);
-	ConditionalBroadcastTeamChanged(this, MyOldTeamID, MyTeamID);
-}
-
-void ALyraCharacter::OnRep_MyTeamID(FGenericTeamId OldTeamID)
-{
-	ConditionalBroadcastTeamChanged(this, OldTeamID, MyTeamID);
-}
-
 void ALyraCharacter::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const
 {
 	OutMeshComponents.Add(GetMesh());
@@ -594,32 +442,6 @@ void ALyraCharacter::SetVitalInfo(const Protocol::VitalInfo& InVitalInfo)
 	VitalInfo->CopyFrom(InVitalInfo);
 }
 
-bool ALyraCharacter::UpdateSharedReplication()
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		FSharedRepMovement SharedMovement;
-		if (SharedMovement.FillForCharacter(this))
-		{
-			// Only call FastSharedReplication if data has changed since the last frame.
-			// Skipping this call will cause replication to reuse the same bunch that we previously
-			// produced, but not send it to clients that already received. (But a new client who has not received
-			// it, will get it this frame)
-			if (!SharedMovement.Equals(LastSharedReplication, this))
-			{
-				LastSharedReplication = SharedMovement;
-				ReplicatedMovementMode = SharedMovement.RepMovementMode;
-
-				FastSharedReplication(SharedMovement);
-			}
-			return true;
-		}
-	}
-
-	// We cannot fastrep right now. Don't send anything.
-	return false;
-}
-
 void ALyraCharacter::SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass)
 {
 	OverheadWidgetComponent->SetWidgetClass(InWidgetClass);
@@ -627,135 +449,4 @@ void ALyraCharacter::SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass)
 	{
 		TopDownWidget->SetCharacter(this);
 	}
-}
-
-void ALyraCharacter::FastSharedReplication_Implementation(const FSharedRepMovement& SharedRepMovement)
-{
-	if (GetWorld()->IsPlayingReplay())
-	{
-		return;
-	}
-
-	// Timestamp is checked to reject old moves.
-	if (GetLocalRole() == ROLE_SimulatedProxy)
-	{
-		// Timestamp
-		ReplicatedServerLastTransformUpdateTimeStamp = SharedRepMovement.RepTimeStamp;
-
-		// Movement mode
-		if (ReplicatedMovementMode != SharedRepMovement.RepMovementMode)
-		{
-			ReplicatedMovementMode = SharedRepMovement.RepMovementMode;
-			GetCharacterMovement()->bNetworkMovementModeChanged = true;
-			GetCharacterMovement()->bNetworkUpdateReceived = true;
-		}
-
-		// Location, Rotation, Velocity, etc.
-		FRepMovement& MutableRepMovement = GetReplicatedMovement_Mutable();
-		MutableRepMovement = SharedRepMovement.RepMovement;
-
-		// This also sets LastRepMovement
-		OnRep_ReplicatedMovement();
-
-		// Jump force
-		bProxyIsJumpForceApplied = SharedRepMovement.bProxyIsJumpForceApplied;
-
-		// Crouch
-		if (bIsCrouched != SharedRepMovement.bIsCrouched)
-		{
-			bIsCrouched = SharedRepMovement.bIsCrouched;
-			OnRep_IsCrouched();
-		}
-	}
-}
-
-FSharedRepMovement::FSharedRepMovement()
-{
-	RepMovement.LocationQuantizationLevel = EVectorQuantization::RoundTwoDecimals;
-}
-
-bool FSharedRepMovement::FillForCharacter(ACharacter* Character)
-{
-	if (USceneComponent* PawnRootComponent = Character->GetRootComponent())
-	{
-		UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement();
-
-		RepMovement.Location = FRepMovement::RebaseOntoZeroOrigin(PawnRootComponent->GetComponentLocation(), Character);
-		RepMovement.Rotation = PawnRootComponent->GetComponentRotation();
-		RepMovement.LinearVelocity = CharacterMovement->Velocity;
-		RepMovementMode = CharacterMovement->PackNetworkMovementMode();
-		bProxyIsJumpForceApplied = Character->bProxyIsJumpForceApplied || (Character->JumpForceTimeRemaining > 0.0f);
-		bIsCrouched = Character->bIsCrouched;
-
-		// Timestamp is sent as zero if unused
-		if ((CharacterMovement->NetworkSmoothingMode == ENetworkSmoothingMode::Linear) || CharacterMovement->bNetworkAlwaysReplicateTransformUpdateTimestamp)
-		{
-			RepTimeStamp = CharacterMovement->GetServerLastTransformUpdateTimeStamp();
-		}
-		else
-		{
-			RepTimeStamp = 0.f;
-		}
-
-		return true;
-	}
-	return false;
-}
-
-bool FSharedRepMovement::Equals(const FSharedRepMovement& Other, ACharacter* Character) const
-{
-	if (RepMovement.Location != Other.RepMovement.Location)
-	{
-		return false;
-	}
-
-	if (RepMovement.Rotation != Other.RepMovement.Rotation)
-	{
-		return false;
-	}
-
-	if (RepMovement.LinearVelocity != Other.RepMovement.LinearVelocity)
-	{
-		return false;
-	}
-
-	if (RepMovementMode != Other.RepMovementMode)
-	{
-		return false;
-	}
-
-	if (bProxyIsJumpForceApplied != Other.bProxyIsJumpForceApplied)
-	{
-		return false;
-	}
-
-	if (bIsCrouched != Other.bIsCrouched)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-bool FSharedRepMovement::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
-{
-	bOutSuccess = true;
-	RepMovement.NetSerialize(Ar, Map, bOutSuccess);
-	Ar << RepMovementMode;
-	Ar << bProxyIsJumpForceApplied;
-	Ar << bIsCrouched;
-
-	// Timestamp, if non-zero.
-	uint8 bHasTimeStamp = (RepTimeStamp != 0.f);
-	Ar.SerializeBits(&bHasTimeStamp, 1);
-	if (bHasTimeStamp)
-	{
-		Ar << RepTimeStamp;
-	}
-	else
-	{
-		RepTimeStamp = 0.f;
-	}
-
-	return true;
 }

@@ -19,8 +19,6 @@ class AActor;
 class AController;
 class ALyraPlayerController;
 class ALyraPlayerState;
-class FLifetimeProperty;
-class IRepChangedPropertyTracker;
 class UAbilitySystemComponent;
 class UInputComponent;
 class ULyraAbilitySystemComponent;
@@ -34,62 +32,6 @@ struct FFrame;
 struct FGameplayTag;
 struct FGameplayTagContainer;
 
-/**
- * FLyraReplicatedAcceleration: Compressed representation of acceleration
- */
-USTRUCT()
-struct FLyraReplicatedAcceleration
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	uint8 AccelXYRadians = 0;	// Direction of XY accel component, quantized to represent [0, 2*pi]
-
-	UPROPERTY()
-	uint8 AccelXYMagnitude = 0;	//Accel rate of XY component, quantized to represent [0, MaxAcceleration]
-
-	UPROPERTY()
-	int8 AccelZ = 0;	// Raw Z accel rate component, quantized to represent [-MaxAcceleration, MaxAcceleration]
-};
-
-/** The type we use to send FastShared movement updates. */
-USTRUCT()
-struct FSharedRepMovement
-{
-	GENERATED_BODY()
-
-	FSharedRepMovement();
-
-	bool FillForCharacter(ACharacter* Character);
-	bool Equals(const FSharedRepMovement& Other, ACharacter* Character) const;
-
-	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
-
-	UPROPERTY(Transient)
-	FRepMovement RepMovement;
-
-	UPROPERTY(Transient)
-	float RepTimeStamp = 0.0f;
-
-	UPROPERTY(Transient)
-	uint8 RepMovementMode = 0;
-
-	UPROPERTY(Transient)
-	bool bProxyIsJumpForceApplied = false;
-
-	UPROPERTY(Transient)
-	bool bIsCrouched = false;
-};
-
-template<>
-struct TStructOpsTypeTraits<FSharedRepMovement> : public TStructOpsTypeTraitsBase2<FSharedRepMovement>
-{
-	enum
-	{
-		WithNetSerializer = true,
-		WithNetSharedSerialization = true,
-	};
-};
 
 /**
  * ALyraCharacter
@@ -99,12 +41,11 @@ struct TStructOpsTypeTraits<FSharedRepMovement> : public TStructOpsTypeTraitsBas
  *	New behavior should be added via pawn components when possible.
  */
 UCLASS(Config = Game, Meta = (ShortTooltip = "The base character pawn class used by this project."))
-class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public ILyraTeamAgentInterface, public IL1Interactable
+class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public IL1Interactable
 {
 	GENERATED_BODY()
 
 public:
-
 	ALyraCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UFUNCTION(BlueprintCallable, Category = "Lyra|Character")
@@ -130,28 +71,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Reset() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 	//~End of AActor interface
 
 	//~APawn interface
 	virtual void NotifyControllerChanged() override;
 	//~End of APawn interface
-
-	//~ILyraTeamAgentInterface interface
-	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
-	virtual FGenericTeamId GetGenericTeamId() const override;
-	virtual FOnLyraTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
-	//~End of ILyraTeamAgentInterface interface
-
-	/** RPCs that is called on frames when default property replication is skipped. This replicates a single movement update to everyone. */
-	UFUNCTION(NetMulticast, unreliable)
-	void FastSharedReplication(const FSharedRepMovement& SharedRepMovement);
-
-	// Last FSharedRepMovement we sent, to avoid sending repeatedly.
-	FSharedRepMovement LastSharedReplication;
-
-	virtual bool UpdateSharedReplication();
 
 	void SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass);
 
@@ -162,9 +86,6 @@ protected:
 
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
-
-	virtual void OnRep_Controller() override;
-	virtual void OnRep_PlayerState() override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -209,33 +130,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "L1|Character", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UWidgetComponent> OverheadWidgetComponent;
-
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_ReplicatedAcceleration)
-	FLyraReplicatedAcceleration ReplicatedAcceleration;
-
-	UPROPERTY(ReplicatedUsing = OnRep_MyTeamID)
-	FGenericTeamId MyTeamID;
-
-	UPROPERTY()
-	FOnLyraTeamIndexChangedDelegate OnTeamChangedDelegate;
-
-protected:
-	// Called to determine what happens to the team ID when possession ends
-	virtual FGenericTeamId DetermineNewTeamAfterPossessionEnds(FGenericTeamId OldTeamID) const
-	{
-		// This could be changed to return, e.g., OldTeamID if you want to keep it assigned afterwards, or return an ID for some neutral faction, or etc...
-		return FGenericTeamId::NoTeam;
-	}
-
-private:
-	UFUNCTION()
-	void OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
-
-	UFUNCTION()
-	void OnRep_ReplicatedAcceleration();
-
-	UFUNCTION()
-	void OnRep_MyTeamID(FGenericTeamId OldTeamID);
 
 public:
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
