@@ -1,6 +1,5 @@
 #pragma once
 #include "Job.h"
-#include "LockQueue.h"
 #include "ConcuurentQueue.h"
 #include "JobTimer.h"
 
@@ -37,14 +36,11 @@ public:
 		GJobTimer->Reserve(tickAfter, shared_from_this(), job);
 	}
 
-	void					ClearJobs() { _jobs.Clear(); }
-
 public:
 	void					Push(JobRef job, bool pushOnly = false);
 	void					Execute();
 
 protected:
-	//LockQueue<JobRef>		_jobs;
 	ConcuurentQueue<JobRef>		_jobs;
 	Atomic<int32>			_jobCount = 0;
 };

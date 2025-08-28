@@ -16,7 +16,5 @@ public:
 
 private:
 	ConcuurentQueue<JobQueueRef> _jobQueues;
-
-	//LockQueue<JobQueueRef> _jobQueues;
 };
 
