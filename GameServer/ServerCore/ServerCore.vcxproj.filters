@@ -93,12 +93,6 @@
     <ClInclude Include="RecvBuffer.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="BufferReader.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="BufferWriter.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="GlobalQueue.h">
       <Filter>Job</Filter>
     </ClInclude>
@@ -181,12 +175,6 @@
     </ClCompile>
     <ClCompile Include="RecvBuffer.cpp">
       <Filter>Network</Filter>
-    </ClCompile>
-    <ClCompile Include="BufferReader.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="BufferWriter.cpp">
-      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="GlobalQueue.cpp">
       <Filter>Job</Filter>

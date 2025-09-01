@@ -122,7 +122,7 @@ void Listener::ProcessAccept(AcceptEvent* acceptEvent)
 
 	cout << "Client Connected!" << endl;
 
-	// TODO (accept완료!! recv를 하자!!)
+	// (accept완료!! recv를 하자!!)
 	session->ProcessConnect();
 
 	RegisterAccept(acceptEvent); // 다시 낚시대를 던져야하는 것을 생각

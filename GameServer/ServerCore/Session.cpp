@@ -153,7 +153,7 @@ void Session::RegisterRecv()
 	_recvEvent.owner = shared_from_this(); // ADD_REF(자신의 레퍼런스 1증가), 중간에 삭제 방지
 
 	WSABUF wsaBuf;
-	wsaBuf.buf = reinterpret_cast<char*>(_recvBuffer.WritePos()); // 뒤에 이어서 데이터를 복사
+	wsaBuf.buf = reinterpret_cast<char*>(_recvBuffer.WritePos());
 	wsaBuf.len = _recvBuffer.FreeSize();
 
 	DWORD numOfBytes = 0;

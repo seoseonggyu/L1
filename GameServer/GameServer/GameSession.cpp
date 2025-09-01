@@ -22,7 +22,6 @@ void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 	PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
 
 	ClientPacketHandler::HandlePacket(seesion, buffer, len);
-
 }
 
 void GameSession::OnSend(int32 len)
