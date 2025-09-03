@@ -2,6 +2,8 @@
 
 #define OUT // OUT은 값이 바뀔 수 있는 힌트를 준다
 
+#define NAMESPACE_BEGIN(name)	namespace name {
+#define NAMESPACE_END			}
 
 /* ----------------------
 		  Lock
