@@ -25,6 +25,9 @@
     <Filter Include="Protocol\Proto\pb">
       <UniqueIdentifier>{6028558f-f68f-44fb-9c66-7a9d32679f69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DB">
+      <UniqueIdentifier>{a5c51e4d-43e8-40a9-88cb-ef54cfdb57d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp">
@@ -124,5 +127,10 @@
     <None Include="..\Common\Protobuf\bin\GenPackets.bat">
       <Filter>Protocol</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="GameDB.xml">
+      <Filter>DB</Filter>
+    </Xml>
   </ItemGroup>
 </Project>
