@@ -66,18 +66,4 @@
       <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Common\Protobuf\bin\Enum.proto">
-      <Filter>Protocol</Filter>
-    </None>
-    <None Include="..\Common\Protobuf\bin\Protocol.proto">
-      <Filter>Protocol</Filter>
-    </None>
-    <None Include="..\Common\Protobuf\bin\Struct.proto">
-      <Filter>Protocol</Filter>
-    </None>
-    <None Include="..\Common\Protobuf\bin\GenPackets.bat">
-      <Filter>Protocol</Filter>
-    </None>
-  </ItemGroup>
 </Project>

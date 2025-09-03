@@ -1,6 +1,0 @@
-class_name,strength,defense,vigor,agility,resourcefulness
-Fighter
-Swordmaster
-Barbarian
-Wizard
-Archer
