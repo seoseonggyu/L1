@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "GameSession.h"
 #include "GameSessionManager.h"
+#include "InitManager.h"
 #include "ClientPacketHandler.h"
-
-GameSessionManager* GSessionManager = nullptr;
 
 void GameSession::OnConnected()
 {

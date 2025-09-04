@@ -15,5 +15,3 @@ private:
 	USE_LOCK;
 	Set<GameSessionRef> _sessions;
 };
-
-extern GameSessionManager* GSessionManager;

@@ -28,6 +28,18 @@
     <Filter Include="DB">
       <UniqueIdentifier>{a5c51e4d-43e8-40a9-88cb-ef54cfdb57d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Session">
+      <UniqueIdentifier>{5ec257e9-cd02-43be-b294-072d519f997a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{e9b42b0f-efbe-4c54-a01a-aeaa3d386510}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Skill">
+      <UniqueIdentifier>{ac5a4791-7f1f-4563-9ffc-d3c26f6ca001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Class">
+      <UniqueIdentifier>{7f9ebf6a-94fd-4fe6-a76b-1a8980e0e94f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp">
@@ -35,12 +47,6 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSessionManager.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSession.cpp">
-      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="ClientPacketHandler.cpp">
       <Filter>Main</Filter>
@@ -72,16 +78,22 @@
     <ClCompile Include="Struct.pb.cc">
       <Filter>Protocol\Proto\pb</Filter>
     </ClCompile>
+    <ClCompile Include="GameSession.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSessionManager.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="ClassManager.cpp">
+      <Filter>Data\Class</Filter>
+    </ClCompile>
+    <ClCompile Include="InitManager.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSessionManager.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSession.h">
-      <Filter>Main</Filter>
     </ClInclude>
     <ClInclude Include="ClientPacketHandler.h">
       <Filter>Main</Filter>
@@ -115,6 +127,18 @@
     </ClInclude>
     <ClInclude Include="GenProcedures.h">
       <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSessionManager.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSession.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassManager.h">
+      <Filter>Data\Class</Filter>
+    </ClInclude>
+    <ClInclude Include="InitManager.h">
+      <Filter>Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

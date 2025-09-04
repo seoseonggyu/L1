@@ -175,6 +175,7 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ClassManager.cpp" />
     <ClCompile Include="Enum.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -184,6 +185,7 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="GameSessionManager.cpp" />
+    <ClCompile Include="InitManager.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectUtils.cpp" />
     <ClCompile Include="pch.cpp">
@@ -211,9 +213,11 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
     <ClCompile Include="FVector3.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClassManager.h" />
     <ClInclude Include="Enum.pb.h" />
     <ClInclude Include="GameSession.h" />
     <ClInclude Include="GameSessionManager.h" />
+    <ClInclude Include="InitManager.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectUtils.h" />
     <ClInclude Include="pch.h" />

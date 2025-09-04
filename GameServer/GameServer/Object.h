@@ -9,9 +9,9 @@ public:
 public:
 	virtual float GetDamage(Protocol::SkillType skillType);
 
+	Protocol::CharacterClassType GetClassType() { return _objectInfo->character_classtype(); }
+
 	bool IsPlayer() { return _isPlayer; }
-
-
 
 public:
 	Protocol::ObjectInfo*	_objectInfo;
