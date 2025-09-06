@@ -1,24 +1,14 @@
 #include "pch.h"
 #include "ClassManager.h"
 
-void ClassManager::Add(Protocol::CharacterClassType classType)
+void ClassManager::Add(Protocol::CharacterClassType classType, Protocol::CombatInfo info)
 {
-	WRITE_LOCK;
-	
-	// SSG: DB에서 클래스마다 정보 가지고 와야 함
-	Protocol::CombatInfo Info;
-	_class.insert(make_pair(classType, Info));
-}
-
-void ClassManager::Remove(Protocol::CharacterClassType classType)
-{
-	WRITE_LOCK;
-	_class.erase(classType);
+	// 서버 초반에 실행될 때 하나의 스레드만 사용해서 Lock 필요 없음
+	_class.insert(make_pair(classType, info));
 }
 
 Protocol::CombatInfo ClassManager::GetCombatInfo(Protocol::CharacterClassType classType)
 {
-	WRITE_LOCK;
 	auto it = _class.find(classType);
 	if (it != _class.end())
 	{

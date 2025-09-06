@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameDB>
+	<Table name="character_class" desc="캐릭터 직업 능력치 테이블">
+		<Column name="classType" type="int" notnull="true" />
+		<Column name="className" type="nvarchar(20)" notnull="true" />
+		<Column name="strength" type="float" notnull="true" />
+		<Column name="defense" type="float" notnull="true" />
+		<Column name="vigor" type="float" notnull="true" />
+		<Column name="agility" type="float" notnull="true" />
+		<Column name="resourceFulness" type="float" notnull="true" />
+	</Table>
+
+	<Procedure name="spGetAllCharacterClass">
+		<Body>
+			<![CDATA[
+			SELECT classType, className, strength, defense, vigor, agility, resourceFulness
+			FROM [dbo].[character_class]
+			ORDER BY classType;
+			]]>
+		</Body>
+	</Procedure>
+</GameDB>
+
+<!--<?xml version="1.0" encoding="utf-8"?>
+<GameDB>
 	<Table name="Gold" desc="골드 테이블">
 		<Column name="id" type="int" notnull="true" identity="1,1" />
 		<Column name="gold" type="int" notnull="false" />
@@ -32,4 +55,4 @@
 		</Body>
 	</Procedure>
 
-</GameDB>
+</GameDB>-->

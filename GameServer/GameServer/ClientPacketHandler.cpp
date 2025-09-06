@@ -26,21 +26,15 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 
 bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 {
+	// SSG: DB 캐릭터 직업을 보고 정보를 꺼내는 거 해야함
 	PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session), Protocol::CHARACTER_CLASS_TYPE_NONE);
-	// SSG: DB에서 캐릭터 스탯 관리
+
 	player->_vitalInfo->set_hp(100);
 	player->_vitalInfo->set_max_hp(100);
 	player->_vitalInfo->set_mp(100);
 	player->_vitalInfo->set_max_mp(100);
-	
-	player->_combatInfo->set_strength(10);
-	player->_combatInfo->set_defense(10);
-	player->_combatInfo->set_vigor(10);
-	player->_combatInfo->set_agility(10);
-	player->_combatInfo->set_resourcefulness(10);
 
 	GRoom->DoAsync(&Room::HandleEnterPlayer, player);
-
 	return true;
 }
 

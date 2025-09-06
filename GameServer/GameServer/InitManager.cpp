@@ -30,42 +30,62 @@ InitManager::~InitManager()
 
 void InitManager::LoadFromDB()
 {
-	ASSERT_CRASH(GDBConnectionPool->Connect(1, L"Driver={SQL Server};Server=Master\\SQLEXPRESS;Database=ServerDb;Trusted_Connection=Yes;"));
+	// SSG: Connect을 1개가 아니라 여러 개로 바꿔야 함(성능 문제)
+	ASSERT_CRASH(GDBConnectionPool->Connect(1, L"Driver={SQL Server};Server=Master\\SQLEXPRESS;Database=GameDB;Trusted_Connection=Yes;"));
 
 	DBConnection* dbConn = GDBConnectionPool->Pop();
 	DBSynchronizer dbSync(*dbConn);
 	dbSync.Synchronize(L"GameDB.xml");
+	GDBConnectionPool->Push(dbConn);
+	// SSG: 마지막 Push를 하지 않고 RAII로 감싸자
 
+	LoadCharacterClass();
+}
+
+void InitManager::LoadCharacterClass()
+{
+	DBConnection* dbConn = GDBConnectionPool->Pop();
+	
+	SP::GetAllCharacterClass getClass(*dbConn);
+
+	int32 classType = 0;
+	WCHAR className[40];
+	float strength = 0.f;
+	float defense = 0.f;
+	float vigor = 0.f;
+	float agility = 0.f;
+	float resourceFulness = 0.f;
+
+	getClass.Out_ClassType(classType);
+	getClass.Out_ClassName(className);
+	getClass.Out_Strength(strength);
+	getClass.Out_Defense(defense);
+	getClass.Out_Vigor(vigor);
+	getClass.Out_Agility(agility);
+	getClass.Out_ResourceFulness(resourceFulness);
+
+	getClass.Execute();
+
+	while (getClass.Fetch())
 	{
-		WCHAR name[] = L"Seo";
 
-		SP::InsertGold insertGold(*dbConn);
-		insertGold.In_Gold(100);
-		insertGold.In_Name(name);
-		insertGold.In_CreateDate(TIMESTAMP_STRUCT{ 2020, 6, 8 });
-		insertGold.Execute();
+		/*GConsoleLogger->WriteStdOut(
+			Color::BLUE,
+			L"classType[%d] className[%ls] str[%.2f] def[%.2f] vig[%.2f] agi[%.2f] res[%.2f]\n",
+			classType, className, strength, defense, vigor, agility, resourceFulness
+		);*/
+
+		Protocol::CombatInfo info;
+		info.set_strength(strength);
+		info.set_defense(defense);
+		info.set_vigor(vigor);
+		info.set_agility(agility);
+		info.set_resourcefulness(resourceFulness);
+		GClassManager->Add(
+			static_cast<Protocol::CharacterClassType>(classType),
+			info
+		);
 	}
-
-	{
-		SP::GetGold getGold(*dbConn);
-		getGold.In_Gold(100);
-
-		int32 id = 0;
-		int32 gold = 0;
-		WCHAR name[100];
-		TIMESTAMP_STRUCT date;
-
-		getGold.Out_Id(OUT id);
-		getGold.Out_Gold(OUT gold);
-		getGold.Out_Name(OUT name);
-		getGold.Out_CreateDate(OUT date);
-
-		getGold.Execute();
-
-		while (getGold.Fetch())
-		{
-			GConsoleLogger->WriteStdOut(Color::BLUE,
-				L"ID[%d] Gold[%d] Name[%s]\n", id, gold, name);
-		}
-	}
+	GDBConnectionPool->Push(dbConn);
+	// SSG: 마지막 Push를 하지 않고 RAII로 감싸자
 }

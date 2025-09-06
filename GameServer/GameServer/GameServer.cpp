@@ -19,10 +19,8 @@ void DoWorkerJob(ServerServiceRef& service)
 
 		service->GetIocpCore()->Dispatch(10);
 
-		// 예약된 일감 처리
 		ThreadManager::DistributeReservedJobs();
 
-		// 글로벌 큐
 		ThreadManager::DoGlobalQueueWork();
 	}
 }

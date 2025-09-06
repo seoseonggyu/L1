@@ -3,6 +3,8 @@
 #include "GameSession.h"
 #include "ObjectUtils.h"
 #include "Player.h"
+#include "InitManager.h"
+#include "ClassManager.h"
 
 RoomRef GRoom = make_shared<Room>();
 
@@ -15,7 +17,6 @@ Room::~Room()
 
 bool Room::EnterRoom(ObjectRef object, bool randPos)
 {
-
 	bool success = AddObject(object);
 	if (randPos)
 	{
@@ -131,6 +132,7 @@ void Room::HandleSelcetClass(Protocol::C_SELECTCLASS pkt)
 	
 	PlayerRef player = dynamic_pointer_cast<Player>(_objects[objectId]);
 	player->_objectInfo->set_character_classtype(pkt.class_type());
+	player->_combatInfo->CopyFrom(GClassManager->GetCombatInfo(pkt.class_type()));
 
 	{
 		Protocol::S_SELECTCLASS selectClassPkt;

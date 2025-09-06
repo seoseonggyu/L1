@@ -84,6 +84,8 @@ def MakeQuestions(params):
 def ReplaceType(type):
     if type == 'bool':
         return 'bool'
+    if type == 'tinyint':
+        return 'enum'
     if type == 'int':
         return 'int32'
     if type == 'bigint':

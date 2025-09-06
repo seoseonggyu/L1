@@ -23,11 +23,11 @@ message VitalInfo
 
 message CombatInfo
 {
-	int32 strength = 1;
-	int32 defense = 2;
-	int32 vigor = 3;
-	int32 agility = 4;
-	int32 resourcefulness = 5;
+	float strength = 1;
+	float defense = 2;
+	float vigor = 3;
+	float agility = 4;
+	float resourcefulness = 5;
 }
 
 message ObjectInfo

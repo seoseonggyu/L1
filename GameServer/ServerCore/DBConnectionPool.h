@@ -14,7 +14,7 @@ public:
 	bool					Connect(int32 connectionCount, const WCHAR* connectionString);
 	void					Clear();
 
-	DBConnection* Pop();
+	DBConnection*			Pop();
 	void					Push(DBConnection* connection);
 
 private:
