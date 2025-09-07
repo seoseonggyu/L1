@@ -11,5 +11,6 @@ public:
 
 private:
 	void LoadFromDB();
+	void ConnectAndSync();
 	void LoadCharacterClass();
 };

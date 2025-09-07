@@ -30,22 +30,23 @@ InitManager::~InitManager()
 
 void InitManager::LoadFromDB()
 {
+	ConnectAndSync();
+	LoadCharacterClass();
+}
+
+void InitManager::ConnectAndSync()
+{
 	// SSG: Connect을 1개가 아니라 여러 개로 바꿔야 함(성능 문제)
 	ASSERT_CRASH(GDBConnectionPool->Connect(1, L"Driver={SQL Server};Server=Master\\SQLEXPRESS;Database=GameDB;Trusted_Connection=Yes;"));
 
-	DBConnection* dbConn = GDBConnectionPool->Pop();
+	DBConnectionPoolGuard dbConn(*GDBConnectionPool);
 	DBSynchronizer dbSync(*dbConn);
 	dbSync.Synchronize(L"GameDB.xml");
-	GDBConnectionPool->Push(dbConn);
-	// SSG: 마지막 Push를 하지 않고 RAII로 감싸자
-
-	LoadCharacterClass();
 }
 
 void InitManager::LoadCharacterClass()
 {
-	DBConnection* dbConn = GDBConnectionPool->Pop();
-	
+	DBConnectionPoolGuard dbConn(*GDBConnectionPool);
 	SP::GetAllCharacterClass getClass(*dbConn);
 
 	int32 classType = 0;
@@ -69,11 +70,11 @@ void InitManager::LoadCharacterClass()
 	while (getClass.Fetch())
 	{
 
-		/*GConsoleLogger->WriteStdOut(
+		GConsoleLogger->WriteStdOut(
 			Color::BLUE,
 			L"classType[%d] className[%ls] str[%.2f] def[%.2f] vig[%.2f] agi[%.2f] res[%.2f]\n",
 			classType, className, strength, defense, vigor, agility, resourceFulness
-		);*/
+		);
 
 		Protocol::CombatInfo info;
 		info.set_strength(strength);
@@ -86,6 +87,4 @@ void InitManager::LoadCharacterClass()
 			info
 		);
 	}
-	GDBConnectionPool->Push(dbConn);
-	// SSG: 마지막 Push를 하지 않고 RAII로 감싸자
 }
