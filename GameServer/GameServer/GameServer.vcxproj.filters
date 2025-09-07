@@ -90,6 +90,12 @@
     <ClCompile Include="InitManager.cpp">
       <Filter>Data</Filter>
     </ClCompile>
+    <ClCompile Include="SkillManager.cpp">
+      <Filter>Data\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillTypes.cpp">
+      <Filter>Data\Skill</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -139,6 +145,12 @@
     </ClInclude>
     <ClInclude Include="InitManager.h">
       <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillManager.h">
+      <Filter>Data\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillTypes.h">
+      <Filter>Data\Skill</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

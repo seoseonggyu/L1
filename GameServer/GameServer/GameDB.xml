@@ -10,6 +10,39 @@
 		<Column name="resourceFulness" type="float" notnull="true" />
 	</Table>
 
+	<Table name="skills" desc="캐릭터 스킬 테이블(간단형)">
+		<Column name="skill_id"               type="int"            notnull="true" identity="1,1" />
+		<Column name="classType"              type="int"            notnull="true" />
+		<Column name="skillType"              type="int"            notnull="true" />
+		<Column name="skill_code"             type="nvarchar(64)"   notnull="true" />
+		<Column name="skill_name"             type="nvarchar(100)"  notnull="true" />
+		<Column name="description"            type="nvarchar(1000)" notnull="true" />
+
+		<Column name="damage_flat"            type="float" notnull="false" />
+		<Column name="stun_sec"               type="float" notnull="false" />
+		<Column name="movespeed_pct"          type="float" notnull="false" />
+		<Column name="attackspeed_pct"        type="float" notnull="false" />
+		<Column name="dmg_reduction_pct"      type="float" notnull="false" />
+		<Column name="attack_power_flat"      type="float" notnull="false" />
+		<Column name="cooldown_reduction_sec" type="float" notnull="false" />
+		<Column name="lifesteal_pct"          type="float" notnull="false" />
+		<Column name="slow_pct"               type="float" notnull="false" />
+		<Column name="dot_maxhp_pct_per_sec"  type="float" notnull="false" />
+		<Column name="dot_duration_sec"       type="float" notnull="false" />
+		
+
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="skill_id" />
+		</Index>
+
+		<Index type="nonclustered">
+			<UniqueKey/>
+			<Column name="classType" />
+			<Column name="skillType" />
+		</Index>
+	</Table>
+
 	<Procedure name="spGetAllCharacterClass">
 		<Body>
 			<![CDATA[
@@ -19,10 +52,23 @@
 			]]>
 		</Body>
 	</Procedure>
+
+	<Procedure name="spGetAllSkills">
+		<Body>
+			<![CDATA[
+            SELECT
+                skill_id, classType, skillType, skill_code, skill_name, description,
+                damage_flat, stun_sec, movespeed_pct, attackspeed_pct, dmg_reduction_pct,
+                attack_power_flat, cooldown_reduction_sec, lifesteal_pct, slow_pct,
+                dot_maxhp_pct_per_sec, dot_duration_sec
+            FROM [dbo].[skills]
+            ORDER BY classType, skillType;
+            ]]>
+		</Body>
+	</Procedure>
 </GameDB>
 
-<!--<?xml version="1.0" encoding="utf-8"?>
-<GameDB>
+<!--<GameDB>
 	<Table name="Gold" desc="골드 테이블">
 		<Column name="id" type="int" notnull="true" identity="1,1" />
 		<Column name="gold" type="int" notnull="false" />

@@ -66,8 +66,8 @@ enum SkillType
 	SkillType_Skill_1	= 1;
 	SkillType_Skill_2	= 2;
 
-	SkillType_Default_Left  = 4;
-	SkillType_Default_Right = 5;
+	SkillType_Default_Left  = 3;
+	SkillType_Default_Right = 4;
 }
 
 enum MoveState
