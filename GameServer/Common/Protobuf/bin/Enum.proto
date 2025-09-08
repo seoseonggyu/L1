@@ -1,6 +1,13 @@
 syntax = "proto3";
 package Protocol;
 
+enum ObjectType
+{
+	OBJECT_TYPE_NONE		= 0;
+	OBJECT_TYPE_PLAYER		= 1;
+	OBJECT_TYPE_MONSTER		= 2;
+}
+
 enum CharacterClassType
 {
 	CHARACTER_CLASS_TYPE_NONE			= 0;
@@ -9,6 +16,12 @@ enum CharacterClassType
 	CHARACTER_CLASS_TYPE_BARBARIAN		= 3;
 	CHARACTER_CLASS_TYPE_WIZARD			= 4;
 	CHARACTER_CLASS_TYPE_ARCHER			= 5;
+}
+
+enum MonsterType
+{
+	MONSTER_TYPE_NONE			= 0;
+	MONSTER_TYPE_GRUDGE			= 1;
 }
 
 enum EquipmentSlotType

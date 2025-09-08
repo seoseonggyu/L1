@@ -20,7 +20,6 @@
 #include "TimerManager.h"
 #include "UI/HUD/L1TopDownWidget.h"
 
-#include "Actors/L1ArmorBase.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
 

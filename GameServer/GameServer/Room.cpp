@@ -3,6 +3,7 @@
 #include "GameSession.h"
 #include "ObjectUtils.h"
 #include "Player.h"
+#include "Monster.h"
 #include "InitManager.h"
 #include "ClassManager.h"
 
@@ -51,7 +52,7 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 	{
 		Protocol::S_SPAWN spawnPkt;
 
-		Protocol::ObjectInfo* objectInfo = spawnPkt.add_players();
+		Protocol::ObjectInfo* objectInfo = spawnPkt.add_objects();
 		objectInfo->CopyFrom(*object->_objectInfo);
 
 		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(spawnPkt);
@@ -68,7 +69,7 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 			if (item.second->IsPlayer() == false)
 				continue;
 
-			Protocol::ObjectInfo* playerInfo = spawnPkt.add_players();
+			Protocol::ObjectInfo* playerInfo = spawnPkt.add_objects();
 			playerInfo->CopyFrom(*item.second->_objectInfo);
 		}
 
@@ -76,6 +77,11 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 		if (auto session = player->_session.lock())
 			session->Send(sendBuffer);
 	}
+
+	// 존재하는 몬스턴들을 신입 플레이어한테 전송해야함
+	// SSG: 테스트 용도
+	DoTimer(5000, &Room::SpawnMonster, Protocol::MONSTER_TYPE_GRUDGE);
+
 
 	return success;
 }
@@ -318,9 +324,22 @@ RoomRef Room::GetRoomRef()
 	return static_pointer_cast<Room>(shared_from_this());
 }
 
+void Room::SpawnMonster(Protocol::MonsterType monsterType)
+{
+	MonsterRef monster = ObjectUtils::CreateMonster(monsterType);
+	if(AddObject(monster) == false) return;
+	
+	Protocol::S_SPAWN spawnPkt;
+
+	Protocol::ObjectInfo* objectInfo = spawnPkt.add_objects();
+	objectInfo->CopyFrom(*monster->_objectInfo);
+
+	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(spawnPkt);
+	Broadcast(sendBuffer);
+}
+
 bool Room::AddObject(ObjectRef object)
 {
-	// 있다면 문제가 있다.
 	if (_objects.find(object->_objectInfo->object_id()) != _objects.end())
 		return false;
 

@@ -96,6 +96,9 @@
     <ClCompile Include="SkillTypes.cpp">
       <Filter>Data\Skill</Filter>
     </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>GameContents\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="SkillTypes.h">
       <Filter>Data\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>GameContents\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

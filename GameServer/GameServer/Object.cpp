@@ -12,6 +12,10 @@ Object::Object()
 	_objectInfo->set_allocated_pos_info(_posInfo);
 	_objectInfo->set_allocated_vital_info(_vitalInfo);
 	_objectInfo->set_allocated_combat_info(_combatInfo);
+
+	_objectInfo->set_object_type(Protocol::OBJECT_TYPE_NONE);
+	_objectInfo->set_character_classtype(Protocol::CHARACTER_CLASS_TYPE_NONE);
+	_objectInfo->set_monster_type(Protocol::MONSTER_TYPE_NONE);
 }
 
 Object::~Object()

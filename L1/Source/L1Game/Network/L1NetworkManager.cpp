@@ -11,6 +11,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Data/L1ClassData.h"
 #include "Data/L1NetworkPawnData.h"
+#include "Data/L1MonsterData.h"
 #include "Item/L1ItemInstance.h"
 #include "Item/Fragments/L1ItemFragment_Equipable.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
@@ -19,6 +20,8 @@
 #include "Network/NetworkUtils.h"
 #include "L1GameplayTags.h"
 #include "System/LyraGameData.h"
+#include "Monster/L1MonsterCharacter.h"
+#include "Character/LyraPawnData.h"
 
 void UL1NetworkManager::ConnectToGameServer()
 {
@@ -523,87 +526,25 @@ void UL1NetworkManager::QuickFromEquipment(ALyraCharacter* FromPlayer, ALyraChar
 	}
 }
 
-void UL1NetworkManager::HandleSpawn(const Protocol::ObjectInfo& ObjectInfo, bool IsMine)
-{
-	if (Socket == nullptr || GameServerSession == nullptr)
-		return;
-
-	auto* World = GetWorld();
-	if (World == nullptr)
-		return;
-
-	const uint64 ObjectId = ObjectInfo.object_id();
-	if (Players.Find(ObjectId) != nullptr)
-		return;
-
-	const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
-	
-	FVector SpawnLocation(ObjectInfo.pos_info().x(), ObjectInfo.pos_info().y(), ObjectInfo.pos_info().z());
-	ALyraCharacter* Player = nullptr;
-	ECharacterClassType ClassType = NetworkUtils::ConvertClassFromProto(ObjectInfo.character_classtype());
-
-
-	if (IsMine)
-	{
-		auto* PC = UGameplayStatics::GetPlayerController(this, 0);
-		Player = Cast<ALyraCharacter>(PC->GetPawn());
-		if (Player == nullptr)
-			return;
-
-		MyPlayer = Player;
-	}
-	else
-	{
-		Player = Cast<AL1NetworkCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
-		if (Player == nullptr) return;
-
-		for (ULyraAbilitySet* AbilitySet : NetworkPawnData.AbilitySets)
-		{
-			if (AbilitySet && Player->GetLyraAbilitySystemComponent())
-			{
-				AbilitySet->GiveToAbilitySystem(Player->GetLyraAbilitySystemComponent(), nullptr);
-			}
-		}
-	}
-
-	if (Player)
-	{
-		Players.Add(ObjectInfo.object_id(), Player);
-		
-		Player->SetActorLocation(SpawnLocation);
-		Player->SetDestInfo(ObjectInfo.pos_info());
-		Player->SetVitalInfo(ObjectInfo.vital_info());
-
-		Player->SetOverHeadWidget(NetworkPawnData.WidgetClass);
-
-		if (UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent())
-		{
-			float Helath = ObjectInfo.vital_info().max_hp();
-			float Mana = ObjectInfo.vital_info().max_mp();
-
-			TSubclassOf<UGameplayEffect> InitialGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().InitialGameplayEffect_SetByCaller);
-			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
-			if (EffectSpecHandle.IsValid())
-			{
-				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
-				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Mana, Mana);
-			}
-			
-			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
-		}
-	}
-}
-
 void UL1NetworkManager::HandleSpawn(const Protocol::S_ENTER_GAME& EnterGamePkt)
 {
-	HandleSpawn(EnterGamePkt.player(), true);
+	SpawnPlayer(EnterGamePkt.player(), true);
 }
 
 void UL1NetworkManager::HandleSpawn(const Protocol::S_SPAWN& SpawnPkt)
 {
-	for (auto& Player : SpawnPkt.players())
+	for (auto& object: SpawnPkt.objects())
 	{
-		HandleSpawn(Player, false);
+		switch (object.object_type())
+		{
+		case Protocol::OBJECT_TYPE_PLAYER: 
+			SpawnPlayer(object, false);
+			break;
+		case Protocol::OBJECT_TYPE_MONSTER:
+			SpawnMonster(object);
+			break;
+		default: break;
+		}
 	}
 }
 
@@ -616,7 +557,7 @@ void UL1NetworkManager::HandleDespawn(uint64 ObjectId)
 	if (World == nullptr)
 		return;
 
-	ALyraCharacter** FindActor = Players.Find(ObjectId);
+	ALyraCharacter** FindActor = Objects.Find(ObjectId);
 	if (FindActor == nullptr)
 		return;
 
@@ -641,7 +582,7 @@ void UL1NetworkManager::HandleSelectClass(const Protocol::S_SELECTCLASS& SelectC
 		return;
 
 	const uint64 ObjectId = SelectClassPkt.object_id();
-	ALyraCharacter* FindActor = *(Players.Find(ObjectId));
+	ALyraCharacter* FindActor = *(Objects.Find(ObjectId));
 	if (FindActor == nullptr)
 		return;
 
@@ -659,7 +600,7 @@ void UL1NetworkManager::HandleMove(const Protocol::S_MOVE& MovePkt)
 		return;
 
 	const uint64 ObjectId = MovePkt.info().object_id();
-	ALyraCharacter** FindActor = Players.Find(ObjectId);
+	ALyraCharacter** FindActor = Objects.Find(ObjectId);
 	if (FindActor == nullptr)
 		return;
 
@@ -678,7 +619,7 @@ void UL1NetworkManager::HandleHit(const Protocol::S_HIT& HitPkt)
 		float Damage = HitTarget.damage();
 		float RemainHp = HitTarget.remaining_hp();
 
-		ALyraCharacter** FindActor = Players.Find(TargetId);
+		ALyraCharacter** FindActor = Objects.Find(TargetId);
 		if (FindActor == nullptr) continue;
 		ALyraCharacter* Player = (*FindActor);
 		if (Player == nullptr) continue;
@@ -714,8 +655,8 @@ void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)
 	const FIntPoint ToItemSlotPos = FIntPoint(MoveItemPkt.to_slot_pos_x(), MoveItemPkt.to_slot_pos_y());
 	int32 MovableCount = MoveItemPkt.movable_count();
 
-	ALyraCharacter* FromPlayer = *(Players.Find(FromId));
-	ALyraCharacter* ToPlayer = *(Players.Find(ToId));
+	ALyraCharacter* FromPlayer = *(Objects.Find(FromId));
+	ALyraCharacter* ToPlayer = *(Objects.Find(ToId));
 	if (FromPlayer == nullptr || ToPlayer == nullptr) return;
 	
 	switch (TransferType)
@@ -736,7 +677,7 @@ void UL1NetworkManager::HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemP
 	Protocol::EquipState EquipState = EquipItemPkt.equip_state();
 	EEquipState UEEquipState = NetworkUtils::ConvertEquipStateFromProto(EquipState);
 
-	ALyraCharacter* FindActor = *(Players.Find(ObjectId));
+	ALyraCharacter* FindActor = *(Objects.Find(ObjectId));
 	if (FindActor == nullptr)
 		return;
 
@@ -751,13 +692,136 @@ void UL1NetworkManager::HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIA
 	ESkillType SkillType = NetworkUtils::ConvertSkillTypeFromProto(SkillImmediatePkt.skill_type());
 	FGameplayTag GameplayTag = NetworkUtils::ConvertGameplayTagFromSkillType(SkillType);
 	
-	ALyraCharacter* FindActor = *(Players.Find(ObjectId));
+	ALyraCharacter* FindActor = *(Objects.Find(ObjectId));
 	if (FindActor == nullptr)
 		return;
 
 	FGameplayEventData Payload;
 	Payload.EventMagnitude = (int32)SkillType;
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(FindActor, GameplayTag, Payload);
+}
+
+void UL1NetworkManager::SpawnPlayer(const Protocol::ObjectInfo& ObjectInfo, bool IsMine)
+{
+	if (Socket == nullptr || GameServerSession == nullptr)
+		return;
+
+	auto* World = GetWorld();
+	if (World == nullptr)
+		return;
+
+	const uint64 ObjectId = ObjectInfo.object_id();
+	if (Objects.Find(ObjectId) != nullptr)
+		return;
+
+	const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
+
+	FVector SpawnLocation(ObjectInfo.pos_info().x(), ObjectInfo.pos_info().y(), ObjectInfo.pos_info().z());
+	ALyraCharacter* Player = nullptr;
+	ECharacterClassType ClassType = NetworkUtils::ConvertClassFromProto(ObjectInfo.character_classtype());
+
+
+	if (IsMine)
+	{
+		auto* PC = UGameplayStatics::GetPlayerController(this, 0);
+		Player = Cast<ALyraCharacter>(PC->GetPawn());
+		if (Player == nullptr)
+			return;
+
+		MyPlayer = Player;
+	}
+	else
+	{
+		Player = Cast<AL1NetworkCharacter>(World->SpawnActor(NetworkPawnData.PawnClass, &SpawnLocation));
+		if (Player == nullptr) return;
+
+		for (ULyraAbilitySet* AbilitySet : NetworkPawnData.AbilitySets)
+		{
+			if (AbilitySet && Player->GetLyraAbilitySystemComponent())
+			{
+				AbilitySet->GiveToAbilitySystem(Player->GetLyraAbilitySystemComponent(), nullptr);
+			}
+		}
+	}
+	if (Player)
+	{
+		Objects.Add(ObjectInfo.object_id(), Player);
+
+		Player->SetActorLocation(SpawnLocation);
+		Player->SetDestInfo(ObjectInfo.pos_info());
+		Player->SetVitalInfo(ObjectInfo.vital_info());
+		SetOverHeadWidget(Player);
+
+		if (UAbilitySystemComponent* ASC = Player->GetAbilitySystemComponent())
+		{
+			float Helath = ObjectInfo.vital_info().max_hp();
+			float Mana = ObjectInfo.vital_info().max_mp();
+
+			TSubclassOf<UGameplayEffect> InitialGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().InitialGameplayEffect_SetByCaller);
+			FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
+			if (EffectSpecHandle.IsValid())
+			{
+				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
+				EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Mana, Mana);
+			}
+
+			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		}
+	}
+}
+
+void UL1NetworkManager::SpawnMonster(const Protocol::ObjectInfo& ObjectInfo)
+{
+	if (Socket == nullptr || GameServerSession == nullptr)
+		return;
+
+	auto* World = GetWorld();
+	if (World == nullptr)
+		return;
+
+	const uint64 ObjectId = ObjectInfo.object_id();
+	if (Objects.Find(ObjectId) != nullptr)
+		return;
+
+	EMonsterType MonsterType = NetworkUtils::ConvertMonsterTypeFromProto(ObjectInfo.monster_type());
+	const UL1MonsterData& MonsterData = ULyraAssetManager::Get().GetMonsterData();
+	ULyraPawnData* PawnData = MonsterData.GetPawnData(MonsterType);
+	if (PawnData == nullptr) return;
+
+	FVector SpawnLocation(ObjectInfo.pos_info().x(), ObjectInfo.pos_info().y(), ObjectInfo.pos_info().z());
+	ALyraCharacter* Monster = nullptr;
+	Monster = Cast<AL1MonsterCharacter>(World->SpawnActor(PawnData->PawnClass, &SpawnLocation));
+	if (Monster == nullptr) return;
+
+	for (ULyraAbilitySet* AbilitySet : PawnData->AbilitySets)
+	{
+		if (AbilitySet && Monster->GetLyraAbilitySystemComponent())
+		{
+			AbilitySet->GiveToAbilitySystem(Monster->GetLyraAbilitySystemComponent(), nullptr);
+		}
+	}
+	
+	Objects.Add(ObjectInfo.object_id(), Monster);
+
+	Monster->SetActorLocation(SpawnLocation);
+	Monster->SetDestInfo(ObjectInfo.pos_info());
+	Monster->SetVitalInfo(ObjectInfo.vital_info());
+	
+	SetOverHeadWidget(Monster);
+
+	if (UAbilitySystemComponent* ASC = Monster->GetAbilitySystemComponent())
+	{
+		float Helath = ObjectInfo.vital_info().max_hp();
+
+		TSubclassOf<UGameplayEffect> InitialGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().InitialGameplayEffect_SetByCaller);
+		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
+		if (EffectSpecHandle.IsValid())
+		{
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
+		}
+
+		ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	}
 }
 
 UL1InventoryManagerComponent* UL1NetworkManager::GetCharacterInventoryManager(ALyraCharacter* LyraCharacter) const
@@ -780,4 +844,14 @@ UL1EquipmentManagerComponent* UL1NetworkManager::GetCharacterEquipmentManager(AL
 	}
 
 	return MyEquipmentManager;
+}
+
+void UL1NetworkManager::SetOverHeadWidget(ALyraCharacter* Object)
+{
+	if (OverHeadWidgetClass == nullptr)
+	{
+		const UL1NetworkPawnData& NetworkPawnData = ULyraAssetManager::Get().GetNetworkPawnData();
+		OverHeadWidgetClass = NetworkPawnData.WidgetClass;
+	}
+	Object->SetOverHeadWidget(OverHeadWidgetClass);
 }

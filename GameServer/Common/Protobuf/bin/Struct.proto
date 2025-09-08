@@ -33,10 +33,12 @@ message CombatInfo
 message ObjectInfo
 {
 	uint64				object_id			= 1;
-	CharacterClassType  character_classType = 2;
-	PosInfo				pos_info			= 3;
-	VitalInfo			vital_info			= 4;
-	CombatInfo			combat_info			= 5;
+	ObjectType			object_type			= 2;
+	CharacterClassType  character_classType = 3;
+	MonsterType			monster_type		= 4;
+	PosInfo				pos_info			= 5;
+	VitalInfo			vital_info			= 6;
+	CombatInfo			combat_info			= 7;
 }
 
 // ========

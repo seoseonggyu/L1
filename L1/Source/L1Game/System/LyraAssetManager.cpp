@@ -18,6 +18,7 @@
 #include "Data/L1UIData.h"
 #include "Data/L1CheatData.h"
 #include "Data/L1NetworkPawnData.h"
+#include "Data/L1MonsterData.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraAssetManager)
 
@@ -148,12 +149,16 @@ const UL1UIData& ULyraAssetManager::GetUIData()
 const UL1CheatData& ULyraAssetManager::GetCheatData()
 {
 	return GetOrLoadTypedGameData<UL1CheatData>(CheatDataPath);
-
 }
 
 const UL1NetworkPawnData& ULyraAssetManager::GetNetworkPawnData()
 {
 	return GetOrLoadTypedGameData<UL1NetworkPawnData>(NetworkPawnDataPath);
+}
+
+const UL1MonsterData& ULyraAssetManager::GetMonsterData()
+{
+	return GetOrLoadTypedGameData<UL1MonsterData>(MonsterDataPath);
 }
 
 void ULyraAssetManager::StartInitialLoading()
@@ -174,6 +179,7 @@ void ULyraAssetManager::StartInitialLoading()
 		STARTUP_JOB_WEIGHTED(GetUIData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetCheatData(), 25.f);
 		STARTUP_JOB_WEIGHTED(GetNetworkPawnData(), 25.f);
+		STARTUP_JOB_WEIGHTED(GetMonsterData(), 25.f);
 	}
 
 	// Run all the queued up startup jobs

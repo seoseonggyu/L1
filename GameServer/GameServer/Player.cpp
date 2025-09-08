@@ -4,6 +4,7 @@
 Player::Player()
 {
 	_isPlayer = true;
+	_objectInfo->set_object_type(Protocol::OBJECT_TYPE_PLAYER);
 }
 
 Player::~Player()

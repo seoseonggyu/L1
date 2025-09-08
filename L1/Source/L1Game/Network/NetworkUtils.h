@@ -24,5 +24,8 @@ public:
 	static Protocol::SkillType ConvertProtoFromSkillType(ESkillType UEType);
 	static Protocol::SkillType ConvertPortoFromGameplayTag(FGameplayTag GameplayTag);
 
+	static EMonsterType ConvertMonsterTypeFromProto(Protocol::MonsterType protoType);
+	static Protocol::MonsterType ConvertProtoFromMonsterType(EMonsterType UEType);
+
 	static UL1NetworkManager* GetNetworkManager(ALyraPlayerState* LyraPlayerState);
 };

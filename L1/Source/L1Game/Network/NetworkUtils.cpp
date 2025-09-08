@@ -147,6 +147,24 @@ Protocol::SkillType NetworkUtils::ConvertPortoFromGameplayTag(FGameplayTag Gamep
     return Protocol::SkillType_None;
 }
 
+EMonsterType NetworkUtils::ConvertMonsterTypeFromProto(Protocol::MonsterType protoType)
+{
+    switch (protoType)
+    {
+    case Protocol::MONSTER_TYPE_GRUDGE: return EMonsterType::Grudge;
+    default:                            return EMonsterType::Count;
+    }
+}
+
+Protocol::MonsterType NetworkUtils::ConvertProtoFromMonsterType(EMonsterType UEType)
+{
+    switch (UEType)
+    {
+    case EMonsterType::Grudge:  return Protocol::MONSTER_TYPE_GRUDGE;
+    default:                    return Protocol::MONSTER_TYPE_NONE;
+    }
+}
+
 UL1NetworkManager* NetworkUtils::GetNetworkManager(ALyraPlayerState* LyraPlayerState)
 {
     if (LyraPlayerState)

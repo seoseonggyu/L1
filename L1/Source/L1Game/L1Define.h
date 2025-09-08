@@ -171,6 +171,14 @@ enum class ECharacterClassType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EMonsterType : uint8
+{
+	Grudge,
+
+	Count	UMETA(Hidden)
+};
+
+UENUM(BlueprintType)
 enum class ESkillType : uint8
 {
 	Skill_1,

@@ -29,6 +29,8 @@ public:
 	RoomRef GetRoomRef();
 
 private:
+	void SpawnMonster(Protocol::MonsterType monsterType);
+
 	bool AddObject(ObjectRef object);
 	bool RemoveObject(uint64 objectId);
 

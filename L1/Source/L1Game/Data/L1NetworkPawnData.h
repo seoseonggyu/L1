@@ -25,6 +25,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Abilities")
 	TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Widget") // TODO: 임시로 여기다가 사용, 따로 옮겨야 함
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "L1|Widget") // SSG: 임시로 여기다가 사용, 따로 옮겨야 함
 	TSubclassOf<UUserWidget> WidgetClass; 
 };

@@ -7,6 +7,7 @@
 #include "PacketUtils.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "L1Define.h"
+#include "Blueprint/UserWidget.h"
 
 #include "L1NetworkManager.generated.h"
 
@@ -80,10 +81,20 @@ public:
 	void HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt);
 
 private:
+	void SpawnPlayer(const Protocol::ObjectInfo& ObjectInfo, bool IsMine);
+	void SpawnMonster(const Protocol::ObjectInfo& ObjectInfo);
+
+private:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UL1InventoryManagerComponent* GetCharacterInventoryManager(ALyraCharacter* LyraCharacter) const;
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UL1EquipmentManagerComponent* GetCharacterEquipmentManager(ALyraCharacter* LyraCharacter) const;
+
+	void SetOverHeadWidget(ALyraCharacter* Object);
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "L1|Widget")
+	TSubclassOf<UUserWidget> OverHeadWidgetClass;
 
 public:
 	class FSocket* Socket;
@@ -95,7 +106,7 @@ public:
 
 public:
 	UPROPERTY()
-	TMap<uint64, ALyraCharacter*> Players;
+	TMap<uint64, ALyraCharacter*> Objects;
 
 	UPROPERTY()
 	TObjectPtr<ALyraCharacter> MyPlayer;
