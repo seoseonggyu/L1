@@ -88,6 +88,8 @@ public:
 	virtual FOnLyraTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override;
 	//~End of ILyraTeamAgentInterface interface
 
+private:
+	void TickCursorTrace();
 
 private:
 	UPROPERTY()
@@ -122,6 +124,12 @@ protected:
 	void K2_OnEndAutoRun();
 
 	bool bHideViewTargetPawnNextFrame = false;
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<class ALyraCharacter> TargerActor;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<class ALyraCharacter> HighlightActor;
 };
 
 

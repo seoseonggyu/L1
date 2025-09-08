@@ -24,6 +24,7 @@
 #include "ReplaySubsystem.h"
 #include "Development/L1DeveloperSettings.h"
 #include "GameMapsSettings.h"
+#include "Character/LyraCharacter.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerController)
 
@@ -111,6 +112,8 @@ void ALyraPlayerController::PlayerTick(float DeltaTime)
 			}
 		}
 	}
+
+	TickCursorTrace();
 }
 
 ALyraPlayerState* ALyraPlayerController::GetLyraPlayerState() const
@@ -411,6 +414,39 @@ FGenericTeamId ALyraPlayerController::GetGenericTeamId() const
 FOnLyraTeamIndexChangedDelegate* ALyraPlayerController::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate;
+}
+
+void ALyraPlayerController::TickCursorTrace()
+{
+	FHitResult Hit;
+	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit) == false)  return;
+
+
+	ALyraCharacter* LocalHighlightActor = Cast<ALyraCharacter>(Hit.GetActor());
+	if (LocalHighlightActor == nullptr)
+	{
+		if (HighlightActor)
+		{
+			HighlightActor->UnHighlight();
+		}
+	}
+	else
+	{
+		if (HighlightActor)
+		{
+			if (HighlightActor != LocalHighlightActor)
+			{
+				HighlightActor->UnHighlight();
+				LocalHighlightActor->Highlight();
+			}
+		}
+		else
+		{
+			LocalHighlightActor->Highlight();
+		}
+	}
+
+	HighlightActor = LocalHighlightActor;
 }
 
 void ALyraPlayerController::OnUnPossess()

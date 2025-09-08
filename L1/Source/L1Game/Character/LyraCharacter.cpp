@@ -20,6 +20,8 @@
 #include "TimerManager.h"
 #include "UI/HUD/L1TopDownWidget.h"
 
+#include "Actors/L1ArmorBase.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
 
 class AActor;
@@ -155,6 +157,46 @@ void ALyraCharacter::Reset()
 void ALyraCharacter::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
+}
+
+void ALyraCharacter::Highlight()
+{
+	if (UL1CosmeticManagerComponent* CosmeitcManagerComponent = FindComponentByClass<UL1CosmeticManagerComponent>())
+	{
+		TArray<UMeshComponent*> OutMeshComponents;
+		CosmeitcManagerComponent->GetMeshComponents(OutMeshComponents);
+		for (UMeshComponent* LocalMesh : OutMeshComponents)
+		{
+			LocalMesh->SetRenderCustomDepth(true);
+			LocalMesh->SetCustomDepthStencilValue(250);
+		}
+	}
+	else
+	{
+		GetMesh()->SetRenderCustomDepth(true);
+	}
+
+	bHighlighted = true;
+}
+
+void ALyraCharacter::UnHighlight()
+{
+	if (UL1CosmeticManagerComponent* CosmeitcManagerComponent = FindComponentByClass<UL1CosmeticManagerComponent>())
+	{
+		TArray<UMeshComponent*> OutMeshComponents;
+		CosmeitcManagerComponent->GetMeshComponents(OutMeshComponents);
+		for (UMeshComponent* LocalMesh : OutMeshComponents)
+		{
+			LocalMesh->SetRenderCustomDepth(false);
+		}
+	}
+	else
+	{
+		GetMesh()->SetRenderCustomDepth(false);
+	}
+
+
+	bHighlighted = false;
 }
 
 ALyraPlayerController* ALyraCharacter::GetLyraPlayerController() const

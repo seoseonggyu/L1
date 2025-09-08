@@ -6,6 +6,8 @@
 AL1MonsterCharacter::AL1MonsterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+
+
 	AbilitySystemComponent = CreateDefaultSubobject<ULyraAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
 	HealthSet = CreateDefaultSubobject<UL1VitalSet>(TEXT("VitalSet"));
@@ -14,6 +16,7 @@ AL1MonsterCharacter::AL1MonsterCharacter(const FObjectInitializer& ObjectInitial
 
 void AL1MonsterCharacter::BeginPlay()
 {
+	Super::BeginPlay();
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 

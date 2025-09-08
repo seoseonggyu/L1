@@ -9,10 +9,9 @@
 #include "Interaction/L1Interactable.h"
 #include "Teams/LyraTeamAgentInterface.h"
 #include "Protocol.pb.h"
-
 #include "L1Define.h"
 #include "AbilitySystem/LyraAbilitySet.h"
-
+#include "Interface/L1HighlightInterface.h"
 #include "LyraCharacter.generated.h"
 
 class AActor;
@@ -41,7 +40,7 @@ struct FGameplayTagContainer;
  *	New behavior should be added via pawn components when possible.
  */
 UCLASS(Config = Game, Meta = (ShortTooltip = "The base character pawn class used by this project."))
-class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public IL1Interactable
+class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public IL1Interactable, public IL1HighlightInterface
 {
 	GENERATED_BODY()
 
@@ -77,6 +76,12 @@ public:
 	virtual void NotifyControllerChanged() override;
 	//~End of APawn interface
 
+	//~HighlightInterface interface
+	virtual void Highlight() override;
+	virtual void UnHighlight() override;
+	//~End of HighlightInterface interface
+
+public:
 	void SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass);
 
 protected:
@@ -143,12 +148,14 @@ public:
 	int32 GetPlayerId() { return DestInfo->object_id(); }
 
 public:
-	Protocol::PosInfo* DestInfo;	// ¸ñÀûÁö
+	Protocol::PosInfo* DestInfo;
 	Protocol::VitalInfo* VitalInfo;
 
 	UPROPERTY()
 	ECharacterClassType CharacterClassType = ECharacterClassType::Count;
-	
 	FLyraAbilitySet_GrantedHandles AbilitySetGrantedHandles;
 
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	bool bHighlighted = false;
 };
