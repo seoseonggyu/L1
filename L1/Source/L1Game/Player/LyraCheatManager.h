@@ -34,14 +34,6 @@ public:
 	// Helper function to write text to the console and to the log.
 	static void CheatOutputText(const FString& TextToOutput);
 
-	// Runs a cheat on the server for the owning player.
-	UFUNCTION(exec)
-	void Cheat(const FString& Msg);
-
-	// Runs a cheat on the server for the all players.
-	UFUNCTION(exec)
-	void CheatAll(const FString& Msg);
-
 	// Starts the next match
 	UFUNCTION(Exec, BlueprintAuthorityOnly)
 	void PlayNextGame();

@@ -52,14 +52,6 @@ public:
 	// Call to see if we should record a replay, subclasses could change this
 	virtual bool ShouldRecordClientReplay();
 
-	// Run a cheat command on the server.
-	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerCheat(const FString& Msg);
-
-	// Run a cheat command on the server for all players.
-	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerCheatAll(const FString& Msg);
-
 	//~AActor interface
 	virtual void PreInitializeComponents() override;
 	virtual void BeginPlay() override;

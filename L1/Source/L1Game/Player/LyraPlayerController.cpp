@@ -284,45 +284,6 @@ void ALyraPlayerController::AddCheats(bool bForce)
 #endif // #else //#if USING_CHEAT_MANAGER
 }
 
-void ALyraPlayerController::ServerCheat_Implementation(const FString& Msg)
-{
-#if USING_CHEAT_MANAGER
-	if (CheatManager)
-	{
-		UE_LOG(LogL1, Warning, TEXT("ServerCheat: %s"), *Msg);
-		ClientMessage(ConsoleCommand(Msg));
-	}
-#endif // #if USING_CHEAT_MANAGER
-}
-
-bool ALyraPlayerController::ServerCheat_Validate(const FString& Msg)
-{
-	return true;
-}
-
-void ALyraPlayerController::ServerCheatAll_Implementation(const FString& Msg)
-{
-#if USING_CHEAT_MANAGER
-	if (CheatManager)
-	{
-		UE_LOG(LogL1, Warning, TEXT("ServerCheatAll: %s"), *Msg);
-		for (TActorIterator<ALyraPlayerController> It(GetWorld()); It; ++It)
-		{
-			ALyraPlayerController* LyraPC = (*It);
-			if (LyraPC)
-			{
-				LyraPC->ClientMessage(LyraPC->ConsoleCommand(Msg));
-			}
-		}
-	}
-#endif // #if USING_CHEAT_MANAGER
-}
-
-bool ALyraPlayerController::ServerCheatAll_Validate(const FString& Msg)
-{
-	return true;
-}
-
 void ALyraPlayerController::PreProcessInput(const float DeltaTime, const bool bGamePaused)
 {
 	Super::PreProcessInput(DeltaTime, bGamePaused);

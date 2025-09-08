@@ -85,21 +85,6 @@ void ULyraCheatManager::CheatOutputText(const FString& TextToOutput)
 #endif // USING_CHEAT_MANAGER
 }
 
-void ULyraCheatManager::Cheat(const FString& Msg)
-{
-	if (ALyraPlayerController* LyraPC = Cast<ALyraPlayerController>(GetOuterAPlayerController()))
-	{
-		LyraPC->ServerCheat(Msg.Left(128));
-	}
-}
-
-void ULyraCheatManager::CheatAll(const FString& Msg)
-{
-	if (ALyraPlayerController* LyraPC = Cast<ALyraPlayerController>(GetOuterAPlayerController()))
-	{
-		LyraPC->ServerCheatAll(Msg.Left(128));
-	}
-}
 
 void ULyraCheatManager::PlayNextGame()
 {
@@ -284,8 +269,6 @@ void ULyraCheatManager::DamageTarget(float DamageAmount)
 	{
 		if (LyraPC->GetNetMode() == NM_Client)
 		{
-			// Automatically send cheat to server for convenience.
-			LyraPC->ServerCheat(FString::Printf(TEXT("DamageTarget %.2f"), DamageAmount));
 			return;
 		}
 
@@ -381,8 +364,6 @@ void ULyraCheatManager::God()
 	{
 		if (LyraPC->GetNetMode() == NM_Client)
 		{
-			// Automatically send cheat to server for convenience.
-			LyraPC->ServerCheat(FString::Printf(TEXT("God")));
 			return;
 		}
 
