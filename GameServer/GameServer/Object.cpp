@@ -7,11 +7,11 @@ Object::Object()
 	_posInfo			= new Protocol::PosInfo();
 	_destinationInfo	= new Protocol::PosInfo();
 	_vitalInfo			= new Protocol::VitalInfo();
-	_combatInfo			= new Protocol::CombatInfo();
+	_statInfo			= new Protocol::StatInfo();
 	
 	_objectInfo->set_allocated_pos_info(_posInfo);
 	_objectInfo->set_allocated_vital_info(_vitalInfo);
-	_objectInfo->set_allocated_combat_info(_combatInfo);
+	_objectInfo->set_allocated_stat_info(_statInfo);
 
 	_objectInfo->set_object_type(Protocol::OBJECT_TYPE_NONE);
 	_objectInfo->set_character_classtype(Protocol::CHARACTER_CLASS_TYPE_NONE);

@@ -143,6 +143,7 @@ public:
 	void SetDestInfo(const Protocol::PosInfo& InDestInfo);
 	void SetDestInfo(const FVector& InDestInfo);
 	void SetVitalInfo(const Protocol::VitalInfo& InVitalInfo);
+	void SetStatInfo(const Protocol::StatInfo& InStatInfo);
 
 public:
 	int32 GetPlayerId() { return DestInfo->object_id(); }
@@ -150,6 +151,7 @@ public:
 public:
 	Protocol::PosInfo* DestInfo;
 	Protocol::VitalInfo* VitalInfo;
+	Protocol::StatInfo* StatInfo;
 
 	UPROPERTY()
 	ECharacterClassType CharacterClassType = ECharacterClassType::Count;

@@ -3,11 +3,12 @@
 	<Table name="character_class" desc="캐릭터 직업 능력치 테이블">
 		<Column name="classType" type="int" notnull="true" />
 		<Column name="className" type="nvarchar(20)" notnull="true" />
+		<Column name="hp" type="float" notnull="true" />
+		<Column name="mp" type="float" notnull="true" />
 		<Column name="strength" type="float" notnull="true" />
 		<Column name="defense" type="float" notnull="true" />
-		<Column name="vigor" type="float" notnull="true" />
 		<Column name="agility" type="float" notnull="true" />
-		<Column name="resourceFulness" type="float" notnull="true" />
+		<Column name="intelligence" type="float" notnull="true" />
 	</Table>
 
 	<Table name="skills" desc="캐릭터 스킬 테이블(간단형)">
@@ -46,7 +47,7 @@
 	<Procedure name="spGetAllCharacterClass">
 		<Body>
 			<![CDATA[
-			SELECT classType, className, strength, defense, vigor, agility, resourceFulness
+			SELECT classType, className, hp, mp, strength, defense, agility, intelligence
 			FROM [dbo].[character_class]
 			ORDER BY classType;
 			]]>

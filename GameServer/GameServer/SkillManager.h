@@ -10,7 +10,7 @@ public:
     bool TryGet(Protocol::CharacterClassType classType, Protocol::SkillType skillType, SkillRow& out) const;
     std::vector<SkillRow> GetAllOfClass(Protocol::CharacterClassType classType) const;
 
-    int32 GetSize() { return _skills.size(); }
+    size_t GetSize() { return _skills.size(); }
 
 private:
     std::unordered_map<SkillKey::Key, SkillRow> _skills;

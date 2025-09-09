@@ -21,13 +21,12 @@ message VitalInfo
 	float max_mp	= 4;
 }
 
-message CombatInfo
+message StatInfo
 {
-	float strength = 1;
-	float defense = 2;
-	float vigor = 3;
-	float agility = 4;
-	float resourcefulness = 5;
+	float strength		= 1;
+	float defense		= 2;
+	float agility		= 3;
+	float intelligence	= 4;
 }
 
 message ObjectInfo
@@ -38,10 +37,8 @@ message ObjectInfo
 	MonsterType			monster_type		= 4;
 	PosInfo				pos_info			= 5;
 	VitalInfo			vital_info			= 6;
-	CombatInfo			combat_info			= 7;
+	StatInfo			stat_info			= 7;
 }
-
-// ========
 
 message HitTargetInfo
 {

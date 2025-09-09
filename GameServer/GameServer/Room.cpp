@@ -138,12 +138,13 @@ void Room::HandleSelcetClass(Protocol::C_SELECTCLASS pkt)
 	
 	PlayerRef player = dynamic_pointer_cast<Player>(_objects[objectId]);
 	player->_objectInfo->set_character_classtype(pkt.class_type());
-	player->_combatInfo->CopyFrom(GClassManager->GetCombatInfo(pkt.class_type()));
+	player->_vitalInfo->CopyFrom(GClassManager->GetVitalInfo(pkt.class_type()));
+	player->_statInfo->CopyFrom(GClassManager->GetStatInfo(pkt.class_type()));
 
 	{
 		Protocol::S_SELECTCLASS selectClassPkt;
-		selectClassPkt.set_object_id(objectId);
-		selectClassPkt.set_class_type(pkt.class_type());
+		Protocol::ObjectInfo* info = selectClassPkt.mutable_info();
+		info->CopyFrom(*player->_objectInfo);
 		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(selectClassPkt);
 		Broadcast(sendBuffer);
 	}
@@ -155,7 +156,7 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 	const uint64 objectId = pkt.info().object_id();
 	if (_objects.find(objectId) == _objects.end())
 		return;
-
+	 
 	PlayerRef player = dynamic_pointer_cast<Player>(_objects[objectId]);
 	player->_destinationInfo->CopyFrom(pkt.info());
 	player->_posInfo->CopyFrom(pkt.info());
@@ -185,16 +186,6 @@ void Room::HandleHit(Protocol::C_HIT pkt)
 		targetInfo->CopyFrom(outTargetInfos[i]);
 	}
 
-	cout << "======피격 당하는 오브젝트 정보======\n";
-
-	for (int32 i = 0; i < outTargetInfos.size(); ++i)
-	{
-		cout << "피격 ID: " << outTargetInfos[i].target_object_id();
-		cout << "  데미지: " << 	outTargetInfos[i].damage();
-		cout << "  남아있는 HP" << outTargetInfos[i].remaining_hp() << endl;
-	}
-
-	cout << "\n\n";
 	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(hitPkt);
 	Broadcast(sendBuffer);
 }
@@ -316,7 +307,7 @@ void Room::TestTick(PlayerRef player)
 	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
 	Broadcast(sendBuffer);
 
-	if(isTick) DoTimer(DeltaTime, &Room::TestTick, player);
+	// if(isTick) DoTimer(DeltaTime, &Room::TestTick, player);
 }
 
 RoomRef Room::GetRoomRef()

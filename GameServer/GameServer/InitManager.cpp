@@ -57,41 +57,46 @@ void InitManager::LoadCharacterClass()
 
 	int32 classType = 0;
 	WCHAR className[40];
+    float hp = 0.f;
+    float mp = 0.f;
 	float strength = 0.f;
 	float defense = 0.f;
-	float vigor = 0.f;
 	float agility = 0.f;
-	float resourceFulness = 0.f;
+	float intelligence = 0.f;
 
 	getClass.Out_ClassType(classType);
 	getClass.Out_ClassName(className);
+    getClass.Out_Hp(hp);
+    getClass.Out_Mp(mp);
 	getClass.Out_Strength(strength);
 	getClass.Out_Defense(defense);
-	getClass.Out_Vigor(vigor);
 	getClass.Out_Agility(agility);
-	getClass.Out_ResourceFulness(resourceFulness);
+	getClass.Out_Intelligence(intelligence);
 
 	getClass.Execute();
 
 	while (getClass.Fetch())
 	{
-
 		GConsoleLogger->WriteStdOut(
 			Color::BLUE,
-			L"classType[%d] className[%ls] str[%.2f] def[%.2f] vig[%.2f] agi[%.2f] res[%.2f]\n",
-			classType, className, strength, defense, vigor, agility, resourceFulness
-		);
+			L"classType[%d] className[%ls], hp[%.2f], mp[%.2f] str[%.2f] def[%.2f] agi[%.2f] inte[%.2f]\n",
+			classType, className, hp, mp, strength, defense, agility, intelligence
+        );
 
-		Protocol::CombatInfo info;
-		info.set_strength(strength);
-		info.set_defense(defense);
-		info.set_vigor(vigor);
-		info.set_agility(agility);
-		info.set_resourcefulness(resourceFulness);
-		GClassManager->Add(
-			static_cast<Protocol::CharacterClassType>(classType),
-			info
-		);
+        Protocol::VitalInfo vitalInfo;
+        vitalInfo.set_hp(hp);
+        vitalInfo.set_max_hp(hp);
+        vitalInfo.set_mp(mp);
+        vitalInfo.set_max_mp(mp);
+
+		Protocol::StatInfo statInfo;
+		statInfo.set_strength(strength);
+		statInfo.set_defense(defense);
+		statInfo.set_agility(agility);
+        statInfo.set_intelligence(intelligence);
+
+        GClassManager->AddVital(static_cast<Protocol::CharacterClassType>(classType), vitalInfo);
+        GClassManager->AddStat(static_cast<Protocol::CharacterClassType>(classType), statInfo);
 	}
 }
 

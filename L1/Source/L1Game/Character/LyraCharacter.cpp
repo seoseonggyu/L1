@@ -91,6 +91,7 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 
 	DestInfo = new Protocol::PosInfo();
 	VitalInfo = new Protocol::VitalInfo();
+	StatInfo = new Protocol::StatInfo();
 
 	LyraMoveComp->bRunPhysicsWithNoController = true;
 }
@@ -140,8 +141,9 @@ void ALyraCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	UWorld* World = GetWorld();
 
-	if (DestInfo) delete DestInfo;
-	if (VitalInfo) delete VitalInfo;
+	if (DestInfo)	delete DestInfo;
+	if (VitalInfo)	delete VitalInfo;
+	if (StatInfo)	delete StatInfo;
 }
 
 void ALyraCharacter::Reset()
@@ -481,6 +483,11 @@ void ALyraCharacter::SetDestInfo(const FVector& InDestInfo)
 void ALyraCharacter::SetVitalInfo(const Protocol::VitalInfo& InVitalInfo)
 {
 	VitalInfo->CopyFrom(InVitalInfo);
+}
+
+void ALyraCharacter::SetStatInfo(const Protocol::StatInfo& InStatInfo)
+{
+	StatInfo->CopyFrom(InStatInfo);
 }
 
 void ALyraCharacter::SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass)

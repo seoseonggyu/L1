@@ -29,6 +29,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleRecvPackets();
 
+private:
+	bool CheckHandle();
+	bool CheckHandleObject(uint64 ObjectId);
+	bool CheckHandle(uint64 ObjectId, ALyraCharacter*& OutCharacter);
+
 public:
 	void SendPacket(SendBufferRef SendBuffer);
 
@@ -51,22 +56,7 @@ public:
 	void Check_QuickFromInventory(ALyraCharacter* ToCharacter, UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos);
 	void Check_QuickFromEquipment(ALyraCharacter* ToCharacter, UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType);
 
-private:
-	UFUNCTION(BlueprintCallable)
-	void EquipmentToInventory(ALyraCharacter* FromPlayer, EEquipmentSlotType FromEquipmentSlotType, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovavleCount);
-	UFUNCTION(BlueprintCallable)
-	void InventoryToInventory(ALyraCharacter* FromPlayer, const FIntPoint& FromItemSlotPos, ALyraCharacter* ToPlayer, const FIntPoint& ToItemSlotPos, int32 MovavleCount);
-	UFUNCTION(BlueprintCallable)
-	void InventoryToEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType ToEquipmentSlotType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount);
-	UFUNCTION(BlueprintCallable)
-	void EquipmentToEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType, int32 MovableCount);
-	UFUNCTION(BlueprintCallable)
-	void QuickFromInventory(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, const FIntPoint& FromItemSlotPos);
-	UFUNCTION(BlueprintCallable)
-	void QuickFromEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType FromEquipmentSlotType);
-
 public:
-	void HandleSpawn(const Protocol::ObjectInfo& PlayerInfo, bool IsMine);
 	void HandleSpawn(const Protocol::S_ENTER_GAME& EnterGamePkt);
 	void HandleSpawn(const Protocol::S_SPAWN& SpawnPkt);
 
@@ -91,6 +81,7 @@ private:
 	UL1EquipmentManagerComponent* GetCharacterEquipmentManager(ALyraCharacter* LyraCharacter) const;
 
 	void SetOverHeadWidget(ALyraCharacter* Object);
+	void SetInitObjectInfo(ALyraCharacter* Object, const Protocol::ObjectInfo& ObjectInfo);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "L1|Widget")

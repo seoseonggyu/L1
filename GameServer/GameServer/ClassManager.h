@@ -3,10 +3,13 @@
 class ClassManager
 {
 public:
-	void Add(Protocol::CharacterClassType classType, Protocol::CombatInfo info);
-	Protocol::CombatInfo GetCombatInfo(Protocol::CharacterClassType classType);
+	void AddVital(Protocol::CharacterClassType classType, Protocol::VitalInfo info);
+	void AddStat(Protocol::CharacterClassType classType, Protocol::StatInfo info);
+
+	Protocol::VitalInfo GetVitalInfo(Protocol::CharacterClassType classType);
+	Protocol::StatInfo GetStatInfo(Protocol::CharacterClassType classType);
 
 private:
-	unordered_map<Protocol::CharacterClassType, Protocol::CombatInfo> _class;
+	unordered_map<Protocol::CharacterClassType, Protocol::VitalInfo> _classVital;
+	unordered_map<Protocol::CharacterClassType, Protocol::StatInfo> _classStat;
 };
-
