@@ -150,6 +150,9 @@
     <ClInclude Include="ConsoleLog.h">
       <Filter>Log</Filter>
     </ClInclude>
+    <ClInclude Include="ConsolePrinter.h">
+      <Filter>Log</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CorePch.cpp">
@@ -246,6 +249,9 @@
       <Filter>DB</Filter>
     </ClCompile>
     <ClCompile Include="ConsoleLog.cpp">
+      <Filter>Log</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsolePrinter.cpp">
       <Filter>Log</Filter>
     </ClCompile>
   </ItemGroup>

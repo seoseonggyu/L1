@@ -4,6 +4,8 @@
 	ConsoleLog
 ----------------*/
 
+
+
 enum class Color
 {
 	BLACK,

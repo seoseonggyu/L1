@@ -12,19 +12,15 @@ public:
 		_items.push(item);
 	}
 
-	T Pop()
+	bool Pop(T& out)
 	{
-		if (_items.empty())
-			return T();
-
-		T ret;
-		_items.try_pop(ret);
-		return ret;
+		return _items.try_pop(out);
 	}
 
-	void PopAll(vector<T>& items)
+	void PopAll(Vector<T>& items)
 	{
-		while (T item = Pop())
+		T item;
+		while (Pop(item))
 			items.push_back(item);
 	}
 
