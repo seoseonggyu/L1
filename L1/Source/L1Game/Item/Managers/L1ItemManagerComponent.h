@@ -3,6 +3,7 @@
 
 #include "Components/ControllerComponent.h"
 #include "L1Define.h"
+#include "Protocol.pb.h"
 #include "L1ItemManagerComponent.generated.h"
 
 
@@ -43,7 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void QuickFromEquipment(ALyraCharacter* FromPlayer, ALyraCharacter* ToPlayer, EEquipmentSlotType FromEquipmentSlotType);
 
-	bool TryDropItem(ALyraCharacter* ItemDropCharacter, UL1ItemInstance* FromItemInstance, int32 FromItemCount);
+
+	void TryDropItem(ALyraCharacter* ItemDropCharacter, int32 ItemId, const FIntPoint& ItemSlotPos, int32 ItemCount, Protocol::ItemTransferType ItemTrnsferType, EEquipmentSlotType EquipmentSlotType);
+	bool TryDrop(ALyraCharacter* ItemDropCharacter, UL1ItemInstance* FromItemInstance, int32 FromItemCount);
 
 private:
 	void SetNetworkManager();

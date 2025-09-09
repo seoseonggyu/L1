@@ -44,6 +44,7 @@ public:
 	void SendPacket_SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
 	void SendPacket_ItemMove(int32 FromId, int32 ToId, EEquipmentSlotType FromEquipmentSlotType, EEquipmentSlotType ToEquipmentSlotType, Protocol::ItemTransferType ItemTrnsferType, const FIntPoint& FromItemSlotPos, const FIntPoint& ToItemSlotPos, int32 MovableCount);
 	void SendPacket_Hit(int32 AttackId, TArray<int32>& TargetIds, ESkillType SkillType);
+	void SendPacket_DropItem(int32 FromId, int32 ItemId, const FIntPoint& FromItemSlotPos, int32 ItemCount, Protocol::ItemTransferType ItemTrnsferType, EEquipmentSlotType EquipmentSlotType);
 
 private:
 	UFUNCTION(BlueprintCallable)
@@ -61,6 +62,7 @@ public:
 	void HandleHit(const Protocol::S_HIT& HitPkt);
 	void HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt);
 	void HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemPkt);
+	void HandleItemDrop(const Protocol::S_ITEM_DROP& ItemDropPkt);
 	void HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt);
 
 private:

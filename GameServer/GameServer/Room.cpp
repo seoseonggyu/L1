@@ -216,6 +216,22 @@ void Room::HandleEquipItem(Protocol::C_EQUIP_ITEM pkt)
 	Broadcast(sendBuffer);
 }
 
+void Room::HandleItemDrop(Protocol::C_ITEM_DROP pkt)
+{
+	// SSG: Validation Check, DB Ã³¸®
+	Protocol::S_ITEM_DROP itemDropPkt;
+	itemDropPkt.set_object_id(pkt.object_id());
+	itemDropPkt.set_item_id(pkt.item_id());
+	itemDropPkt.set_from_slot_pos_x(pkt.from_slot_pos_x());
+	itemDropPkt.set_from_slot_pos_y(pkt.from_slot_pos_y());
+	itemDropPkt.set_item_count(pkt.item_count());
+	itemDropPkt.set_item_transfer_type(pkt.item_transfer_type());
+	itemDropPkt.set_equipment_slot_type(pkt.equipment_slot_type());
+
+	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(itemDropPkt);
+	Broadcast(sendBuffer);
+}
+
 void Room::HandleSkillImmediateCast(Protocol::C_SKILL_IMMEDIATE_CAST pkt)
 {
 	// SSG: Validation Check

@@ -153,6 +153,21 @@ void UL1NetworkManager::SendPacket_Hit(int32 AttackId, TArray<int32>& TargetIds,
 	SendPacket(HitPkt);
 }
 
+void UL1NetworkManager::SendPacket_DropItem(int32 FromId, int32 ItemId, const FIntPoint& FromItemSlotPos, int32 ItemCount, Protocol::ItemTransferType ItemTrnsferType, EEquipmentSlotType EquipmentSlotType)
+{
+	Protocol::EquipmentSlotType LocalEquipmentSlotType = NetworkUtils::ConvertProtoFromEquipSlot(EquipmentSlotType);
+
+	Protocol::C_ITEM_DROP ItemDropPkt;
+	ItemDropPkt.set_object_id(FromId);
+	ItemDropPkt.set_item_id(ItemId);
+	ItemDropPkt.set_from_slot_pos_x(FromItemSlotPos.X);
+	ItemDropPkt.set_from_slot_pos_y(FromItemSlotPos.Y);
+	ItemDropPkt.set_item_count(ItemCount);
+	ItemDropPkt.set_item_transfer_type(ItemTrnsferType);
+	ItemDropPkt.set_equipment_slot_type(LocalEquipmentSlotType);
+	SendPacket(ItemDropPkt);
+}
+
 void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character)
 {
 	if (ClassType == ECharacterClassType::Count || ClassType == Character->CharacterClassType)
@@ -321,6 +336,34 @@ void UL1NetworkManager::HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemP
 	FGameplayEventData Payload;
 	Payload.EventMagnitude = (int32)UEEquipState;
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(FindActor, L1GameplayTags::GameplayEvent_ChangeEquip, Payload);
+}
+
+void UL1NetworkManager::HandleItemDrop(const Protocol::S_ITEM_DROP& ItemDropPkt)
+{
+	uint64 ObjectId = ItemDropPkt.object_id();
+	int32 ItemId= ItemDropPkt.item_id();
+	const FIntPoint ItemSlotPos = FIntPoint(ItemDropPkt.from_slot_pos_x(), ItemDropPkt.from_slot_pos_y());
+	int32 ItemCount = ItemDropPkt.item_count();
+	Protocol::ItemTransferType ItemTransferType = ItemDropPkt.item_transfer_type();
+	EEquipmentSlotType EquipmentSlotType = NetworkUtils::ConvertEquipSlotFromProto(ItemDropPkt.equipment_slot_type());
+
+	ALyraCharacter* FromPlayer = *(Objects.Find(ObjectId));
+	if (FromPlayer == nullptr)
+		return;
+
+
+	UL1ItemManagerComponent* ItemManager = nullptr;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (APlayerController* PC = World->GetFirstPlayerController())
+		{
+			ItemManager = PC->GetComponentByClass<UL1ItemManagerComponent>();
+		}
+	}
+
+	if (ItemManager == nullptr) return;
+	ItemManager->TryDropItem(FromPlayer, ItemId, ItemSlotPos, ItemCount, ItemTransferType, EquipmentSlotType);
 }
 
 void UL1NetworkManager::HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt)

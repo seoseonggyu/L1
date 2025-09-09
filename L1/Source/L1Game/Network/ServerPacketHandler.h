@@ -29,8 +29,10 @@ enum : uint16
 	PKT_S_MOVE_ITEM = 1015,
 	PKT_C_EQUIP_ITEM = 1016,
 	PKT_S_EQUIP_ITEM = 1017,
-	PKT_C_SKILL_IMMEDIATE_CAST = 1018,
-	PKT_S_SKILL_IMMEDIATE_CAST = 1019,
+	PKT_C_ITEM_DROP = 1018,
+	PKT_S_ITEM_DROP = 1019,
+	PKT_C_SKILL_IMMEDIATE_CAST = 1020,
+	PKT_S_SKILL_IMMEDIATE_CAST = 1021,
 };
 
 // Custom Handlers
@@ -45,6 +47,7 @@ bool Handle_S_MOVE(PacketSessionRef& session, Protocol::S_MOVE& pkt);
 bool Handle_S_HIT(PacketSessionRef& session, Protocol::S_HIT& pkt);
 bool Handle_S_MOVE_ITEM(PacketSessionRef& session, Protocol::S_MOVE_ITEM& pkt);
 bool Handle_S_EQUIP_ITEM(PacketSessionRef& session, Protocol::S_EQUIP_ITEM& pkt);
+bool Handle_S_ITEM_DROP(PacketSessionRef& session, Protocol::S_ITEM_DROP& pkt);
 bool Handle_S_SKILL_IMMEDIATE_CAST(PacketSessionRef& session, Protocol::S_SKILL_IMMEDIATE_CAST& pkt);
 
 class ServerPacketHandler
@@ -64,6 +67,7 @@ public:
 		GPacketHandler[PKT_S_HIT] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_HIT>(Handle_S_HIT, session, buffer, len); };
 		GPacketHandler[PKT_S_MOVE_ITEM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_MOVE_ITEM>(Handle_S_MOVE_ITEM, session, buffer, len); };
 		GPacketHandler[PKT_S_EQUIP_ITEM] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_EQUIP_ITEM>(Handle_S_EQUIP_ITEM, session, buffer, len); };
+		GPacketHandler[PKT_S_ITEM_DROP] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_ITEM_DROP>(Handle_S_ITEM_DROP, session, buffer, len); };
 		GPacketHandler[PKT_S_SKILL_IMMEDIATE_CAST] = [](PacketSessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::S_SKILL_IMMEDIATE_CAST>(Handle_S_SKILL_IMMEDIATE_CAST, session, buffer, len); };
 	}
 
@@ -80,6 +84,7 @@ public:
 	static SendBufferRef MakeSendBuffer(Protocol::C_HIT& pkt) { return MakeSendBuffer(pkt, PKT_C_HIT); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_MOVE_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_C_MOVE_ITEM); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_EQUIP_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_C_EQUIP_ITEM); }
+	static SendBufferRef MakeSendBuffer(Protocol::C_ITEM_DROP& pkt) { return MakeSendBuffer(pkt, PKT_C_ITEM_DROP); }
 	static SendBufferRef MakeSendBuffer(Protocol::C_SKILL_IMMEDIATE_CAST& pkt) { return MakeSendBuffer(pkt, PKT_C_SKILL_IMMEDIATE_CAST); }
 
 private:

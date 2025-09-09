@@ -13,7 +13,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "System/LyraAssetManager.h"
 
-
 UL1ItemManagerComponent::UL1ItemManagerComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -178,6 +177,8 @@ void UL1ItemManagerComponent::Check_DropItemFromInventory(UL1InventoryManagerCom
 	UL1ItemInstance* FromItemInstance = FromInventoryManager->GetItemInstance(FromItemSlotPos);
 	if (FromItemInstance == nullptr)
 		return;
+
+
 	int32 FromItemCount = FromInventoryManager->GetItemCount(FromItemSlotPos);
 	if (FromItemCount <= 0)
 		return;
@@ -189,13 +190,7 @@ void UL1ItemManagerComponent::Check_DropItemFromInventory(UL1InventoryManagerCom
 	SetNetworkManager();
 	if (CachedNetworkManager)
 	{
-		CachedNetworkManager;
-	}
-}
-
-	if (TryDropItem(ItemDropCharacter, FromItemInstance, FromItemCount))
-	{
-		FromInventoryManager->RemoveItem_Unsafe(FromItemSlotPos, FromItemCount);
+		CachedNetworkManager->SendPacket_DropItem(ItemDropCharacter->GetPlayerId(), FromItemInstance->GetItemTemplateID(), FromItemSlotPos, FromItemCount, Protocol::ItemTransferType::Drop_From_Inventory, EEquipmentSlotType::Count);
 	}
 }
 
@@ -216,9 +211,10 @@ void UL1ItemManagerComponent::Check_DropItemFromEquipment(UL1EquipmentManagerCom
 	if (ItemDropCharacter == nullptr)
 		return;
 
-	if (TryDropItem(ItemDropCharacter, FromItemInstance, FromItemCount))
+	SetNetworkManager();
+	if (CachedNetworkManager)
 	{
-		FromEquipmentManager->RemoveEquipment_Unsafe(FromEquipmentSlotType, FromItemCount);
+		CachedNetworkManager->SendPacket_DropItem(ItemDropCharacter->GetPlayerId(), FromItemInstance->GetItemTemplateID(), FIntPoint(0, 0), FromItemCount, Protocol::ItemTransferType::Drop_From_Equipment, FromEquipmentSlotType);
 	}
 }
 
@@ -451,7 +447,34 @@ void UL1ItemManagerComponent::QuickFromEquipment(ALyraCharacter* FromPlayer, ALy
 	}
 }
 
-bool UL1ItemManagerComponent::TryDropItem(ALyraCharacter* ItemDropCharacter, UL1ItemInstance* FromItemInstance, int32 FromItemCount)
+void UL1ItemManagerComponent::TryDropItem(ALyraCharacter* ItemDropCharacter, int32 ItemId, const FIntPoint& ItemSlotPos, int32 ItemCount, Protocol::ItemTransferType ItemTrnsferType, EEquipmentSlotType EquipmentSlotType)
+{
+	if (ItemDropCharacter == nullptr) return;
+
+	UL1ItemInstance* ItemInstance = NewObject<UL1ItemInstance>();
+	ItemInstance->Init(ItemId, EItemRarity::Poor);
+
+	if (TryDrop(ItemDropCharacter, ItemInstance, ItemCount))
+	{
+		if (ItemTrnsferType == Protocol::Drop_From_Inventory)
+		{
+			if (UL1InventoryManagerComponent* FromInventoryManager = UL1BlueprintHelper::GetCharacterInventoryManager(ItemDropCharacter))
+			{
+				FromInventoryManager->RemoveItem_Unsafe(ItemSlotPos, ItemCount);
+			}
+		}
+		else if (ItemTrnsferType == Protocol::Drop_From_Equipment)
+		{
+			if (UL1EquipmentManagerComponent* FromEquipmentManager = UL1BlueprintHelper::GetCharacterEquipmentManager(ItemDropCharacter))
+			{
+				FromEquipmentManager->RemoveEquipment_Unsafe(EquipmentSlotType, ItemCount);
+
+			}
+		}
+	}
+}
+
+bool UL1ItemManagerComponent::TryDrop(ALyraCharacter* ItemDropCharacter, UL1ItemInstance* FromItemInstance, int32 FromItemCount)
 {
 	if (FromItemInstance == nullptr || FromItemCount <= 0)
 		return false;

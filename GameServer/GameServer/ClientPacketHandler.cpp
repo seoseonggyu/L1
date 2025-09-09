@@ -128,6 +128,22 @@ bool Handle_C_EQUIP_ITEM(PacketSessionRef& session, Protocol::C_EQUIP_ITEM& pkt)
 	return false;
 }
 
+bool Handle_C_ITEM_DROP(PacketSessionRef& session, Protocol::C_ITEM_DROP& pkt)
+{
+	auto gameSession = static_pointer_cast<GameSession>(session);
+
+	PlayerRef player = gameSession->_player.load();
+	if (player == nullptr)
+		return false;
+
+	RoomRef room = player->_room.load().lock();
+	if (room == nullptr)
+		return false;
+
+	room->DoAsync(&Room::HandleItemDrop, pkt);
+	return false;
+}
+
 bool Handle_C_SKILL_IMMEDIATE_CAST(PacketSessionRef& session, Protocol::C_SKILL_IMMEDIATE_CAST& pkt)
 {
 	auto gameSession = static_pointer_cast<GameSession>(session);
