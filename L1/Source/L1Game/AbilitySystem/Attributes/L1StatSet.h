@@ -2,15 +2,15 @@
 
 #include "AbilitySystemComponent.h"
 #include "L1AttributeSet.h"
-#include "L1CombatSet.generated.h"
+#include "L1StatSet.generated.h"
 
 UCLASS(BlueprintType)
-class UL1CombatSet : public UL1AttributeSet
+class UL1StatSet : public UL1AttributeSet
 {
 	GENERATED_BODY()
 
 public:
-	UL1CombatSet();
+	UL1StatSet();
 
 protected:
 	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
@@ -34,13 +34,13 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData BaseMana;
+
 public:
 	ATTRIBUTE_ACCESSORS(ThisClass, Strength);
 	ATTRIBUTE_ACCESSORS(ThisClass, Defense);
-	ATTRIBUTE_ACCESSORS(ThisClass, Vigor);
 	ATTRIBUTE_ACCESSORS(ThisClass, Agility);
-	ATTRIBUTE_ACCESSORS(ThisClass, Resourcefulness);
-	
+	ATTRIBUTE_ACCESSORS(ThisClass, Intelligence);
+
 
 private:
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
@@ -50,13 +50,10 @@ private:
 	FGameplayAttributeData Defense;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData Vigor;
-	
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	FGameplayAttributeData Agility;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	FGameplayAttributeData Resourcefulness;
+	FGameplayAttributeData Intelligence;
 
 public:
 	ATTRIBUTE_ACCESSORS(ThisClass, ActiveEffectDuration);

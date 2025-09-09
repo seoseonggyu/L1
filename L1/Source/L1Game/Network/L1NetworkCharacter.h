@@ -34,5 +34,5 @@ private:
 	TObjectPtr<const class UL1VitalSet> HealthSet;
 	// Combat attribute set used by this actor.
 	UPROPERTY()
-	TObjectPtr<const class UL1CombatSet> CombatSet;
+	TObjectPtr<const class UL1StatSet> StatSet;
 };

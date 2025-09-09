@@ -1,7 +1,7 @@
 #include "L1NetworkCharacter.h"
 
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/L1CombatSet.h"
+#include "AbilitySystem/Attributes/L1StatSet.h"
 #include "AbilitySystem/Attributes/L1VitalSet.h"
 
 AL1NetworkCharacter::AL1NetworkCharacter(const FObjectInitializer& ObjectInitializer)
@@ -11,7 +11,7 @@ AL1NetworkCharacter::AL1NetworkCharacter(const FObjectInitializer& ObjectInitial
 
 	// These attribute sets will be detected by AbilitySystemComponent::InitializeComponent. Keeping a reference so that the sets don't get garbage collected before that.
 	HealthSet = CreateDefaultSubobject<UL1VitalSet>(TEXT("VitalSet"));
-	CombatSet = CreateDefaultSubobject<UL1CombatSet>(TEXT("CombatSet"));
+	StatSet = CreateDefaultSubobject<UL1StatSet>(TEXT("StatSet"));
 }
 
 void AL1NetworkCharacter::BeginPlay()

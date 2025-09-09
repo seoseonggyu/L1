@@ -2,7 +2,7 @@
 
 #include "AbilitySystem/LyraAbilitySourceInterface.h"
 #include "AbilitySystem/Attributes/L1VitalSet.h"
-#include "AbilitySystem/Attributes/L1CombatSet.h"
+#include "AbilitySystem/Attributes/L1StatSet.h"
 #include "AbilitySystem/LyraGameplayEffectContext.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Teams/LyraTeamSubsystem.h"
@@ -14,9 +14,9 @@ struct FDamageStatics
 public:
 	FDamageStatics()
 	{
-		BaseDamageDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetBaseDamageAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
-		StrengthDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetStrengthAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
-		DefenseDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetDefenseAttribute(), EGameplayEffectAttributeCaptureSource::Target, true);
+		BaseDamageDef = FGameplayEffectAttributeCaptureDefinition(UL1StatSet::GetBaseDamageAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
+		StrengthDef = FGameplayEffectAttributeCaptureDefinition(UL1StatSet::GetStrengthAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
+		DefenseDef = FGameplayEffectAttributeCaptureDefinition(UL1StatSet::GetDefenseAttribute(), EGameplayEffectAttributeCaptureSource::Target, true);
 	}
 
 public:

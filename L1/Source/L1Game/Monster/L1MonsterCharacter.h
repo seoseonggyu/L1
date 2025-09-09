@@ -26,5 +26,5 @@ public:
 	UPROPERTY()
 	TObjectPtr<const class UL1VitalSet> HealthSet;
 	UPROPERTY()
-	TObjectPtr<const class UL1CombatSet> CombatSet;
+	TObjectPtr<const class UL1StatSet> StatSet;
 };

@@ -172,9 +172,8 @@ namespace L1GameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_MoveSpeedPercent, "SetByCaller.MoveSpeedPercent");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Strength, "SetByCaller.Strength");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Defense, "SetByCaller.Defense");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Vigor, "SetByCaller.Vigor");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Agility, "SetByCaller.Agility");
-	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Resourcefulness, "SetByCaller.Resourcefulness");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Intelligence, "SetByCaller.Intelligence");
 
 	// GameplayCue
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Weapon_Attack, "GameplayCue.Weapon.Attack");

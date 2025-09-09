@@ -1,6 +1,6 @@
 #include "Monster/L1MonsterCharacter.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
-#include "AbilitySystem/Attributes/L1CombatSet.h"
+#include "AbilitySystem/Attributes/L1StatSet.h"
 #include "AbilitySystem/Attributes/L1VitalSet.h"
 
 AL1MonsterCharacter::AL1MonsterCharacter(const FObjectInitializer& ObjectInitializer)
@@ -11,7 +11,7 @@ AL1MonsterCharacter::AL1MonsterCharacter(const FObjectInitializer& ObjectInitial
 	AbilitySystemComponent = CreateDefaultSubobject<ULyraAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
 	HealthSet = CreateDefaultSubobject<UL1VitalSet>(TEXT("VitalSet"));
-	CombatSet = CreateDefaultSubobject<UL1CombatSet>(TEXT("CombatSet"));
+	StatSet = CreateDefaultSubobject<UL1StatSet>(TEXT("CombatSet"));
 }
 
 void AL1MonsterCharacter::BeginPlay()

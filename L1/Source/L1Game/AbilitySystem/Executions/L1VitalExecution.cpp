@@ -1,7 +1,7 @@
 #include "L1VitalExecution.h"
 
 #include "AbilitySystem/Attributes/L1VitalSet.h"
-#include "AbilitySystem/Attributes/L1CombatSet.h"
+#include "AbilitySystem/Attributes/L1StatSet.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1VitalExecution)
 
@@ -13,8 +13,8 @@ struct FVitalStatics
 
 	FVitalStatics()
 	{
-		BaseHealthDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetBaseHealthAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
-		BaseManaDef = FGameplayEffectAttributeCaptureDefinition(UL1CombatSet::GetBaseManaAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
+		BaseHealthDef = FGameplayEffectAttributeCaptureDefinition(UL1StatSet::GetBaseHealthAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
+		BaseManaDef = FGameplayEffectAttributeCaptureDefinition(UL1StatSet::GetBaseManaAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
 	}
 };
 
