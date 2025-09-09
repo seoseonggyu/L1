@@ -13,14 +13,7 @@ AL1WorldPickupable::AL1WorldPickupable(const FObjectInitializer& ObjectInitializ
 	bReplicates = true;
 }
 
-void AL1WorldPickupable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ThisClass, PickupInfo);
-}
-
-void AL1WorldPickupable::OnRep_PickupInfo()
+void AL1WorldPickupable::ProcessPickup()
 {
 	if (const UL1ItemInstance* ItemInstance = PickupInfo.PickupInstance.ItemInstance)
 	{
@@ -38,11 +31,10 @@ void AL1WorldPickupable::OnRep_PickupInfo()
 
 void AL1WorldPickupable::SetPickupInfo(const FL1PickupInfo& InPickupInfo)
 {
-	
 	if (InPickupInfo.PickupInstance.ItemInstance || InPickupInfo.PickupTemplate.ItemTemplateClass)
 	{
 		PickupInfo = InPickupInfo;
-		OnRep_PickupInfo();
+		ProcessPickup();
 	}
 	else
 	{

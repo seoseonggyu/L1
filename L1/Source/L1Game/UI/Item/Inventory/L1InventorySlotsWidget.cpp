@@ -16,12 +16,9 @@
 #include "Item/L1ItemTemplate.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
+#include "Item/Managers/L1ItemManagerComponent.h"
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/Equipment/L1EquipmentEntryWidget.h"
-#include "Network/NetworkUtils.h"
-#include "Network/L1NetworkManager.h"
-#include "Player/LyraPlayerState.h"
-#include "Character/LyraCharacter.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1InventorySlotsWidget)
 
@@ -144,19 +141,17 @@ bool UL1InventorySlotsWidget::NativeOnDrop(const FGeometry& InGeometry, const FD
 	DragDrop->ToInventoryManager = InventoryManager;
     DragDrop->ToItemSlotPos = ToItemSlotPos;
 
+	UL1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UL1ItemManagerComponent>();
+	if (ItemManager == nullptr)
+		return false;
+	
 	if (UL1InventoryManagerComponent* FromInventoryManager = DragDrop->FromInventoryManager)
 	{
-		if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
-		{
-			NetworkManager->Check_InventoryToInventory(FromInventoryManager, DragDrop->FromItemSlotPos, InventoryManager, ToItemSlotPos);
-		}
+		ItemManager->Check_InventoryToInventory(FromInventoryManager, DragDrop->FromItemSlotPos, InventoryManager, ToItemSlotPos);
 	}
 	else if (UL1EquipmentManagerComponent* FromEquipmentManager = DragDrop->FromEquipmentManager)
 	{
-		if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
-		{
-			NetworkManager->Check_EquipmentToInventory(FromEquipmentManager, DragDrop->FromEquipmentSlotType, InventoryManager, ToItemSlotPos);
-		}
+		ItemManager->Check_EquipmentToInventory(FromEquipmentManager, DragDrop->FromEquipmentSlotType, InventoryManager, ToItemSlotPos);
 	}
 	return true;
 }

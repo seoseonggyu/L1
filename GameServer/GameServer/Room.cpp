@@ -79,10 +79,6 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 	}
 
 	// 존재하는 몬스턴들을 신입 플레이어한테 전송해야함
-	// SSG: 테스트 용도
-	DoTimer(5000, &Room::SpawnMonster, Protocol::MONSTER_TYPE_GRUDGE);
-
-
 	return success;
 }
 

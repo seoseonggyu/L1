@@ -6,12 +6,10 @@
 #include "Data/L1UIData.h"
 #include "Item/L1ItemInstance.h"
 #include "Item/L1ItemTemplate.h"
+#include "Item/Managers/L1ItemManagerComponent.h"
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/L1ItemDragWidget.h"
-#include "Player/LyraPlayerState.h"
 #include "Character/LyraCharacter.h"
-#include "Network/NetworkUtils.h"
-#include "Network/L1NetworkManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1EquipmentEntryWidget)
 
@@ -61,9 +59,9 @@ FReply UL1EquipmentEntryWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
 	
 	if (Reply.IsEventHandled() == false && UWidgetBlueprintLibrary::IsDragDropping() == false && InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
-		if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
+		if (UL1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UL1ItemManagerComponent>())
 		{
-			NetworkManager->Check_QuickFromEquipment(Cast<ALyraCharacter>(GetOwningPlayerPawn()), EquipmentManager, EquipmentSlotType);
+			ItemManager->Check_QuickFromEquipment(Cast<ALyraCharacter>(GetOwningPlayerPawn()), EquipmentManager, EquipmentSlotType);
 			return FReply::Handled();
 		}
 	}

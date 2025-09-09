@@ -7,6 +7,7 @@ struct LogItem
 {
 	String		text;
 	Color		color{ Color::YELLOW };
+
 };
 
 class ConsolePrinter
@@ -18,11 +19,12 @@ public:
 	void Start()
 	{
 		bool expected = false;
-		if (!running_.compare_exchange_strong(expected, true)) return;
-		worker_ = std::thread([this] { this->Run(); });
+		if (!_running.compare_exchange_strong(expected, true)) return;
+		_worker = thread([this] { this->Run(); });
 	}
 
-	void Push(String msg) {
+	void Push(String msg) 
+	{
 		LogItem log;
 		log.text = msg;
 
@@ -36,23 +38,18 @@ private:
 		{
 			Vector<LogItem> items;
 			_logs.PopAll(items);
-			for(int32 i = 0; i < items.size(); ++i)
-			{
-				wcout << items[i].text << endl;
-			}
-
 			for (auto& it : items) 
 			{
-				_consoleLogger.WriteStdOut(it.color, L"%s", it.text.c_str());
+				_consoleLogger.WriteStdOut(it.color, L"%ls\n", it.text.c_str());
 			}
 		}
 	}
 
 private:
-	Atomic<bool> running_{ false };
-	thread worker_;
+	Atomic<bool>				_running{ false };
+	thread						_worker;
 
-	ConcuurentQueue<LogItem> _logs;
-	ConsoleLog _consoleLogger;
+	ConcuurentQueue<LogItem>	_logs;
+	ConsoleLog					_consoleLogger;
 };
 

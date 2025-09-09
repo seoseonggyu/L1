@@ -25,6 +25,7 @@
 #include "Development/L1DeveloperSettings.h"
 #include "GameMapsSettings.h"
 #include "Character/LyraCharacter.h"
+#include "Actors/L1PickupableItemBase.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraPlayerController)
 
@@ -421,32 +422,45 @@ void ALyraPlayerController::TickCursorTrace()
 	FHitResult Hit;
 	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit) == false)  return;
 
-
-	ALyraCharacter* LocalHighlightActor = Cast<ALyraCharacter>(Hit.GetActor());
-	if (LocalHighlightActor == nullptr)
+	// SSG: 여기서 깔끔하게 정리해야함
+	if (ALyraCharacter* LocalHighlightActor = Cast<ALyraCharacter>(Hit.GetActor()))
 	{
-		if (HighlightActor)
-		{
-			HighlightActor->UnHighlight();
-		}
-	}
-	else
-	{
+		if (HighlightActorItem) HighlightActorItem->UnHighlight();
+		
 		if (HighlightActor)
 		{
 			if (HighlightActor != LocalHighlightActor)
 			{
 				HighlightActor->UnHighlight();
-				LocalHighlightActor->Highlight();
 			}
+		}
+		LocalHighlightActor->Highlight();
+		HighlightActor = LocalHighlightActor;
+	}
+	else
+	{
+		if (AL1PickupableItemBase* LocalHighlightItem = Cast<AL1PickupableItemBase>(Hit.GetActor()))
+		{
+			if (HighlightActor) HighlightActor->UnHighlight();
+
+			if (HighlightActorItem)
+			{
+				if (HighlightActorItem != LocalHighlightItem)
+				{
+					HighlightActorItem->UnHighlight();
+					LocalHighlightItem->Highlight();
+				}
+			}
+			LocalHighlightItem -> Highlight();
+			HighlightActorItem = LocalHighlightItem;
 		}
 		else
 		{
-			LocalHighlightActor->Highlight();
+			if(HighlightActor) HighlightActor->UnHighlight();
+			if(HighlightActorItem)HighlightActorItem->UnHighlight();
 		}
 	}
 
-	HighlightActor = LocalHighlightActor;
 }
 
 void ALyraPlayerController::OnUnPossess()

@@ -8,12 +8,10 @@
 #include "Item/L1ItemInstance.h"
 #include "Item/Fragments/L1ItemFragment_Equipable.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
+#include "Item/Managers/L1ItemManagerComponent.h"
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/L1ItemDragWidget.h"
-#include "Player/LyraPlayerState.h"
 #include "Character/LyraCharacter.h"
-#include "Network/NetworkUtils.h"
-#include "Network/L1NetworkManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1InventoryEntryWidget)
 
@@ -52,16 +50,18 @@ FReply UL1InventoryEntryWidget::NativeOnMouseButtonDown(const FGeometry& InGeome
 	
 	CachedFromSlotPos = ItemSlotPos;
 	CachedDeltaWidgetPos = MouseWidgetPos - ItemWidgetPos;
+
+
 	
 	if (Reply.IsEventHandled() == false && UWidgetBlueprintLibrary::IsDragDropping() == false && InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
-		if (UL1InventoryManagerComponent* FromInventoryManager = SlotsWidget->GetInventoryManager())
+		UL1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UL1ItemManagerComponent>();
+		UL1InventoryManagerComponent* FromInventoryManager = SlotsWidget->GetInventoryManager();
+
+		if (ItemManager && FromInventoryManager)
 		{
-			if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
-			{
-				NetworkManager->Check_QuickFromInventory(Cast<ALyraCharacter>(GetOwningPlayerPawn()), FromInventoryManager, ItemSlotPos);
-				return FReply::Handled();
-			}
+			ItemManager->Check_QuickFromInventory(Cast<ALyraCharacter>(GetOwningPlayerPawn()), FromInventoryManager, ItemSlotPos);
+			return FReply::Handled();
 		}
 	}
 	

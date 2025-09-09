@@ -12,9 +12,6 @@ class AL1WorldPickupable : public AActor, public IL1Interactable, public IL1Pick
 public:
 	AL1WorldPickupable(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-protected:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 public:
 	virtual FL1InteractionInfo GetPreInteractionInfo(const FL1InteractionQuery& InteractionQuery) const override { return InteractionInfo; }
 	virtual void SetPickupInfo(const FL1PickupInfo& InPickupInfo);
@@ -22,12 +19,12 @@ public:
 
 protected:
 	UFUNCTION()
-	virtual void OnRep_PickupInfo();
+	virtual void ProcessPickup();
 
 protected:
 	UPROPERTY(EditAnywhere, Category="Info")
 	FL1InteractionInfo InteractionInfo;
 	
-	UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_PickupInfo, Category="Info")
+	UPROPERTY(EditAnywhere, Category="Info")
 	FL1PickupInfo PickupInfo;
 };

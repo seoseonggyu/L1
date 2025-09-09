@@ -14,6 +14,7 @@
 class ALyraCharacter;
 class UL1EquipmentManagerComponent;
 class UL1InventoryManagerComponent;
+class UL1ItemInstance;
 
 UCLASS()
 class L1GAME_API UL1NetworkManager : public UGameInstanceSubsystem
@@ -49,14 +50,6 @@ private:
 	void SelectClass(ECharacterClassType ClassType, ALyraCharacter* Character);
 
 public:
-	void Check_EquipmentToInventory(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos);
-	void Check_InventoryToInventory(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos);
-	void Check_InventoryToEquipment(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType);
-	void Check_EquipmentToEquipment(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType);
-	void Check_QuickFromInventory(ALyraCharacter* ToCharacter, UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos);
-	void Check_QuickFromEquipment(ALyraCharacter* ToCharacter, UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType);
-
-public:
 	void HandleSpawn(const Protocol::S_ENTER_GAME& EnterGamePkt);
 	void HandleSpawn(const Protocol::S_SPAWN& SpawnPkt);
 
@@ -75,11 +68,6 @@ private:
 	void SpawnMonster(const Protocol::ObjectInfo& ObjectInfo);
 
 private:
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UL1InventoryManagerComponent* GetCharacterInventoryManager(ALyraCharacter* LyraCharacter) const;
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UL1EquipmentManagerComponent* GetCharacterEquipmentManager(ALyraCharacter* LyraCharacter) const;
-
 	void SetOverHeadWidget(ALyraCharacter* Object);
 	void SetInitObjectInfo(ALyraCharacter* Object, const Protocol::ObjectInfo& ObjectInfo);
 

@@ -12,11 +12,9 @@
 #include "Item/Fragments/L1ItemFragment_Equipable_Weapon.h"
 #include "Item/Managers/L1EquipManagerComponent.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
+#include "Item/Managers/L1ItemManagerComponent.h"
 #include "UI/Item/L1ItemDragDrop.h"
 #include "UI/Item/Inventory/L1InventoryEntryWidget.h"
-#include "Network/NetworkUtils.h"
-#include "Network/L1NetworkManager.h"
-#include "Player/LyraPlayerState.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1EquipmentSlotWeaponWidget)
 
@@ -123,23 +121,21 @@ bool UL1EquipmentSlotWeaponWidget::NativeOnDrop(const FGeometry& InGeometry, con
 	if (FromItemInstance == nullptr)
 		return false;
 
+	UL1ItemManagerComponent* ItemManager = GetOwningPlayer()->FindComponentByClass<UL1ItemManagerComponent>();
+	if (ItemManager == nullptr)
+		return false;
+
 	if (const UL1ItemFragment_Equipable_Weapon* FromWeaponFragment = FromItemInstance->FindFragmentByClass<UL1ItemFragment_Equipable_Weapon>())
 	{
 		EEquipmentSlotType ToEquipmentSlotType = UL1EquipManagerComponent::ConvertToEquipmentSlotType(FromWeaponFragment->WeaponHandType, WeaponSlotType);
 	
 		if (UL1InventoryManagerComponent* FromInventoryManager = ItemDragDrop->FromInventoryManager)
 		{
-			if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
-			{
-				NetworkManager->Check_InventoryToEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, EquipmentManager, ToEquipmentSlotType);
-			}
+			ItemManager->Check_InventoryToEquipment(FromInventoryManager, ItemDragDrop->FromItemSlotPos, EquipmentManager, ToEquipmentSlotType);
 		}
 		else if (UL1EquipmentManagerComponent* FromEquipmentManager = ItemDragDrop->FromEquipmentManager)
 		{
-			if (UL1NetworkManager* NetworkManager = NetworkUtils::GetNetworkManager(Cast<ALyraPlayerState>(GetOwningPlayerState())))
-			{
-				NetworkManager->Check_EquipmentToEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, EquipmentManager, ToEquipmentSlotType);
-			}
+			ItemManager->Check_EquipmentToEquipment(FromEquipmentManager, ItemDragDrop->FromEquipmentSlotType, EquipmentManager, ToEquipmentSlotType);
 		}
 	}
 	return true;

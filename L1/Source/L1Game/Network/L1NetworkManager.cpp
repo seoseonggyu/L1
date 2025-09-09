@@ -16,13 +16,13 @@
 #include "Item/Fragments/L1ItemFragment_Equipable.h"
 #include "Item/Managers/L1EquipmentManagerComponent.h"
 #include "Item/Managers/L1InventoryManagerComponent.h"
+#include "Item/Managers/L1ItemManagerComponent.h"
 #include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Network/NetworkUtils.h"
 #include "L1GameplayTags.h"
 #include "System/LyraGameData.h"
 #include "Monster/L1MonsterCharacter.h"
 #include "Character/LyraPawnData.h"
-#include "L1ItemTransferHelper.h"
 
 void UL1NetworkManager::ConnectToGameServer()
 {
@@ -186,138 +186,6 @@ void UL1NetworkManager::SelectClass(ECharacterClassType ClassType, ALyraCharacte
 	}
 }
 
-// SSG: 코드 옮기기
-void UL1NetworkManager::Check_EquipmentToInventory(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
-{
-	if (FromEquipmentManager == nullptr || ToInventoryManager == nullptr)
-		return;
-
-	int32 MovableCount = ToInventoryManager->CanMoveOrMergeItem(FromEquipmentManager, FromEquipmentSlotType, ToItemSlotPos);
-	if (MovableCount > 0)
-	{
-		ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromEquipmentManager->GetOwner());
-		ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToInventoryManager->GetOwner());
-		if (FromCharacter)
-		{
-			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, EEquipmentSlotType::Count, Protocol::ItemTransferType::Equipment_To_Inventory, FIntPoint(0, 0), ToItemSlotPos, MovableCount);
-		}
-	}
-}
-
-void UL1NetworkManager::Check_InventoryToInventory(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1InventoryManagerComponent* ToInventoryManager, const FIntPoint& ToItemSlotPos)
-{
-	if (FromInventoryManager == nullptr || ToInventoryManager == nullptr)
-		return;
-
-	if (FromInventoryManager == ToInventoryManager && FromItemSlotPos == ToItemSlotPos)
-		return;
-
-	int32 MovableCount = ToInventoryManager->CanMoveOrMergeItem(FromInventoryManager, FromItemSlotPos, ToItemSlotPos);
-	if (MovableCount > 0)
-	{
-		ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromInventoryManager->GetOwner());
-		ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToInventoryManager->GetOwner());
-		if (FromCharacter)
-		{
-			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), EEquipmentSlotType::Count, EEquipmentSlotType::Count, Protocol::ItemTransferType::Inventory_To_Inventory, FromItemSlotPos, ToItemSlotPos, MovableCount);
-		}
-	}
-}
-
-void UL1NetworkManager::Check_InventoryToEquipment(UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType)
-{
-	if (FromInventoryManager == nullptr || ToEquipmentManager == nullptr)
-		return;
-
-	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromInventoryManager->GetOwner());
-	ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToEquipmentManager->GetOwner());
-
-	int32 MovableCount = ToEquipmentManager->CanMoveOrMergeEquipment(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType);
-	if (MovableCount > 0)
-	{
-		if (FromCharacter)
-		{
-			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(),  EEquipmentSlotType::Count, ToEquipmentSlotType, Protocol::ItemTransferType::Inventory_To_Equipment, FromItemSlotPos, FIntPoint(0,0), MovableCount);
-		}
-	}
-	else
-	{
-		FIntPoint ToItemSlotPos;
-		if (ToEquipmentManager->CanSwapEquipment(FromInventoryManager, FromItemSlotPos, ToEquipmentSlotType, ToItemSlotPos))
-		{
-			if (FromCharacter)
-			{
-				SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), EEquipmentSlotType::Count, ToEquipmentSlotType, Protocol::ItemTransferType::Inventory_To_Equipment, FromItemSlotPos, ToItemSlotPos, MovableCount);
-			}
-		}
-	}
-}
-
-void UL1NetworkManager::Check_EquipmentToEquipment(UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType, UL1EquipmentManagerComponent* ToEquipmentManager, EEquipmentSlotType ToEquipmentSlotType)
-{
-	if (FromEquipmentManager == nullptr || ToEquipmentManager == nullptr)
-		return;
-	if (FromEquipmentManager == ToEquipmentManager && FromEquipmentSlotType == ToEquipmentSlotType)
-		return;
-
-	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromEquipmentManager->GetOwner());
-	ALyraCharacter* ToCharacter = Cast<ALyraCharacter>(ToEquipmentManager->GetOwner());
-
-
-	int32 MovableCount = ToEquipmentManager->CanMoveOrMergeEquipment(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType);
-	if (MovableCount > 0)
-	{
-		if (FromCharacter)
-		{
-			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, ToEquipmentSlotType, Protocol::ItemTransferType::Equipment_To_Equipment, FIntPoint(0, 0), FIntPoint(0, 0), MovableCount);
-		}
-	}
-	else if (ToEquipmentManager->CanSwapEquipment(FromEquipmentManager, FromEquipmentSlotType, ToEquipmentSlotType))
-	{
-		if (FromCharacter)
-		{
-			SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, ToEquipmentSlotType, Protocol::ItemTransferType::Equipment_To_Equipment, FIntPoint(0, 0), FIntPoint(0, 0), MovableCount);
-		}
-	}
-
-}
-
-void UL1NetworkManager::Check_QuickFromInventory(ALyraCharacter* ToCharacter, UL1InventoryManagerComponent* FromInventoryManager, const FIntPoint& FromItemSlotPos)
-{
-	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromInventoryManager->GetOwner());
-	
-	if (FromInventoryManager == nullptr || FromCharacter == nullptr)
-		return;
-
-	UL1InventoryManagerComponent* MyInventoryManager = GetCharacterInventoryManager(ToCharacter);
-	UL1EquipmentManagerComponent* MyEquipmentManager = GetCharacterEquipmentManager(ToCharacter);
-
-	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
-		return;
-
-	UL1ItemInstance* FromItemInstance = FromInventoryManager->GetItemInstance(FromItemSlotPos);
-	if (FromItemInstance == nullptr)
-		return;
-
-	SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), EEquipmentSlotType::Count, EEquipmentSlotType::Count, Protocol::ItemTransferType::Quick_From_Inventory, FromItemSlotPos, FIntPoint(0, 0), 0);
-}
-
-void UL1NetworkManager::Check_QuickFromEquipment(ALyraCharacter* ToCharacter, UL1EquipmentManagerComponent* FromEquipmentManager, EEquipmentSlotType FromEquipmentSlotType)
-{
-	ALyraCharacter* FromCharacter = Cast<ALyraCharacter>(FromEquipmentManager->GetOwner());
-	if (FromCharacter == nullptr) return;
-	
-	if (FromEquipmentManager == nullptr || FromEquipmentSlotType == EEquipmentSlotType::Count)
-		return;
-
-	UL1InventoryManagerComponent* MyInventoryManager = GetCharacterInventoryManager(ToCharacter);
-	UL1EquipmentManagerComponent* MyEquipmentManager = GetCharacterEquipmentManager(ToCharacter);
-	if (MyInventoryManager == nullptr || MyEquipmentManager == nullptr)
-		return;
-
-	SendPacket_ItemMove(FromCharacter->GetPlayerId(), ToCharacter->GetPlayerId(), FromEquipmentSlotType, EEquipmentSlotType::Count, Protocol::ItemTransferType::Quick_From_Equipment, FIntPoint(0, 0), FIntPoint(0, 0), 0);
-}
-
 void UL1NetworkManager::HandleSpawn(const Protocol::S_ENTER_GAME& EnterGamePkt)
 {
 	SpawnPlayer(EnterGamePkt.player(), true);
@@ -418,14 +286,26 @@ void UL1NetworkManager::HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt)
 	ALyraCharacter* ToPlayer = *(Objects.Find(ToId));
 	if (FromPlayer == nullptr || ToPlayer == nullptr) return;
 
+	UL1ItemManagerComponent* ItemManager = nullptr;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (APlayerController* PC = World->GetFirstPlayerController())
+		{
+			ItemManager = PC->GetComponentByClass<UL1ItemManagerComponent>();
+		}
+	}
+
+	if (ItemManager == nullptr) return;
+
 	switch (TransferType)
 	{
-	case Protocol::Equipment_To_Inventory:  UL1ItemTransferHelper::EquipmentToInventory(FromPlayer, FromEquipmentSlotType, ToPlayer, ToItemSlotPos, MovableCount); break;
-	case Protocol::Equipment_To_Equipment:	UL1ItemTransferHelper::EquipmentToEquipment(FromPlayer, ToPlayer, FromEquipmentSlotType, ToEquipmentSlotType, MovableCount); break;
-	case Protocol::Inventory_To_Equipment:	UL1ItemTransferHelper::InventoryToEquipment(FromPlayer, ToPlayer, ToEquipmentSlotType, FromItemSlotPos, ToItemSlotPos, MovableCount); break;
-	case Protocol::Inventory_To_Inventory:	UL1ItemTransferHelper::InventoryToInventory(FromPlayer, FromItemSlotPos, ToPlayer, ToItemSlotPos, MovableCount); break;
-	case Protocol::Quick_From_Inventory:	UL1ItemTransferHelper::QuickFromInventory(FromPlayer, ToPlayer, FromItemSlotPos);
-	case Protocol::Quick_From_Equipment:	UL1ItemTransferHelper::QuickFromEquipment(FromPlayer, ToPlayer, FromEquipmentSlotType);
+	case Protocol::Equipment_To_Inventory:  ItemManager -> EquipmentToInventory(FromPlayer, FromEquipmentSlotType, ToPlayer, ToItemSlotPos, MovableCount); break;
+	case Protocol::Equipment_To_Equipment:	ItemManager -> EquipmentToEquipment(FromPlayer, ToPlayer, FromEquipmentSlotType, ToEquipmentSlotType, MovableCount); break;
+	case Protocol::Inventory_To_Equipment:	ItemManager -> InventoryToEquipment(FromPlayer, ToPlayer, ToEquipmentSlotType, FromItemSlotPos, ToItemSlotPos, MovableCount); break;
+	case Protocol::Inventory_To_Inventory:	ItemManager -> InventoryToInventory(FromPlayer, FromItemSlotPos, ToPlayer, ToItemSlotPos, MovableCount); break;
+	case Protocol::Quick_From_Inventory:	ItemManager -> QuickFromInventory(FromPlayer, ToPlayer, FromItemSlotPos);
+	case Protocol::Quick_From_Equipment:	ItemManager -> QuickFromEquipment(FromPlayer, ToPlayer, FromEquipmentSlotType);
 	default: break;
 	}
 }
@@ -544,28 +424,6 @@ void UL1NetworkManager::SpawnMonster(const Protocol::ObjectInfo& ObjectInfo)
 	}
 }
 
-UL1InventoryManagerComponent* UL1NetworkManager::GetCharacterInventoryManager(ALyraCharacter* LyraCharacter) const
-{
-	UL1InventoryManagerComponent* MyInventoryManager = nullptr;
-	if (LyraCharacter)
-	{
-		MyInventoryManager = LyraCharacter->GetComponentByClass<UL1InventoryManagerComponent>();
-	}
-
-	return MyInventoryManager;
-}
-
-UL1EquipmentManagerComponent* UL1NetworkManager::GetCharacterEquipmentManager(ALyraCharacter* LyraCharacter) const
-{
-	UL1EquipmentManagerComponent* MyEquipmentManager = nullptr;
-	if (LyraCharacter)
-	{
-		MyEquipmentManager = LyraCharacter->GetComponentByClass<UL1EquipmentManagerComponent>();
-	}
-
-	return MyEquipmentManager;
-}
-
 void UL1NetworkManager::SetOverHeadWidget(ALyraCharacter* Object)
 {
 	if (OverHeadWidgetClass == nullptr)
@@ -587,20 +445,23 @@ void UL1NetworkManager::SetInitObjectInfo(ALyraCharacter* Object, const Protocol
 		float Helath = ObjectInfo.vital_info().max_hp();
 		float Mana = ObjectInfo.vital_info().max_mp();
 
-		ObjectInfo.stat_info().strength();
-		ObjectInfo.stat_info().defense();
-		ObjectInfo.stat_info().agility();
-		ObjectInfo.stat_info().intelligence();
+		float Strength = ObjectInfo.stat_info().strength();
+		float Defense = ObjectInfo.stat_info().defense();
+		float Agility = ObjectInfo.stat_info().agility();
+		float Intelligence = ObjectInfo.stat_info().intelligence();
 
 		TSubclassOf<UGameplayEffect> InitialGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().InitialGameplayEffect_SetByCaller);
 		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
 		if (EffectSpecHandle.IsValid())
 		{
-			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
-			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Mana, Mana);
-			// SSG: 넘겨받은 스탯 업로드
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseHealth, Helath);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseMana, Mana);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Strength, Strength);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Defense, Defense);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Agility, Agility);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Intelligence, Intelligence);
+			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 		}
 
-		ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 	}
 };
