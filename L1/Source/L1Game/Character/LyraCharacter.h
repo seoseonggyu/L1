@@ -137,7 +137,25 @@ private:
 	TObjectPtr<UWidgetComponent> OverheadWidgetComponent;
 
 public:
+	virtual FL1InteractionInfo GetPreInteractionInfo(const FL1InteractionQuery& InteractionQuery) const override;
+	virtual bool CanInteraction(const FL1InteractionQuery& InteractionQuery) const override;
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Info")
+	FL1InteractionInfo InteractionInfo;
+
+public:
+	float BaseUnscaledCapsuleHalfHeight = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float BaseFallDamage = 3.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float MaxFallDamage = 10.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float FallDamageVelocityZThreshold = 800.f;
 
 public:
 	void SetDestInfo(const Protocol::PosInfo& InDestInfo);

@@ -19,6 +19,7 @@
 #include "System/LyraSignificanceManager.h"
 #include "TimerManager.h"
 #include "UI/HUD/L1TopDownWidget.h"
+#include "Interaction/L1InteractionQuery.h"
 
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacter)
@@ -460,6 +461,20 @@ bool ALyraCharacter::CanJumpInternal_Implementation() const
 {
 	// same as ACharacter's implementation but without the crouch check
 	return JumpIsAllowedInternal();
+}
+
+FL1InteractionInfo ALyraCharacter::GetPreInteractionInfo(const FL1InteractionQuery& InteractionQuery) const
+{
+	return InteractionInfo;
+}
+
+bool ALyraCharacter::CanInteraction(const FL1InteractionQuery& InteractionQuery) const
+{
+	if (HealthComponent)
+	{
+		return HealthComponent->GetDeathState() == ELyraDeathState::DeathFinished;
+	}
+	return false;
 }
 
 void ALyraCharacter::GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const

@@ -1,12 +1,18 @@
 #include "L1EquipmentBase.h"
 
+#include "AbilitySystemComponent.h"
+#include "L1GameplayTags.h"
+#include "AbilitySystem/LyraAbilitySystemComponent.h"
 #include "Character/LyraCharacter.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Data/L1ItemData.h"
-#include "Item/Managers/L1EquipManagerComponent.h"
+#include "Item/L1ItemInstance.h"
 #include "Item/Fragments/L1ItemFragment_Equipable_Weapon.h"
+#include "Item/Managers/L1EquipManagerComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
+#include "Physics/LyraCollisionChannels.h"
 #include "System/LyraAssetManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(L1EquipmentBase)
@@ -38,7 +44,8 @@ AL1EquipmentBase::AL1EquipmentBase(const FObjectInitializer& ObjectInitializer)
 void AL1EquipmentBase::BeginPlay()
 {
 	Super::BeginPlay();
-	EquipmentSlot();
+	ProcessEquipmentSlotType();
+
 }
 
 void AL1EquipmentBase::Destroyed()
@@ -65,108 +72,180 @@ void AL1EquipmentBase::Destroyed()
 
 void AL1EquipmentBase::Init(int32 InTemplateID, EEquipmentSlotType InEquipmentSlotType)
 {
-	TemplateID = InTemplateID;
+	ItemTemplateID = InTemplateID;
 	EquipmentSlotType = InEquipmentSlotType;
 }
 
 void AL1EquipmentBase::ChangeBlockState(bool bShouldBlock)
 {
 	bCanBlock = bShouldBlock;
-	CanBlock();
+	ProcessCanBlock();
 }
 
-void AL1EquipmentBase::EquipmentSlot()
+void AL1EquipmentBase::ProcessCanBlock()
 {
-	if (GetOwner() && GetOwner()->FindComponentByClass<UL1EquipManagerComponent>())
-	{
-		if (ALyraCharacter* Character = Cast<ALyraCharacter>(GetOwner()))
-		{
-			if (UL1EquipManagerComponent* EquipManager = Character->FindComponentByClass<UL1EquipManagerComponent>())
-			{
-				TArray<FL1EquipEntry>& Entries = EquipManager->GetEntries();
-				Entries[(int32)EquipmentSlotType].SetEquipmentActor(this);
-			}
-		}
-	}
-	else
-	{
-		GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::EquipmentSlot);
-	}
+	MeshComponent->SetCollisionResponseToChannel(L1_ObjectChannel_Projectile, bCanBlock ? ECR_Block : ECR_Ignore);
 }
 
-void AL1EquipmentBase::CanBlock()
+void AL1EquipmentBase::ProcessItemTemplateID()
 {
-	// SSG: 
-	// MeshComponent->SetCollisionResponseToChannel(L1_ObjectChannel_Projectile, bCanBlock ? ECR_Block : ECR_Ignore);
+	CheckPropertyInitialization();
+}
+
+void AL1EquipmentBase::ProcessEquipmentSlotType()
+{
+	CheckPropertyInitialization();
 }
 
 UAbilitySystemComponent* AL1EquipmentBase::GetAbilitySystemComponent() const
 {
-	UAbilitySystemComponent* ASC = nullptr;
 	if (ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(GetOwner()))
 	{
-		ASC = LyraCharacter->GetAbilitySystemComponent();
+		return LyraCharacter->GetAbilitySystemComponent();
 	}
-	return ASC;
+	return nullptr;
 }
 
-UAnimMontage* AL1EquipmentBase::GetEquipMontage()
+void AL1EquipmentBase::ProcessEquip_Implementation(UL1ItemInstance* ItemInstance)
 {
-	UAnimMontage* EquipMontage = nullptr;
+	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(GetOwner());
+	if (LyraCharacter == nullptr)
+		return;
 
-	if (TemplateID > 0)
+	UAbilitySystemComponent* ASC = LyraCharacter->GetAbilitySystemComponent();
+	if (ASC == nullptr)
+		return;
+
+	check(ItemTemplateID > 0);
+
+	const UL1ItemTemplate& ItemTemplate = UL1ItemData::Get().FindItemTemplateByID(ItemTemplateID);
+	const UL1ItemFragment_Equipable_Attachment* AttachmentFragment = ItemTemplate.FindFragmentByClass<UL1ItemFragment_Equipable_Attachment>();
+	if (AttachmentFragment == nullptr)
+		return;
+
+	if (USkeletalMeshComponent* CharacterMeshComponent = LyraCharacter->GetMesh())
 	{
-		const UL1ItemTemplate& ItemTemplate = UL1ItemData::Get().FindItemTemplateByID(TemplateID);
-		if (const UL1ItemFragment_Equipable_Attachment* AttachmentFragment = ItemTemplate.FindFragmentByClass<UL1ItemFragment_Equipable_Attachment>())
+		if (AttachmentFragment->AnimInstanceClass)
 		{
-			EquipMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->EquipMontage);
+			CharacterMeshComponent->LinkAnimClassLayers(AttachmentFragment->AnimInstanceClass);
+		}
+
+		if (ASC->HasMatchingGameplayTag(L1GameplayTags::Status_Interact) == false)
+		{
+			PlayEquipMontage();
 		}
 	}
+}
 
-	return EquipMontage;
+void AL1EquipmentBase::PlayEquipMontage()
+{
+	ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(GetOwner());
+	if (LyraCharacter == nullptr)
+		return;
+
+	USkeletalMeshComponent* CharacterMeshComponent = LyraCharacter->GetMesh();
+	if (CharacterMeshComponent == nullptr)
+		return;
+
+	UAnimMontage* EquipMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(GetEquipMontage());
+	if (UAnimInstance* AnimInstance = CharacterMeshComponent->GetAnimInstance())
+	{
+		if (AnimInstance->GetCurrentActiveMontage() != EquipMontage)
+		{
+			LyraCharacter->PlayAnimMontage(EquipMontage);
+		}
+	}
+}
+
+void AL1EquipmentBase::CheckPropertyInitialization()
+{
+	if (bInitialized)
+		return;
+
+	if (ItemTemplateID <= 0 || EquipmentSlotType == EEquipmentSlotType::Count)
+		return;
+
+	if (GetOwner())
+	{
+		UL1EquipManagerComponent* EquipManager = GetOwner()->FindComponentByClass<UL1EquipManagerComponent>();
+		UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+		if (EquipManager && ASC)
+		{
+			if (UL1ItemInstance* ItemInstance = EquipManager->GetEquippedItemInstance(EquipmentSlotType))
+			{
+				TArray<FL1EquipEntry>& Entries = EquipManager->GetEntries();
+				Entries[(int32)EquipmentSlotType].SetEquipmentActor(this);
+
+				ProcessEquip(ItemInstance);
+				bInitialized = true;
+				return;
+			}
+		}
+	}
+	GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::CheckPropertyInitialization);
+}
+
+TSoftObjectPtr<UAnimMontage> AL1EquipmentBase::GetEquipMontage() const
+{
+	if (ItemTemplateID <= 0)
+		return nullptr;
+
+	const UL1ItemTemplate& ItemTemplate = UL1ItemData::Get().FindItemTemplateByID(ItemTemplateID);
+	const UL1ItemFragment_Equipable_Attachment* AttachmentFragment = ItemTemplate.FindFragmentByClass<UL1ItemFragment_Equipable_Attachment>();
+	if (AttachmentFragment == nullptr)
+		return nullptr;
+
+	return AttachmentFragment->EquipMontage;
 }
 
 UAnimMontage* AL1EquipmentBase::GetHitMontage(AActor* InstigatorActor, const FVector& HitLocation, bool IsBlocked)
 {
 	UAnimMontage* SelectedMontage = nullptr;
 
-	if (InstigatorActor && TemplateID > 0)
+	if (InstigatorActor && ItemTemplateID > 0)
 	{
-		const UL1ItemTemplate& ItemTemplate = UL1ItemData::Get().FindItemTemplateByID(TemplateID);
+		const UL1ItemTemplate& ItemTemplate = UL1ItemData::Get().FindItemTemplateByID(ItemTemplateID);
 		if (const UL1ItemFragment_Equipable_Attachment* AttachmentFragment = ItemTemplate.FindFragmentByClass<UL1ItemFragment_Equipable_Attachment>())
 		{
+			TSoftObjectPtr<UAnimMontage> SelectedMontagePath = nullptr;
+
 			if (IsBlocked)
 			{
-				SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->BlockHitMontage);
+				SelectedMontagePath = AttachmentFragment->BlockHitMontage;
 			}
 			else
 			{
 				AActor* CharacterActor = GetOwner();
-				const FVector& CharacterLocation = CharacterActor->GetActorLocation();
-				const FVector& CharacterDirection = CharacterActor->GetActorForwardVector();
+				FVector CharacterLocation = CharacterActor->GetActorLocation();
+				FVector CharacterDirection = CharacterActor->GetActorForwardVector();
 
-				const FRotator& FacingRotator = UKismetMathLibrary::Conv_VectorToRotator(CharacterDirection);
-				const FRotator& CharacterToHitRotator = UKismetMathLibrary::Conv_VectorToRotator((HitLocation - CharacterLocation).GetSafeNormal());
+				FRotator FacingRotator = UKismetMathLibrary::Conv_VectorToRotator(CharacterDirection);
+				FRotator CharacterToHitRotator = UKismetMathLibrary::Conv_VectorToRotator((HitLocation - CharacterLocation).GetSafeNormal());
 
-				const FRotator& DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(CharacterToHitRotator, FacingRotator);
+				FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(CharacterToHitRotator, FacingRotator);
 				float YawAbs = FMath::Abs(DeltaRotator.Yaw);
 
 				if (YawAbs < 60.f)
 				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->FrontHitMontage);
+					SelectedMontagePath = AttachmentFragment->FrontHitMontage;
 				}
 				else if (YawAbs > 120.f)
 				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->BackHitMontage);
+					SelectedMontagePath = AttachmentFragment->BackHitMontage;
 				}
 				else if (DeltaRotator.Yaw < 0.f)
 				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->LeftHitMontage);
+					SelectedMontagePath = AttachmentFragment->LeftHitMontage;
 				}
 				else
 				{
-					SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(AttachmentFragment->RightHitMontage);
+					SelectedMontagePath = AttachmentFragment->RightHitMontage;
 				}
+			}
+
+			if (SelectedMontagePath.IsNull() == false)
+			{
+				SelectedMontage = ULyraAssetManager::GetAssetByPath<UAnimMontage>(SelectedMontagePath);
 			}
 		}
 	}

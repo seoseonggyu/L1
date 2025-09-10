@@ -12,7 +12,6 @@ public:
 	AL1WorldInteractable(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool CanInteraction(const FL1InteractionQuery& InteractionQuery) const override;
 	
 public:
@@ -38,7 +37,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	bool bCanUsed = false;
 	
-	UPROPERTY(BlueprintReadWrite, Replicated)
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsUsed = false;
 
 	UPROPERTY()

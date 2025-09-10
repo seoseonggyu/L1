@@ -9,14 +9,7 @@
 AL1WorldInteractable::AL1WorldInteractable(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bReplicates = true;
-}
 
-void AL1WorldInteractable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ThisClass, bIsUsed);
 }
 
 void AL1WorldInteractable::OnInteractActiveStarted(AActor* Interactor)
@@ -24,10 +17,7 @@ void AL1WorldInteractable::OnInteractActiveStarted(AActor* Interactor)
 	if (IsValid(Interactor) == false)
 		return;
 	
-	if (HasAuthority())
-	{
-		CachedInteractors.Add(Interactor);
-	}
+	CachedInteractors.Add(Interactor);
 
 	K2_OnInteractActiveStarted(Interactor);
 }
@@ -37,10 +27,7 @@ void AL1WorldInteractable::OnInteractActiveEnded(AActor* Interactor)
 	if (IsValid(Interactor) == false)
 		return;
 	
-	if (HasAuthority())
-	{
-		CachedInteractors.Remove(Interactor);
-	}
+	CachedInteractors.Remove(Interactor);
 
 	K2_OnInteractActiveEnded(Interactor);
 }
@@ -50,32 +37,29 @@ void AL1WorldInteractable::OnInteractionSuccess(AActor* Interactor)
 	if (IsValid(Interactor) == false)
 		return;
 	
-	if (HasAuthority())
+	if (bCanUsed)
 	{
-		if (bCanUsed)
-		{
-			bIsUsed = true;
-		}
-
-		for (TWeakObjectPtr<AActor> CachedInteractor : CachedInteractors)
-		{
-			if (ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(CachedInteractor.Get()))
-			{
-				if (Interactor == LyraCharacter)
-					continue;
-				
-				// SSG: AOE
-				/*if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(LyraCharacter))
-				{
-					FGameplayTagContainer CancelAbilitiesTag;
-					CancelAbilitiesTag.AddTag(L1GameplayTags::Ability_Interact_Active);
-					ASC->CancelAbilities(&CancelAbilitiesTag);
-				}*/
-			}
-		}
-		
-		CachedInteractors.Empty();
+		bIsUsed = true;
 	}
+
+	for (TWeakObjectPtr<AActor> CachedInteractor : CachedInteractors)
+	{
+		if (ALyraCharacter* LyraCharacter = Cast<ALyraCharacter>(CachedInteractor.Get()))
+		{
+			if (Interactor == LyraCharacter)
+				continue;
+			
+			// SSG: AOE
+			/*if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(LyraCharacter))
+			{
+				FGameplayTagContainer CancelAbilitiesTag;
+				CancelAbilitiesTag.AddTag(L1GameplayTags::Ability_Interact_Active);
+				ASC->CancelAbilities(&CancelAbilitiesTag);
+			}*/
+		}
+	}
+	
+	CachedInteractors.Empty();
 	
 	K2_OnInteractionSuccess(Interactor);
 }

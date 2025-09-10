@@ -5,6 +5,7 @@
 #include "AbilitySystem/LyraAbilitySet.h"
 #include "L1EquipmentBase.generated.h"
 
+class UL1ItemInstance;
 class UAbilitySystemComponent;
 class USkeletalMeshComponent;
 class UArrowComponent;
@@ -25,23 +26,34 @@ protected:
 public:
 	void Init(int32 InTemplateID, EEquipmentSlotType InEquipmentSlotType);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void ChangeBlockState(bool bShouldBlock);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ProcessEquip(UL1ItemInstance* ItemInstance);
+
+	UFUNCTION(BlueprintCallable)
+	void PlayEquipMontage();
+
 private:
-	UFUNCTION()
-	void EquipmentSlot();
+	void CheckPropertyInitialization();
 
 	UFUNCTION()
-	void CanBlock();
+	void ProcessItemTemplateID();
+
+	UFUNCTION()
+	void ProcessEquipmentSlotType();
+
+	UFUNCTION()
+	void ProcessCanBlock();
 
 public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	int32 GetTemplateID() const { return TemplateID; }
+	int32 GetItemTemplateID() const { return ItemTemplateID; }
 	EEquipmentSlotType GetEquipmentSlotType() const { return EquipmentSlotType; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UAnimMontage* GetEquipMontage();
+	TSoftObjectPtr<UAnimMontage> GetEquipMontage() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UAnimMontage* GetHitMontage(AActor* InstigatorActor, const FVector& HitLocation, bool IsBlocked);
@@ -58,7 +70,7 @@ public:
 
 protected:
 	UPROPERTY()
-	int32 TemplateID;
+	int32 ItemTemplateID = INDEX_NONE;
 
 	UPROPERTY()
 	EEquipmentSlotType EquipmentSlotType = EEquipmentSlotType::Count;
@@ -66,6 +78,10 @@ protected:
 public:
 	UPROPERTY()
 	bool bCanBlock = false;
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bInitialized = false;
 
 private:
 	FLyraAbilitySet_GrantedHandles SkillAbilitySetHandles;
