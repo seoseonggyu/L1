@@ -40,6 +40,12 @@
     <Filter Include="Data\Class">
       <UniqueIdentifier>{7f9ebf6a-94fd-4fe6-a76b-1a8980e0e94f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Monster">
+      <UniqueIdentifier>{780089c9-8c76-46d1-87b4-194292cea354}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Item">
+      <UniqueIdentifier>{db45d18f-3d2b-43ef-8c82-195c9efd953a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp">
@@ -93,11 +99,20 @@
     <ClCompile Include="SkillManager.cpp">
       <Filter>Data\Skill</Filter>
     </ClCompile>
-    <ClCompile Include="SkillTypes.cpp">
+    <ClCompile Include="SkillValue.cpp">
       <Filter>Data\Skill</Filter>
     </ClCompile>
     <ClCompile Include="Monster.cpp">
       <Filter>GameContents\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="CompareUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterManager.cpp">
+      <Filter>Data\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemManager.cpp">
+      <Filter>Data\Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -152,11 +167,20 @@
     <ClInclude Include="SkillManager.h">
       <Filter>Data\Skill</Filter>
     </ClInclude>
-    <ClInclude Include="SkillTypes.h">
+    <ClInclude Include="SkillValue.h">
       <Filter>Data\Skill</Filter>
     </ClInclude>
     <ClInclude Include="Monster.h">
       <Filter>GameContents\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="CompareUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterManager.h">
+      <Filter>Data\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemManager.h">
+      <Filter>Data\Item</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

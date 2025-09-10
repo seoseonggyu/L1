@@ -1,17 +1,16 @@
 #pragma once
 
-#include "SkillTypes.h"
+#include "SkillValue.h"
 
 class SkillManager
 {
 public:
-    void Add(const SkillRow& row);
-    const SkillRow* Get(Protocol::CharacterClassType classType, Protocol::SkillType skillType) const;
-    bool TryGet(Protocol::CharacterClassType classType, Protocol::SkillType skillType, SkillRow& out) const;
-    std::vector<SkillRow> GetAllOfClass(Protocol::CharacterClassType classType) const;
+	void Add(Protocol::CharacterClassType classType, SkillValue value);
+	void GetSkills(Protocol::CharacterClassType classType, Vector<SkillValue>& outValues);
 
-    size_t GetSize() { return _skills.size(); }
+
+	size_t GetSize() { return _skills.size(); }
 
 private:
-    std::unordered_map<SkillKey::Key, SkillRow> _skills;
+	multimap<Protocol::CharacterClassType, SkillValue> _skills;
 };

@@ -1,33 +1,17 @@
 #include "pch.h"
 #include "SkillManager.h"
 
-void SkillManager::Add(const SkillRow& row)
+void SkillManager::Add(Protocol::CharacterClassType classType, SkillValue value)
 {
-	const auto k = SkillKey::Make(row.classType, row.skillType);
-	_skills.emplace(k, row);
+	_skills.insert(make_pair(classType, value));
 }
 
-const SkillRow* SkillManager::Get(Protocol::CharacterClassType classType, Protocol::SkillType skillType) const
+void SkillManager::GetSkills(Protocol::CharacterClassType classType, Vector<SkillValue>& outValues)
 {
-    const auto k = SkillKey::Make(static_cast<int>(classType), static_cast<int>(skillType));
-    auto it = _skills.find(k);
-    if (it == _skills.end()) return nullptr;
-    else return &it->second;
-}
+	auto rangeIter = _skills.equal_range(classType);
 
-bool SkillManager::TryGet(Protocol::CharacterClassType classType, Protocol::SkillType skillType, SkillRow& out) const
-{
-    if (auto p = Get(classType, skillType)) { out = *p; return true; }
-    return false;
-}
-
-std::vector<SkillRow> SkillManager::GetAllOfClass(Protocol::CharacterClassType classType) const
-{
-    std::vector<SkillRow> ret;
-    for (int st = 1; st <= 2; ++st)
-    {
-        if (auto p = Get(classType, static_cast<Protocol::SkillType>(st)))
-            ret.push_back(*p);
-    }
-    return ret;
+	for (auto iter = rangeIter.first; iter != rangeIter.second; ++iter)
+	{
+		outValues.push_back(iter->second);
+	}
 }

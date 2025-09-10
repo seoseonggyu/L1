@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameDB>
 	<Table name="character_class" desc="캐릭터 직업 능력치 테이블">
-		<Column name="classType" type="int" notnull="true" />
 		<Column name="className" type="nvarchar(20)" notnull="true" />
 		<Column name="hp" type="float" notnull="true" />
 		<Column name="mp" type="float" notnull="true" />
@@ -11,11 +10,10 @@
 		<Column name="intelligence" type="float" notnull="true" />
 	</Table>
 
-	<Table name="skills" desc="캐릭터 스킬 테이블(간단형)">
+	<Table name="skills" desc="캐릭터 스킬 테이블">
 		<Column name="skill_id"               type="int"            notnull="true" identity="1,1" />
-		<Column name="classType"              type="int"            notnull="true" />
-		<Column name="skillType"              type="int"            notnull="true" />
-		<Column name="skill_code"             type="nvarchar(64)"   notnull="true" />
+		<Column name="className"              type="nvarchar(20)"	notnull="true" />
+		<Column name="skillType"              type="nvarchar(20)"   notnull="true" />
 		<Column name="skill_name"             type="nvarchar(100)"  notnull="true" />
 		<Column name="description"            type="nvarchar(1000)" notnull="true" />
 
@@ -31,25 +29,45 @@
 		<Column name="dot_maxhp_pct_per_sec"  type="float" notnull="false" />
 		<Column name="dot_duration_sec"       type="float" notnull="false" />
 		
-
 		<Index type="clustered">
 			<PrimaryKey/>
 			<Column name="skill_id" />
 		</Index>
+	</Table>
 
-		<Index type="nonclustered">
-			<UniqueKey/>
-			<Column name="classType" />
-			<Column name="skillType" />
+	<Table name ="monsters" desc ="몬스터 정보 테이블">
+		<Column name="monster_id"	type="int"				notnull="true" identity="10000,1" />
+		<Column name="monsterName"  type="nvarchar(20)"		notnull="true" />
+		<Column name="hp"			type="float"			notnull="true" />
+		<Column name="damage"		type="float"			notnull="true" />
+
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="monster_id" />
 		</Index>
 	</Table>
 
+	<Table name ="items" desc ="아이템 정보 테이블">
+		<Column name="item_id"		type="int"					notnull="true"/>
+		<Column name="itemName"		type="nvarchar(20)"			notnull="true" />
+		<Column name="damage"		type="float"				notnull="false" />
+		<Column name="strength"		type="float"				notnull="false" />
+		<Column name="defense"		type="float"				notnull="false" />
+		<Column name="agility"		type="float"				notnull="false" />
+		<Column name="intelligence" type="float"				notnull="false" />
+
+		<Index type="clustered">
+			<PrimaryKey/>
+			<Column name="item_id" />
+		</Index>
+	</Table>
+	
 	<Procedure name="spGetAllCharacterClass">
 		<Body>
 			<![CDATA[
-			SELECT classType, className, hp, mp, strength, defense, agility, intelligence
+			SELECT className, hp, mp, strength, defense, agility, intelligence
 			FROM [dbo].[character_class]
-			ORDER BY classType;
+			ORDER BY className;
 			]]>
 		</Body>
 	</Procedure>
@@ -58,15 +76,36 @@
 		<Body>
 			<![CDATA[
             SELECT
-                skill_id, classType, skillType, skill_code, skill_name, description,
+                skill_id, className, skillType, skill_name, description,
                 damage_flat, stun_sec, movespeed_pct, attackspeed_pct, dmg_reduction_pct,
                 attack_power_flat, cooldown_reduction_sec, lifesteal_pct, slow_pct,
                 dot_maxhp_pct_per_sec, dot_duration_sec
             FROM [dbo].[skills]
-            ORDER BY classType, skillType;
+            ORDER BY skill_id;
             ]]>
 		</Body>
 	</Procedure>
+
+	<Procedure name="spGetAllMonsters">
+		<Body>
+			<![CDATA[
+			SELECT monster_id, monsterName, hp, damage
+			FROM [dbo].[monsters]
+			ORDER BY monster_id;
+			]]>
+		</Body>
+	</Procedure>
+
+	<Procedure name="spGetAllItems">
+		<Body>
+			<![CDATA[
+			SELECT item_id, itemName, damage, strength, defense, agility, intelligence
+			FROM [dbo].[items]
+			ORDER BY item_id;
+			]]>
+		</Body>
+	</Procedure>
+	
 </GameDB>
 
 <!--<GameDB>

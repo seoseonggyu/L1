@@ -461,9 +461,46 @@ void UL1NetworkManager::SpawnMonster(const Protocol::ObjectInfo& ObjectInfo)
 		if (EffectSpecHandle.IsValid())
 		{
 			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
+			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 		}
 
-		ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	}
+}
+
+void UL1NetworkManager::SpawnMonster(EMonsterType MonsterType)
+{
+	const UL1MonsterData& MonsterData = ULyraAssetManager::Get().GetMonsterData();
+	ULyraPawnData* PawnData = MonsterData.GetPawnData(MonsterType);
+	if (PawnData == nullptr) return;
+
+	FVector SpawnLocation(100.f, 0.f, 0.f);
+	ALyraCharacter* Monster = nullptr;
+	Monster = Cast<AL1MonsterCharacter>(GetWorld()->SpawnActor(PawnData->PawnClass, &SpawnLocation));
+	if (Monster == nullptr) return;
+
+	for (ULyraAbilitySet* AbilitySet : PawnData->AbilitySets)
+	{
+		if (AbilitySet && Monster->GetLyraAbilitySystemComponent())
+		{
+			AbilitySet->GiveToAbilitySystem(Monster->GetLyraAbilitySystemComponent(), nullptr);
+		}
+	}
+
+	Monster->SetActorLocation(SpawnLocation);
+	SetOverHeadWidget(Monster);
+
+	if (UAbilitySystemComponent* ASC = Monster->GetAbilitySystemComponent())
+	{
+		float Helath = 50.f;
+
+		TSubclassOf<UGameplayEffect> InitialGE = ULyraAssetManager::GetSubclassByPath(ULyraGameData::Get().InitialGameplayEffect_SetByCaller);
+		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
+		if (EffectSpecHandle.IsValid())
+		{
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
+			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		}
+
 	}
 }
 

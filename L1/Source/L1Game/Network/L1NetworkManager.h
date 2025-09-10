@@ -69,6 +69,9 @@ private:
 	void SpawnPlayer(const Protocol::ObjectInfo& ObjectInfo, bool IsMine);
 	void SpawnMonster(const Protocol::ObjectInfo& ObjectInfo);
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnMonster(EMonsterType MonsterType);
+
 private:
 	void SetOverHeadWidget(ALyraCharacter* Object);
 	void SetInitObjectInfo(ALyraCharacter* Object, const Protocol::ObjectInfo& ObjectInfo);

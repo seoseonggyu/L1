@@ -176,6 +176,7 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClassManager.cpp" />
+    <ClCompile Include="CompareUtils.cpp" />
     <ClCompile Include="Enum.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -186,7 +187,9 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
     <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="GameSessionManager.cpp" />
     <ClCompile Include="InitManager.cpp" />
+    <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="MonsterManager.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectUtils.cpp" />
     <ClCompile Include="pch.cpp">
@@ -205,7 +208,7 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
     </ClCompile>
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="SkillManager.cpp" />
-    <ClCompile Include="SkillTypes.cpp" />
+    <ClCompile Include="SkillValue.cpp" />
     <ClCompile Include="Struct.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -217,11 +220,14 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassManager.h" />
+    <ClInclude Include="CompareUtils.h" />
     <ClInclude Include="Enum.pb.h" />
     <ClInclude Include="GameSession.h" />
     <ClInclude Include="GameSessionManager.h" />
     <ClInclude Include="InitManager.h" />
+    <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Monster.h" />
+    <ClInclude Include="MonsterManager.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectUtils.h" />
     <ClInclude Include="pch.h" />
@@ -230,7 +236,7 @@ CALL $(SolutionDir)Common\Procedures\GenProcs.bat</Command>
     <ClInclude Include="Protocol.pb.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="SkillManager.h" />
-    <ClInclude Include="SkillTypes.h" />
+    <ClInclude Include="SkillValue.h" />
     <ClInclude Include="Struct.pb.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="FVector3.h" />

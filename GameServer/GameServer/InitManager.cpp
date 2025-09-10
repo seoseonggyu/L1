@@ -3,16 +3,19 @@
 #include "ClassManager.h"
 #include "GameSessionManager.h"
 #include "SkillManager.h"
+#include "MonsterManager.h"
+#include "ItemManager.h"
 #include "ClientPacketHandler.h"
 
 #include "DBConnectionPool.h"
 #include "DBSynchronizer.h"
 #include "GenProcedures.h"
 
-
 ClassManager*		GClassManager = nullptr;
 GameSessionManager* GSessionManager = nullptr;
 SkillManager*		GSkillManager = nullptr;
+MonsterManager*     GMonsterManager = nullptr;
+ItemManager*        GItemManager = nullptr;
 
 
 InitManager::InitManager()
@@ -20,6 +23,8 @@ InitManager::InitManager()
 	GClassManager	= new ClassManager();
 	GSessionManager = new GameSessionManager();
 	GSkillManager	= new SkillManager();
+    GMonsterManager = new MonsterManager();
+    GItemManager =  new ItemManager();
 
 	ClientPacketHandler::Init();
 
@@ -31,6 +36,8 @@ InitManager::~InitManager()
 	delete GClassManager;
 	delete GSessionManager;
 	delete GSkillManager;
+	delete GMonsterManager;
+	delete GItemManager;
 }
 
 void InitManager::LoadFromDB()
@@ -38,6 +45,8 @@ void InitManager::LoadFromDB()
 	ConnectAndSync();
 	LoadCharacterClass();
 	LoadSkills();
+    LoadMonsters();
+    LoadItems();
 }
 
 void InitManager::ConnectAndSync()
@@ -55,7 +64,6 @@ void InitManager::LoadCharacterClass()
 	DBConnectionPoolGuard dbConn(*GDBConnectionPool);
 	SP::GetAllCharacterClass getClass(*dbConn);
 
-	int32 classType = 0;
 	WCHAR className[40];
     float hp = 0.f;
     float mp = 0.f;
@@ -64,7 +72,6 @@ void InitManager::LoadCharacterClass()
 	float agility = 0.f;
 	float intelligence = 0.f;
 
-	getClass.Out_ClassType(classType);
 	getClass.Out_ClassName(className);
     getClass.Out_Hp(hp);
     getClass.Out_Mp(mp);
@@ -79,8 +86,8 @@ void InitManager::LoadCharacterClass()
 	{
 		GConsoleLogger->WriteStdOut(
 			Color::BLUE,
-			L"classType[%d] className[%ls], hp[%.2f], mp[%.2f] str[%.2f] def[%.2f] agi[%.2f] inte[%.2f]\n",
-			classType, className, hp, mp, strength, defense, agility, intelligence
+			L"className[%ls], hp[%.2f], mp[%.2f] str[%.2f] def[%.2f] agi[%.2f] inte[%.2f]\n",
+			className, hp, mp, strength, defense, agility, intelligence
         );
 
         Protocol::VitalInfo vitalInfo;
@@ -95,8 +102,10 @@ void InitManager::LoadCharacterClass()
 		statInfo.set_agility(agility);
         statInfo.set_intelligence(intelligence);
 
-        GClassManager->AddVital(static_cast<Protocol::CharacterClassType>(classType), vitalInfo);
-        GClassManager->AddStat(static_cast<Protocol::CharacterClassType>(classType), statInfo);
+        Protocol::CharacterClassType classType = CompareUtils::StringToClassName(className);
+        
+        GClassManager->AddVital(classType, vitalInfo);
+        GClassManager->AddStat(classType, statInfo);
 	}
 }
 
@@ -106,12 +115,10 @@ void InitManager::LoadSkills()
     SP::GetAllSkills getSkills(*dbConn);
 
     int32  skill_id = 0;
-    int32  classType = 0;
-    int32  skillType = 0;
-
-    WCHAR  skill_code[64] = { 0 };
-    WCHAR  skill_name[1000] = { 0 };
-    WCHAR  description[1000] = { 0 };
+    WCHAR  className[40]{};
+    WCHAR  skillType[40]{};
+    WCHAR  skill_name[100]{};
+    WCHAR  description[1000]{};
 
     float  damage_flat = 0;
     float  stun_sec = 0.f;
@@ -126,9 +133,8 @@ void InitManager::LoadSkills()
     float  dot_duration_sec = 0.f;
 
     getSkills.Out_Skill_id(skill_id);
-    getSkills.Out_ClassType(classType);
+    getSkills.Out_ClassName(className);
     getSkills.Out_SkillType(skillType);
-    getSkills.Out_Skill_code(skill_code);
     getSkills.Out_Skill_name(skill_name);
     getSkills.Out_Description(description);
 
@@ -150,51 +156,31 @@ void InitManager::LoadSkills()
     {
         GConsoleLogger->WriteStdOut(
             Color::GREEN,
-            L"[Skill] classType[%d] skillType[%d] code[%ls] name[%ls]\n",
-            classType, skillType, skill_code, skill_name
+            L"className[%ls] skillType[%ls]  name[%ls]\n",
+            className, skillType, skill_name
         );
+        SkillValue value;
+        value.skillID = skill_id;
+        value.className = className;
+        value.skillType = skillType;
+        value.skillName = skill_name;
+        value.description = description;
 
-        if (damage_flat != 0)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - damage_flat: %.2f\n", damage_flat);
-        if (stun_sec > 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - stun_sec: %.2f\n", stun_sec);
-        if (movespeed_pct != 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - movespeed_pct: %.2f%%\n", movespeed_pct);
-        if (attackspeed_pct != 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - attackspeed_pct: %.2f%%\n", attackspeed_pct);
-        if (dmg_reduction_pct != 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - dmg_reduction_pct: %.2f%%\n", dmg_reduction_pct);
-        if (attack_power_flat != 0)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - attack_power_flat: %.2f\n", attack_power_flat);
-        if (cooldown_reduction_sec != 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - cooldown_reduction_sec: %.2fs\n", cooldown_reduction_sec);
-        if (lifesteal_pct != 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - lifesteal_pct: %.2f%%\n", lifesteal_pct);
-        if (slow_pct != 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - slow_pct: %.2f%%\n", slow_pct);
-        if (dot_maxhp_pct_per_sec != 0.f || dot_duration_sec != 0.f)
-            GConsoleLogger->WriteStdOut(Color::GREEN, L"  - dot: %.2f%%/sec for %.2fs\n", dot_maxhp_pct_per_sec, dot_duration_sec);
+        if (damage_flat != 0)                 value.damage_flat = damage_flat;
+        if (stun_sec > 0.f)                   value.stun_sec = stun_sec;
+        if (movespeed_pct != 0.f)             value.movespeed_pct = movespeed_pct;
+        if (attackspeed_pct != 0.f)           value.attackspeed_pct = attackspeed_pct;
+        if (dmg_reduction_pct != 0.f)         value.dmg_reduction_pct = dmg_reduction_pct;
+        if (attack_power_flat != 0)           value.attack_power_flat = attack_power_flat;
+        if (cooldown_reduction_sec != 0.f)    value.cooldown_reduction_sec = cooldown_reduction_sec;
+        if (lifesteal_pct != 0.f)             value.lifesteal_pct = lifesteal_pct;
+        if (slow_pct != 0.f)                  value.slow_pct = slow_pct;
+        if (dot_maxhp_pct_per_sec != 0.f)     value.dot_maxhp_pct_per_sec = dot_maxhp_pct_per_sec;
+        if (dot_duration_sec != 0.f)          value.dot_duration_sec = dot_duration_sec;
 
-        SkillRow row;
-        row.classType = classType;
-        row.skillType = skillType;
-        row.skillCode = skill_code;
-        row.skillName = skill_name;
-        row.description = description;
+        Protocol::CharacterClassType classType = CompareUtils::StringToClassName(className);
 
-        if (damage_flat != 0)                 row.damage_flat = damage_flat;
-        if (stun_sec > 0.f)                   row.stun_sec = stun_sec;
-        if (movespeed_pct != 0.f)             row.movespeed_pct = movespeed_pct;
-        if (attackspeed_pct != 0.f)           row.attackspeed_pct = attackspeed_pct;
-        if (dmg_reduction_pct != 0.f)         row.dmg_reduction_pct = dmg_reduction_pct;
-        if (attack_power_flat != 0)           row.attack_power_flat = attack_power_flat;
-        if (cooldown_reduction_sec != 0.f)    row.cooldown_reduction_sec = cooldown_reduction_sec;
-        if (lifesteal_pct != 0.f)             row.lifesteal_pct = lifesteal_pct;
-        if (slow_pct != 0.f)                  row.slow_pct = slow_pct;
-        if (dot_maxhp_pct_per_sec != 0.f)     row.dot_maxhp_pct_per_sec = dot_maxhp_pct_per_sec;
-        if (dot_duration_sec != 0.f)          row.dot_duration_sec = dot_duration_sec;
-
-        GSkillManager->Add(row);
+        GSkillManager->Add(classType, value);
 
         // DB에서 NULL 값을 허용해서 0으로 초기화
         damage_flat = 0;
@@ -211,4 +197,99 @@ void InitManager::LoadSkills()
 
     }
     GConsoleLogger->WriteStdOut(Color::BLUE, L"[Skill] total cached: %d\n", GSkillManager->GetSize());
+}
+
+void InitManager::LoadMonsters()
+{
+    DBConnectionPoolGuard dbConn(*GDBConnectionPool);
+    SP::GetAllMonsters getMonsters(*dbConn);
+
+    int32 monsterID = 0;
+    WCHAR monsterName[40]{};
+    float hp = 0;
+    float damage = 0;
+
+    getMonsters.Out_Monster_id(monsterID);
+    getMonsters.Out_MonsterName(monsterName);
+    getMonsters.Out_Hp(hp);
+    getMonsters.Out_Damage(damage);
+
+    getMonsters.Execute();
+
+    while (getMonsters.Fetch())
+    {
+        GConsoleLogger->WriteStdOut(
+            Color::WHITE,
+            L"monsterName[%ls], hp[%.2f], damage[%.2f] \n",
+            monsterName, hp, damage
+        );
+
+        MonsterInfo monsterInfo;
+        monsterInfo.monsterID = monsterID;
+        monsterInfo.monsterName = monsterName;
+        monsterInfo.hp = hp;
+        monsterInfo.damage = damage;
+
+        Protocol::MonsterType monsterType = CompareUtils::StringToMonsterName(monsterName);
+        GMonsterManager->Add(monsterType, monsterInfo);
+    }
+}
+
+void InitManager::LoadItems()
+{
+    DBConnectionPoolGuard dbConn(*GDBConnectionPool);
+    SP::GetAllItems getItems(*dbConn);
+
+    int32 item_id = 0;
+    WCHAR itemName[40]{};
+
+    float damage = 0.f;
+    float strength = 0.f;
+    float defense = 0.f;
+    float agility = 0.f;
+    float intelligence = 0.f;
+
+
+    getItems.Out_Item_id(item_id);
+    getItems.Out_ItemName(itemName);
+    getItems.Out_Damage(damage);
+    getItems.Out_Strength(strength);
+    getItems.Out_Defense(defense);
+    getItems.Out_Agility(agility);
+    getItems.Out_Intelligence(intelligence);
+
+    getItems.Execute();
+
+    while (getItems.Fetch())
+    {
+        /*GConsoleLogger->WriteStdOut(
+            Color::GREEN,
+            L"itemName[%ls] damage[%.2f]  strength[%.2f]  defense[%.2f]  agility[%.2f]  intelligence[%.2f]\n",
+            itemName, damage, strength, defense, agility, intelligence
+        );*/
+
+        ItemInfo itemInfo;
+        itemInfo.itemID = item_id;
+        itemInfo.itemName = itemName;
+
+        itemInfo.damage = damage;
+        itemInfo.strength = strength;
+        itemInfo.defense = defense;
+        itemInfo.agility = agility;
+        itemInfo.intelligence = intelligence;
+
+        if (damage != 0)            itemInfo.damage = damage;
+        if (strength > 0.f)         itemInfo.strength = strength;
+        if (defense != 0.f)         itemInfo.defense = defense;
+        if (agility != 0.f)         itemInfo.agility = agility;
+        if (intelligence != 0.f)    itemInfo.intelligence = intelligence;
+
+        damage = 0.f;
+        strength = 0.f;
+        defense = 0.f;
+        agility = 0.f;
+        intelligence = 0.f;
+
+        GItemManager->Add(item_id, itemInfo);
+    }
 }
