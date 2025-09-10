@@ -348,33 +348,37 @@ void ALyraCharacter::DisableMovementAndCollision()
 		Controller->SetIgnoreMoveInput(true);
 	}
 
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	check(CapsuleComp);
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionResponseToAllChannels(ECR_Ignore);
+		Capsule->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+		Capsule->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+	}
 
-	ULyraCharacterMovementComponent* LyraMoveComp = CastChecked<ULyraCharacterMovementComponent>(GetCharacterMovement());
-	LyraMoveComp->StopMovementImmediately();
-	LyraMoveComp->DisableMovement();
+	if (USkeletalMeshComponent* SkeletalMesh = GetMesh())
+	{
+		// SkeletalMesh->SetCollisionResponseToChannel(D1_TraceChannel_Interaction, ECR_Block);
+	}
+
+	if (ULyraCharacterMovementComponent* LyraCharacterMovement = Cast<ULyraCharacterMovementComponent>(GetCharacterMovement()))
+	{
+		LyraCharacterMovement->Velocity = FVector(0.f, 0.f, LyraCharacterMovement->Velocity.Z);
+		LyraCharacterMovement->UpdateComponentVelocity();
+	}
+
+	SetOverHeadWidget(nullptr);
+	// bUseControllerRotationYaw = false;
 }
 
 void ALyraCharacter::DestroyDueToDeath()
 {
 	K2_OnDeathFinished();
-
 	UninitAndDestroy();
 }
 
 
 void ALyraCharacter::UninitAndDestroy()
 {
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		DetachFromControllerPendingDestroy();
-		SetLifeSpan(0.1f);
-	}
-
-	// Uninitialize the ASC if we're still the avatar actor (otherwise another pawn already did it when they became the avatar actor)
 	if (ULyraAbilitySystemComponent* LyraASC = GetLyraAbilitySystemComponent())
 	{
 		if (LyraASC->GetAvatarActor() == this)
@@ -382,8 +386,8 @@ void ALyraCharacter::UninitAndDestroy()
 			PawnExtComponent->UninitializeAbilitySystem();
 		}
 	}
-
-	SetActorHiddenInGame(true);
+	DetachFromControllerPendingDestroy();
+	// SetLifeSpan(0.1f);
 }
 
 void ALyraCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
