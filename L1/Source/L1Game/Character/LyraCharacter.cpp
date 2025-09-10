@@ -59,7 +59,7 @@ ALyraCharacter::ALyraCharacter(const FObjectInitializer& ObjectInitializer)
 	LyraMoveComp->GroundFriction = 8.0f;
 	LyraMoveComp->BrakingDecelerationWalking = 1400.0f;
 	LyraMoveComp->bUseControllerDesiredRotation = false;
-	LyraMoveComp->bOrientRotationToMovement = false;
+	LyraMoveComp->bOrientRotationToMovement = false; 
 	LyraMoveComp->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 	LyraMoveComp->bAllowPhysicsRotationDuringAnimRootMotion = false;
 	LyraMoveComp->GetNavAgentPropertiesRef().bCanCrouch = true;
@@ -159,46 +159,6 @@ void ALyraCharacter::Reset()
 void ALyraCharacter::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
-}
-
-void ALyraCharacter::Highlight()
-{
-	if (UL1CosmeticManagerComponent* CosmeitcManagerComponent = FindComponentByClass<UL1CosmeticManagerComponent>())
-	{
-		TArray<UMeshComponent*> OutMeshComponents;
-		CosmeitcManagerComponent->GetMeshComponents(OutMeshComponents);
-		for (UMeshComponent* LocalMesh : OutMeshComponents)
-		{
-			LocalMesh->SetRenderCustomDepth(true);
-			LocalMesh->SetCustomDepthStencilValue(250);
-		}
-	}
-	else
-	{
-		GetMesh()->SetRenderCustomDepth(true);
-	}
-
-	bHighlighted = true;
-}
-
-void ALyraCharacter::UnHighlight()
-{
-	if (UL1CosmeticManagerComponent* CosmeitcManagerComponent = FindComponentByClass<UL1CosmeticManagerComponent>())
-	{
-		TArray<UMeshComponent*> OutMeshComponents;
-		CosmeitcManagerComponent->GetMeshComponents(OutMeshComponents);
-		for (UMeshComponent* LocalMesh : OutMeshComponents)
-		{
-			LocalMesh->SetRenderCustomDepth(false);
-		}
-	}
-	else
-	{
-		GetMesh()->SetRenderCustomDepth(false);
-	}
-
-
-	bHighlighted = false;
 }
 
 ALyraPlayerController* ALyraCharacter::GetLyraPlayerController() const

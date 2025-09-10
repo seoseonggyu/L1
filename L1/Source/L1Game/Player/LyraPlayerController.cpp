@@ -113,8 +113,6 @@ void ALyraPlayerController::PlayerTick(float DeltaTime)
 			}
 		}
 	}
-
-	TickCursorTrace();
 }
 
 ALyraPlayerState* ALyraPlayerController::GetLyraPlayerState() const
@@ -415,52 +413,6 @@ FGenericTeamId ALyraPlayerController::GetGenericTeamId() const
 FOnLyraTeamIndexChangedDelegate* ALyraPlayerController::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate;
-}
-
-void ALyraPlayerController::TickCursorTrace()
-{
-	FHitResult Hit;
-	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit) == false)  return;
-
-	// SSG: 여기서 깔끔하게 정리해야함
-	if (ALyraCharacter* LocalHighlightActor = Cast<ALyraCharacter>(Hit.GetActor()))
-	{
-		if (HighlightActorItem) HighlightActorItem->UnHighlight();
-		
-		if (HighlightActor)
-		{
-			if (HighlightActor != LocalHighlightActor)
-			{
-				HighlightActor->UnHighlight();
-			}
-		}
-		LocalHighlightActor->Highlight();
-		HighlightActor = LocalHighlightActor;
-	}
-	else
-	{
-		if (AL1PickupableItemBase* LocalHighlightItem = Cast<AL1PickupableItemBase>(Hit.GetActor()))
-		{
-			if (HighlightActor) HighlightActor->UnHighlight();
-
-			if (HighlightActorItem)
-			{
-				if (HighlightActorItem != LocalHighlightItem)
-				{
-					HighlightActorItem->UnHighlight();
-					LocalHighlightItem->Highlight();
-				}
-			}
-			LocalHighlightItem -> Highlight();
-			HighlightActorItem = LocalHighlightItem;
-		}
-		else
-		{
-			if(HighlightActor) HighlightActor->UnHighlight();
-			if(HighlightActorItem)HighlightActorItem->UnHighlight();
-		}
-	}
-
 }
 
 void ALyraPlayerController::OnUnPossess()

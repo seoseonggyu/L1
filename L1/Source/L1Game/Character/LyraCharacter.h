@@ -11,7 +11,6 @@
 #include "Protocol.pb.h"
 #include "L1Define.h"
 #include "AbilitySystem/LyraAbilitySet.h"
-#include "Interface/L1HighlightInterface.h"
 #include "LyraCharacter.generated.h"
 
 class AActor;
@@ -40,7 +39,7 @@ struct FGameplayTagContainer;
  *	New behavior should be added via pawn components when possible.
  */
 UCLASS(Config = Game, Meta = (ShortTooltip = "The base character pawn class used by this project."))
-class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public IL1Interactable, public IL1HighlightInterface
+class L1GAME_API ALyraCharacter : public AModularCharacter, public IAbilitySystemInterface, public IGameplayCueInterface, public IGameplayTagAssetInterface, public IL1Interactable
 {
 	GENERATED_BODY()
 
@@ -75,12 +74,6 @@ public:
 	//~APawn interface
 	virtual void NotifyControllerChanged() override;
 	//~End of APawn interface
-
-	//~HighlightInterface interface
-	virtual void Highlight() override;
-	virtual void UnHighlight() override;
-	//~End of HighlightInterface interface
-
 public:
 	void SetOverHeadWidget(TSubclassOf<UUserWidget> InWidgetClass);
 
@@ -173,9 +166,6 @@ public:
 
 	UPROPERTY()
 	ECharacterClassType CharacterClassType = ECharacterClassType::Count;
-	FLyraAbilitySet_GrantedHandles AbilitySetGrantedHandles;
 
-protected:
-	UPROPERTY(BlueprintReadOnly)
-	bool bHighlighted = false;
+	FLyraAbilitySet_GrantedHandles AbilitySetGrantedHandles;
 };

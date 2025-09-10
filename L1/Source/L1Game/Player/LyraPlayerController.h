@@ -89,9 +89,6 @@ public:
 	//~End of ILyraTeamAgentInterface interface
 
 private:
-	void TickCursorTrace();
-
-private:
 	UPROPERTY()
 	FOnLyraTeamIndexChangedDelegate OnTeamChangedDelegate;
 
@@ -124,15 +121,6 @@ protected:
 	void K2_OnEndAutoRun();
 
 	bool bHideViewTargetPawnNextFrame = false;
-
-protected:
-	// SSG: 이 부분을 여기서 하는게 아니라 GA만들자
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<class ALyraCharacter> TargerActor;
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<class ALyraCharacter> HighlightActor;
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<class AL1PickupableItemBase> HighlightActorItem;
 
 };
 

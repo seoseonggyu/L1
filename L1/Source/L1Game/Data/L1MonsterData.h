@@ -4,7 +4,6 @@
 #include "L1MonsterData.generated.h"
 
 class ULyraPawnData;
-class AAIController;
 
 UCLASS(BlueprintType, Const, meta=(DisplayName="L1 Monster Data"))
 class UL1MonsterData : public UPrimaryDataAsset

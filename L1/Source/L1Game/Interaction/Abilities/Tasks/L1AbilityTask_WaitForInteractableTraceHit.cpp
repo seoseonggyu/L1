@@ -12,12 +12,10 @@ UL1AbilityTask_WaitForInteractableTraceHit::UL1AbilityTask_WaitForInteractableTr
     
 }
 
-UL1AbilityTask_WaitForInteractableTraceHit* UL1AbilityTask_WaitForInteractableTraceHit::WaitForInteractableTraceHit(UGameplayAbility* OwningAbility, FL1InteractionQuery InteractionQuery, ECollisionChannel TraceChannel, FGameplayAbilityTargetingLocationInfo StartLocation, float InteractionTraceRange, float InteractionTraceRate, bool bShowDebug)
+UL1AbilityTask_WaitForInteractableTraceHit* UL1AbilityTask_WaitForInteractableTraceHit::WaitForInteractableTraceHit(UGameplayAbility* OwningAbility, FL1InteractionQuery InteractionQuery, ECollisionChannel TraceChannel, float InteractionTraceRate, bool bShowDebug)
 {
 	UL1AbilityTask_WaitForInteractableTraceHit* Task = NewAbilityTask<UL1AbilityTask_WaitForInteractableTraceHit>(OwningAbility);
-	Task->InteractionTraceRange = InteractionTraceRange;
 	Task->InteractionTraceRate = InteractionTraceRate;
-	Task->StartLocation = StartLocation;
 	Task->InteractionQuery = InteractionQuery;
 	Task->TraceChannel = TraceChannel;
 	Task->bShowDebug = bShowDebug;
@@ -51,20 +49,18 @@ void UL1AbilityTask_WaitForInteractableTraceHit::PerformTrace()
 	AActor* AvatarActor = Ability->GetCurrentActorInfo()->AvatarActor.Get();
 	if (AvatarActor == nullptr)
 		return;
-	
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(AvatarActor);
-	AvatarActor->GetAttachedActors(ActorsToIgnore, false, true);
 
-	FCollisionQueryParams Params(SCENE_QUERY_STAT(L1AbilityTask_WaitForInteractableTraceHit), false);
-	Params.AddIgnoredActors(ActorsToIgnore);
-
-	FVector TraceStart = StartLocation.GetTargetingTransform().GetLocation();
-	FVector TraceEnd;
-	AimWithPlayerController(AvatarActor, Params, TraceStart, InteractionTraceRange, TraceEnd);
+	APlayerController* PlayerController = Ability->GetCurrentActorInfo()->PlayerController.Get();
+	if (PlayerController == nullptr)
+		return;
 
 	FHitResult HitResult;
-	LineTrace(TraceStart, TraceEnd, Params, HitResult);
+	if (PlayerController->GetHitResultUnderCursor(TraceChannel, true, HitResult) == false)
+	{
+		HighlightInteractables(CurrentInteractionInfos, false);
+		CurrentInteractionInfos.Empty();
+		return;
+	}
 
 	TArray<TScriptInterface<IL1Interactable>> Interactables;
 	TScriptInterface<IL1Interactable> InteractableActor(HitResult.GetActor());
@@ -80,94 +76,22 @@ void UL1AbilityTask_WaitForInteractableTraceHit::PerformTrace()
 	}
 
 	UpdateInteractionInfos(InteractionQuery, Interactables);
-
-#if ENABLE_DRAW_DEBUG
-	if (bShowDebug)
-	{
-		FColor DebugColor = HitResult.bBlockingHit ? FColor::Red : FColor::Green;
-		if (HitResult.bBlockingHit)
-		{
-			DrawDebugLine(GetWorld(), TraceStart, HitResult.Location, DebugColor, false, InteractionTraceRate);
-			DrawDebugSphere(GetWorld(), HitResult.Location, 5.f, 16, DebugColor, false, InteractionTraceRate);
-		}
-		else
-		{
-			DrawDebugLine(GetWorld(), TraceStart, TraceEnd, DebugColor, false, InteractionTraceRate);
-		}
-	}
-#endif // ENABLE_DRAW_DEBUG
 }
 
-void UL1AbilityTask_WaitForInteractableTraceHit::AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, float MaxRange, FVector& OutTraceEnd, bool bIgnorePitch) const
+void UL1AbilityTask_WaitForInteractableTraceHit::HighlightInteractables(const TArray<FL1InteractionInfo>& InteractionInfos, bool bShouldHighlight)
 {
-	if (Ability == nullptr)
-		return;
-	
-	APlayerController* PlayerController = Ability->GetCurrentActorInfo()->PlayerController.Get();
-	if (PlayerController == nullptr)
-		return;
-
-	FVector CameraStart;
-	FRotator CameraRotation;
-	PlayerController->GetPlayerViewPoint(CameraStart, CameraRotation);
-
-	const FVector CameraDirection = CameraRotation.Vector();
-	FVector CameraEnd = CameraStart + (CameraDirection * MaxRange);
-
-	// 카메라 방향의 Ray를 플레이어 위치 기준의 인터렉션 가능 범위(Sphere) 이내로 제한한다
-	ClipCameraRayToAbilityRange(CameraStart, CameraDirection, TraceStart, MaxRange, CameraEnd);
-
-	FHitResult HitResult;
-	LineTrace(CameraStart, CameraEnd, Params, HitResult);
-
-	// 1. Hit된 물체가 인터렉션 가능 범위(Sphere) 이내라면, Hit 위치를 AdjustedEnd로 정한다.
-	// 2. Hit된 물체가 없거나 Hit된 물체가 인터렉션 가능 범위(Sphere)를 벗어 났다면, Hit 위치를 무시하고 Clip된 CameraEnd를 AdjustedEnd로 정한다.
-	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
-	const FVector AdjustedEnd = bUseTraceResult ? HitResult.Location : CameraEnd;
-
-	FVector AdjustedAimDir = (AdjustedEnd - TraceStart).GetSafeNormal();
-	if (AdjustedAimDir.IsZero())
+	TArray<UMeshComponent*> MeshComponents;
+	for (const FL1InteractionInfo& InteractionInfo : InteractionInfos)
 	{
-		AdjustedAimDir = CameraDirection;
-	}
-
-	// 플레이어에서 AdjustedAimDir 방향으로 최대 인터렉션 가능 범위(Sphere의 표면)까지 확장한 위치를 TraceEnd로 사용한다.
-	OutTraceEnd = TraceStart + (AdjustedAimDir * MaxRange);
-}
-
-bool UL1AbilityTask_WaitForInteractableTraceHit::ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& OutClippedPosition) const
-{
-	FVector CameraToCenter = AbilityCenter - CameraLocation;
-	float DistanceCameraToDot = FVector::DotProduct(CameraToCenter, CameraDirection);
-	if (DistanceCameraToDot >= 0)
-	{
-		float DistanceSquared = CameraToCenter.SizeSquared() - (DistanceCameraToDot * DistanceCameraToDot);
-		float RadiusSquared = (AbilityRange * AbilityRange);
-		if (DistanceSquared <= RadiusSquared)
+		if (IL1Interactable* Interactable = InteractionInfo.Interactable.GetInterface())
 		{
-			float DistanceDotToSphere = FMath::Sqrt(RadiusSquared - DistanceSquared);
-			float DistanceCameraToSphere = DistanceCameraToDot + DistanceDotToSphere;
-			OutClippedPosition = CameraLocation + (DistanceCameraToSphere * CameraDirection);
-			return true;
+			Interactable->GetMeshComponents(MeshComponents);
 		}
 	}
-	return false;
-}
 
-void UL1AbilityTask_WaitForInteractableTraceHit::LineTrace(const FVector& Start, const FVector& End, const FCollisionQueryParams& Params, FHitResult& OutHitResult) const
-{
-	TArray<FHitResult> HitResults;
-	GetWorld()->LineTraceMultiByChannel(HitResults, Start, End, TraceChannel, Params);
-	
-	if (HitResults.Num() > 0)
+	for (UMeshComponent* MeshComponent : MeshComponents)
 	{
-		OutHitResult = HitResults[0];
-	}
-	else
-	{
-		OutHitResult = FHitResult();
-		OutHitResult.TraceStart = Start;
-		OutHitResult.TraceEnd = End;
+		MeshComponent->SetRenderCustomDepth(bShouldHighlight);
 	}
 }
 
@@ -180,20 +104,9 @@ void UL1AbilityTask_WaitForInteractableTraceHit::UpdateInteractionInfos(const FL
 		TArray<FL1InteractionInfo> TempInteractionInfos;
 		FL1InteractionInfoBuilder InteractionInfoBuilder(Interactable, TempInteractionInfos);
 		Interactable->GatherPostInteractionInfos(InteractQuery, InteractionInfoBuilder);
-
 		for (FL1InteractionInfo& InteractionInfo : TempInteractionInfos)
 		{
-			if (InteractionInfo.AbilityToGrant)
-			{
-				FGameplayAbilitySpec* InteractionAbilitySpec = AbilitySystemComponent->FindAbilitySpecFromClass(InteractionInfo.AbilityToGrant);
-				if (InteractionAbilitySpec)
-				{
-					if (Interactable->CanInteraction(InteractionQuery) && InteractionAbilitySpec->Ability->CanActivateAbility(InteractionAbilitySpec->Handle, AbilitySystemComponent->AbilityActorInfo.Get()))
-					{
-						NewInteractionInfos.Add(InteractionInfo);
-					}
-				}
-			}
+			NewInteractionInfos.Push(InteractionInfo);
 		}
 	}
 
@@ -224,24 +137,7 @@ void UL1AbilityTask_WaitForInteractableTraceHit::UpdateInteractionInfos(const FL
 		HighlightInteractables(CurrentInteractionInfos, false);
 		CurrentInteractionInfos = NewInteractionInfos;
 		HighlightInteractables(CurrentInteractionInfos, true);
-		
+
 		InteractableChanged.Broadcast(CurrentInteractionInfos);
-	}
-}
-
-void UL1AbilityTask_WaitForInteractableTraceHit::HighlightInteractables(const TArray<FL1InteractionInfo>& InteractionInfos, bool bShouldHighlight)
-{
-	TArray<UMeshComponent*> MeshComponents;
-	for (const FL1InteractionInfo& InteractionInfo : InteractionInfos)
-	{
-		if (IL1Interactable* Interactable = InteractionInfo.Interactable.GetInterface())
-		{
-			Interactable->GetMeshComponents(MeshComponents);
-		}
-	}
-
-	for (UMeshComponent* MeshComponent : MeshComponents)
-	{
-		MeshComponent->SetRenderCustomDepth(bShouldHighlight);
 	}
 }

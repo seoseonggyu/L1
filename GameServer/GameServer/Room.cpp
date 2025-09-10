@@ -68,6 +68,8 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 		{
 			if (item.second->IsPlayer() == false)
 				continue;
+			if (player == item.second) 
+				continue;
 
 			Protocol::ObjectInfo* playerInfo = spawnPkt.add_objects();
 			playerInfo->CopyFrom(*item.second->_objectInfo);

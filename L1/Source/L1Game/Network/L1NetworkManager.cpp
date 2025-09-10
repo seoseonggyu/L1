@@ -24,6 +24,9 @@
 #include "Monster/L1MonsterCharacter.h"
 #include "Character/LyraPawnData.h"
 
+#include "Actors/L1PickupableItemBase.h" // SSG: 
+
+
 void UL1NetworkManager::ConnectToGameServer()
 {
 	Socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(TEXT("Stream"), TEXT("Client Socket"));
@@ -67,6 +70,25 @@ void UL1NetworkManager::HandleRecvPackets()
 	GameServerSession->HandleRecvPackets();
 }
 
+
+void UL1NetworkManager::DropItemFromMonsterDeath(FVector Location)
+{
+	UL1ItemInstance* ItemInstance = NewObject<UL1ItemInstance>();
+	ItemInstance->Init(1400, EItemRarity::Poor);
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+	TSubclassOf<AL1PickupableItemBase> PickupableItemBaseClass = ULyraAssetManager::Get().GetSubclassByName<AL1PickupableItemBase>("PickupableItemBaseClass");
+	AL1PickupableItemBase* PickupableItemActor = GetWorld()->SpawnActor<AL1PickupableItemBase>(PickupableItemBaseClass, Location, FRotator::ZeroRotator, SpawnParameters);
+	if (PickupableItemActor == nullptr)
+		return;
+
+	FL1PickupInfo PickupInfo;
+	PickupInfo.PickupInstance.ItemInstance = ItemInstance;
+	PickupInfo.PickupInstance.ItemCount = 1;
+	PickupableItemActor->SetPickupInfo(PickupInfo);
+}
 
 bool UL1NetworkManager::CheckHandle()
 {
@@ -414,8 +436,8 @@ void UL1NetworkManager::SpawnPlayer(const Protocol::ObjectInfo& ObjectInfo, bool
 	if (Player)
 	{
 		Objects.Add(ObjectId, Player);
-
-		Player->SetActorLocation(SpawnLocation);
+		
+		Player->SetDestInfo(SpawnLocation);
 		SetInitObjectInfo(Player, ObjectInfo);
 		SetOverHeadWidget(Player);
 	}
@@ -522,7 +544,7 @@ void UL1NetworkManager::SetInitObjectInfo(ALyraCharacter* Object, const Protocol
 
 	if (UAbilitySystemComponent* ASC = Object->GetAbilitySystemComponent())
 	{
-		float Helath = ObjectInfo.vital_info().max_hp();
+		float Health = ObjectInfo.vital_info().max_hp();
 		float Mana = ObjectInfo.vital_info().max_mp();
 
 		float Strength = ObjectInfo.stat_info().strength();
@@ -534,7 +556,7 @@ void UL1NetworkManager::SetInitObjectInfo(ALyraCharacter* Object, const Protocol
 		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
 		if (EffectSpecHandle.IsValid())
 		{
-			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseHealth, Helath);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseHealth, Health);
 			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseMana, Mana);
 			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Strength, Strength);
 			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Defense, Defense);

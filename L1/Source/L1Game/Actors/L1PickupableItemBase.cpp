@@ -40,18 +40,6 @@ AL1PickupableItemBase::AL1PickupableItemBase(const FObjectInitializer& ObjectIni
 	ProjectileMovement->Velocity = FVector::ZeroVector;
 }
 
-void AL1PickupableItemBase::Highlight()
-{
-	MeshComponent->SetRenderCustomDepth(true);
-	MeshComponent->SetCustomDepthStencilValue(250);
-	bHighlighted = true;
-}
-
-void AL1PickupableItemBase::UnHighlight()
-{
-	MeshComponent->SetRenderCustomDepth(false);
-	bHighlighted = false;
-}
 
 void AL1PickupableItemBase::ProcessPickup()
 {

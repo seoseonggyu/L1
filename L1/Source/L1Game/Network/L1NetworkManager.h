@@ -30,6 +30,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleRecvPackets();
 
+
+	// SSG: 아이템 드랍 테스트!
+	UFUNCTION(BlueprintCallable)
+	void DropItemFromMonsterDeath(FVector Location);
+
 private:
 	bool CheckHandle();
 	bool CheckHandleObject(uint64 ObjectId);

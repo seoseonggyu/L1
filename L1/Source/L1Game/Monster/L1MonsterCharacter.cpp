@@ -6,8 +6,6 @@
 AL1MonsterCharacter::AL1MonsterCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
-
 	AbilitySystemComponent = CreateDefaultSubobject<ULyraAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
 	HealthSet = CreateDefaultSubobject<UL1VitalSet>(TEXT("VitalSet"));
@@ -24,6 +22,11 @@ void AL1MonsterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AL1MonsterCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
 }
 
 ULyraAbilitySystemComponent* AL1MonsterCharacter::GetLyraAbilitySystemComponent() const

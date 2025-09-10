@@ -46,14 +46,6 @@ public:
 	virtual void GatherPostInteractionInfos(const FL1InteractionQuery& InteractionQuery, FL1InteractionInfoBuilder& InteractionInfoBuilder) const
 	{
 		FL1InteractionInfo InteractionInfo = GetPreInteractionInfo(InteractionQuery);
-	
-		if (UAbilitySystemComponent* AbilitySystem = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(InteractionQuery.RequestingAvatar.Get()))
-		{
-			// SSG: 
-			/*float Resourcefulness = AbilitySystem->GetNumericAttribute(UL1CombatSet::GetResourcefulnessAttribute());
-			InteractionInfo.Duration = FMath::Max<float>(0.f, InteractionInfo.Duration - Resourcefulness * 0.01f);*/
-		}
-	
 		InteractionInfoBuilder.AddInteractionInfo(InteractionInfo);
 	}
 	

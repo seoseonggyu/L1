@@ -15,6 +15,8 @@ PlayerRef ObjectUtils::CreatePlayer(GameSessionRef session, Protocol::CharacterC
 	player->_objectInfo->set_object_id(newId);
 	player->_objectInfo->set_character_classtype(classType);
 	player->_posInfo->set_object_id(newId);
+	player->_vitalInfo->set_hp(1.f);
+	player->_vitalInfo->set_max_hp(1.f);
 
 	
 
