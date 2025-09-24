@@ -39,7 +39,7 @@ void Monster::Update()
     dir._y /= dist;
     dir._z /= dist;
 
-    float moveDist = 600 * 0.1f;
+    float moveDist = 200 * 0.1f;
 
     if (moveDist >= dist)
     {
