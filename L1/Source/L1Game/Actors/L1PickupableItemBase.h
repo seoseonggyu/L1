@@ -18,6 +18,9 @@ protected:
 	virtual void ProcessPickup() override;
 	virtual void GetMeshComponents(TArray<UMeshComponent*>& OutMeshComponents) const override;
 
+public:
+	TObjectPtr<UProjectileMovementComponent> GetProjectileMovement() { return ProjectileMovement; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	bool bAutoCollisionResize = true;

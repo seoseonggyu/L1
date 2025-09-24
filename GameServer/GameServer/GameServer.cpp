@@ -26,6 +26,7 @@ void DoWorkerJob(ServerServiceRef& service)
 
 int main()
 {
+
 	InitManager Init;
 	
 	ServerServiceRef service = MakeShared<ServerService>(

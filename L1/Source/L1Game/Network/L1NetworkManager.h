@@ -30,10 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleRecvPackets();
 
-
-	// SSG: 아이템 드랍 테스트!
 	UFUNCTION(BlueprintCallable)
-	void DropItemFromMonsterDeath(FVector Location);
+	void TestExtractMapData();
+	TArray<TArray<int32>> ExtractMapData(UWorld* World, FVector Origin, int32 Width, int32 Height, float CellSize);
 
 private:
 	bool CheckHandle();
@@ -68,6 +67,7 @@ public:
 	void HandleMoveItem(const Protocol::S_MOVE_ITEM& MoveItemPkt);
 	void HandleEquipItem(const Protocol::S_EQUIP_ITEM& EquipItemPkt);
 	void HandleItemDrop(const Protocol::S_ITEM_DROP& ItemDropPkt);
+	void HandleMonsterDeath(const Protocol::S_MONSTER_DEATH& MonsterDeathPkt);
 	void HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt);
 
 private:
@@ -76,6 +76,8 @@ private:
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnMonster(EMonsterType MonsterType);
+
+	void DropItemFromMonster(int32 ItemTemplateID, FVector Location); // 캐릭터가 떨어뜨리는거
 
 private:
 	void SetOverHeadWidget(ALyraCharacter* Object);

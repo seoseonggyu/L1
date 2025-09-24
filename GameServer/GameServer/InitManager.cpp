@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "InitManager.h"
+#include "Room.h"
 #include "ClassManager.h"
 #include "GameSessionManager.h"
 #include "SkillManager.h"
@@ -20,15 +21,17 @@ ItemManager*        GItemManager = nullptr;
 
 InitManager::InitManager()
 {
-	GClassManager	= new ClassManager();
-	GSessionManager = new GameSessionManager();
-	GSkillManager	= new SkillManager();
+    GClassManager = new ClassManager();
+    GSessionManager = new GameSessionManager();
+    GSkillManager = new SkillManager();
     GMonsterManager = new MonsterManager();
-    GItemManager =  new ItemManager();
+    GItemManager = new ItemManager();
 
-	ClientPacketHandler::Init();
+    ClientPacketHandler::Init();
 
-	LoadFromDB();
+    LoadFromDB();
+
+    if (GRoom) GRoom->Initialize();
 }
 
 InitManager::~InitManager()

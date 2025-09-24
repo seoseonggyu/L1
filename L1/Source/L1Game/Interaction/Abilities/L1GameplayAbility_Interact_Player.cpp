@@ -38,14 +38,12 @@ void UL1GameplayAbility_Interact_Player::ActivateAbility(const FGameplayAbilityS
 		return;
 	}
 
-	if (HasAuthority(&CurrentActivationInfo))
-	{
-		UL1ItemManagerComponent* MyItemManager = GetLyraPlayerControllerFromActorInfo()->GetComponentByClass<UL1ItemManagerComponent>();
-		UL1InventoryManagerComponent* OtherInventoryManager = InteractableActor->GetComponentByClass<UL1InventoryManagerComponent>();
-		UL1EquipmentManagerComponent* OtherEquipmentManager = InteractableActor->GetComponentByClass<UL1EquipmentManagerComponent>();
-		//MyItemManager->AddAllowedComponent(OtherInventoryManager);
-		//MyItemManager->AddAllowedComponent(OtherEquipmentManager);
-	}
+
+	UL1ItemManagerComponent* MyItemManager = GetLyraPlayerControllerFromActorInfo()->GetComponentByClass<UL1ItemManagerComponent>();
+	UL1InventoryManagerComponent* OtherInventoryManager = InteractableActor->GetComponentByClass<UL1InventoryManagerComponent>();
+	UL1EquipmentManagerComponent* OtherEquipmentManager = InteractableActor->GetComponentByClass<UL1EquipmentManagerComponent>();
+	//MyItemManager->AddAllowedComponent(OtherInventoryManager);
+	//MyItemManager->AddAllowedComponent(OtherEquipmentManager);
 
 	if (IsLocallyControlled())
 	{

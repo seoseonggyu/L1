@@ -127,9 +127,9 @@ message C_ITEM_DROP
 {
 	uint64	object_id						= 1;
 	int32	item_id							= 2;
-	int32 from_slot_pos_x					= 3;
-	int32 from_slot_pos_y					= 4;
-	int32 item_count						= 5;
+	int32	from_slot_pos_x					= 3;
+	int32	from_slot_pos_y					= 4;
+	int32	item_count						= 5;
 	ItemTransferType item_transfer_type		= 6;
 	EquipmentSlotType equipment_slot_type	= 7;
 }
@@ -143,8 +143,17 @@ message S_ITEM_DROP
 	int32 item_count						= 5;
 	ItemTransferType item_transfer_type		= 6;
 	EquipmentSlotType equipment_slot_type	= 7;
-
 }
+
+message S_MONSTER_DEATH
+{
+	uint64	object_id	= 1;
+	float	x			= 2;
+	float	y			= 3;
+	float	z			= 4;
+	int32	item_id		= 5;
+}
+
 
 message C_SKILL_IMMEDIATE_CAST
 {

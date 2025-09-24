@@ -31,8 +31,9 @@ enum : uint16
 	PKT_S_EQUIP_ITEM = 1017,
 	PKT_C_ITEM_DROP = 1018,
 	PKT_S_ITEM_DROP = 1019,
-	PKT_C_SKILL_IMMEDIATE_CAST = 1020,
-	PKT_S_SKILL_IMMEDIATE_CAST = 1021,
+	PKT_S_MONSTER_DEATH = 1020,
+	PKT_C_SKILL_IMMEDIATE_CAST = 1021,
+	PKT_S_SKILL_IMMEDIATE_CAST = 1022,
 };
 
 // Custom Handlers
@@ -83,6 +84,7 @@ public:
 	static SendBufferRef MakeSendBuffer(Protocol::S_MOVE_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_S_MOVE_ITEM); }
 	static SendBufferRef MakeSendBuffer(Protocol::S_EQUIP_ITEM& pkt) { return MakeSendBuffer(pkt, PKT_S_EQUIP_ITEM); }
 	static SendBufferRef MakeSendBuffer(Protocol::S_ITEM_DROP& pkt) { return MakeSendBuffer(pkt, PKT_S_ITEM_DROP); }
+	static SendBufferRef MakeSendBuffer(Protocol::S_MONSTER_DEATH& pkt) { return MakeSendBuffer(pkt, PKT_S_MONSTER_DEATH); }
 	static SendBufferRef MakeSendBuffer(Protocol::S_SKILL_IMMEDIATE_CAST& pkt) { return MakeSendBuffer(pkt, PKT_S_SKILL_IMMEDIATE_CAST); }
 
 private:

@@ -24,7 +24,9 @@
 #include "Monster/L1MonsterCharacter.h"
 #include "Character/LyraPawnData.h"
 
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Actors/L1PickupableItemBase.h" // SSG: 
+#include "NavigationSystem.h"
 
 
 void UL1NetworkManager::ConnectToGameServer()
@@ -70,11 +72,50 @@ void UL1NetworkManager::HandleRecvPackets()
 	GameServerSession->HandleRecvPackets();
 }
 
+void UL1NetworkManager::TestExtractMapData()
+{
+	FVector Origin(0.f, 0.f, 0.f);
+	int32 Width = 10;
+	int32 Height = 10;
+	float CellSize = 200.f;
 
-void UL1NetworkManager::DropItemFromMonsterDeath(FVector Location)
+	TArray<TArray<int32>> Grid = ExtractMapData(GetWorld(), Origin, Width, Height, CellSize);
+	for (int y = 0; y < Height; y++)
+	{
+		FString Line;
+		for (int x = 0; x < Width; x++)
+		{
+			Line += FString::Printf(TEXT("%d "), Grid[y][x]);
+		}
+		UE_LOG(LogTemp, Log, TEXT("%s"), *Line);
+	}
+}
+
+TArray<TArray<int32>> UL1NetworkManager::ExtractMapData(UWorld* World, FVector Origin, int32 Width, int32 Height, float CellSize)
+{
+	TArray<TArray<int32>> Grid;
+	Grid.SetNum(Height);
+	for (int y = 0; y < Height; y++)
+	{
+		Grid[y].SetNum(Width);
+		for (int x = 0; x < Width; x++)
+		{
+			FVector Pos = Origin + FVector(x * CellSize, y * CellSize, 0);
+			FNavLocation OutLocation;
+			bool bOnNav = UNavigationSystemV1::GetCurrent(World)
+				->ProjectPointToNavigation(Pos, OutLocation);
+
+			Grid[y][x] = bOnNav ? 1 : 0; // 1=갈 수 있음, 0=갈 수 없음
+		}
+	}
+	return Grid;
+}
+
+
+void UL1NetworkManager::DropItemFromMonster(int32 ItemTemplateID, FVector Location)
 {
 	UL1ItemInstance* ItemInstance = NewObject<UL1ItemInstance>();
-	ItemInstance->Init(1400, EItemRarity::Poor);
+	ItemInstance->Init(ItemTemplateID, EItemRarity::Poor);
 
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
@@ -83,6 +124,18 @@ void UL1NetworkManager::DropItemFromMonsterDeath(FVector Location)
 	AL1PickupableItemBase* PickupableItemActor = GetWorld()->SpawnActor<AL1PickupableItemBase>(PickupableItemBaseClass, Location, FRotator::ZeroRotator, SpawnParameters);
 	if (PickupableItemActor == nullptr)
 		return;
+
+	FVector OutLaunchVelocity;
+	FVector EndPos = FVector(Location.X + 200.f, Location.Y, 0);
+	UGameplayStatics::SuggestProjectileVelocity_CustomArc(
+		GetWorld(), OutLaunchVelocity, Location, EndPos, 0.f, 0.35f);
+
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovement = PickupableItemActor->GetProjectileMovement();
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->Velocity = OutLaunchVelocity;
+		ProjectileMovement->SetActive(true);
+	}
 
 	FL1PickupInfo PickupInfo;
 	PickupInfo.PickupInstance.ItemInstance = ItemInstance;
@@ -388,6 +441,17 @@ void UL1NetworkManager::HandleItemDrop(const Protocol::S_ITEM_DROP& ItemDropPkt)
 	ItemManager->TryDropItem(FromPlayer, ItemId, ItemSlotPos, ItemCount, ItemTransferType, EquipmentSlotType);
 }
 
+void UL1NetworkManager::HandleMonsterDeath(const Protocol::S_MONSTER_DEATH& MonsterDeathPkt)
+{
+	uint64	object_id = MonsterDeathPkt.object_id();
+	float	x = MonsterDeathPkt.x();
+	float	y = MonsterDeathPkt.y();
+	float	z = MonsterDeathPkt.z();
+	int32	item_id = MonsterDeathPkt.item_id();
+
+	DropItemFromMonster(item_id, FVector(x, y, z));
+}
+
 void UL1NetworkManager::HandleSkillImmediateCast(const Protocol::S_SKILL_IMMEDIATE_CAST& SkillImmediatePkt)
 {
 	ALyraCharacter* FindActor = nullptr;
@@ -482,7 +546,12 @@ void UL1NetworkManager::SpawnMonster(const Protocol::ObjectInfo& ObjectInfo)
 		FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitialGE, 0, ASC->MakeEffectContext());
 		if (EffectSpecHandle.IsValid())
 		{
-			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_InitialAttribute_Health, Helath);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseHealth, Helath);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_BaseMana, 0.f);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Strength, 0.f);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Defense, 0.f);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Agility, 0.f);
+			EffectSpecHandle.Data->SetSetByCallerMagnitude(L1GameplayTags::SetByCaller_Intelligence, 0.f);
 			ASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 		}
 

@@ -7,6 +7,8 @@ public:
 	Room();
 	virtual ~Room();
 
+	void Initialize();
+
 public:
 	bool EnterRoom(ObjectRef object, bool randPos = true);
 	bool LeaveRoom(ObjectRef object);
@@ -25,12 +27,15 @@ private:
 	void ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::HitTargetInfo>& outTargetInfos);
 
 public:
+	void UpdateTick();
+
 	void TestTick(PlayerRef player);
 	
 	RoomRef GetRoomRef();
 
 private:
 	void SpawnMonster(Protocol::MonsterType monsterType);
+	void SpawnItemFromMonster(uint64 monsterId);
 
 	bool AddObject(ObjectRef object);
 	bool RemoveObject(uint64 objectId);

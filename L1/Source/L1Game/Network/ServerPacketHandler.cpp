@@ -132,6 +132,15 @@ bool Handle_S_ITEM_DROP(PacketSessionRef& session, Protocol::S_ITEM_DROP& pkt)
 	return true;
 }
 
+bool Handle_S_MONSTER_DEATH(PacketSessionRef& session, Protocol::S_MONSTER_DEATH& pkt)
+{
+	if (UL1NetworkManager* GameNetwork = GetWorldNetwork(session))
+	{
+		GameNetwork->HandleMonsterDeath(pkt);
+	}
+	return true;
+}
+
 bool Handle_S_SKILL_IMMEDIATE_CAST(PacketSessionRef& session, Protocol::S_SKILL_IMMEDIATE_CAST& pkt)
 {
 	if (UL1NetworkManager* GameNetwork = GetWorldNetwork(session))

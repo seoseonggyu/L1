@@ -17,6 +17,8 @@ class ItemManager
 public:
 	void Add(int32 itemID, ItemInfo itemInfo);
 	ItemInfo GetItem(int32 itemID);
+	ItemInfo GetItemRandom();
+	int32 GetItemRandomId();
 
 
 private:

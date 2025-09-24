@@ -15,3 +15,17 @@ ItemInfo ItemManager::GetItem(int32 itemID)
 	}
 	return ItemInfo();
 }
+
+ItemInfo ItemManager::GetItemRandom()
+{
+	auto it = _items.begin();
+	advance(it, rand() % _items.size());
+	ItemInfo value = it->second;
+
+	return value;
+}
+
+int32 ItemManager::GetItemRandomId()
+{
+	return GetItemRandom().itemID;
+}

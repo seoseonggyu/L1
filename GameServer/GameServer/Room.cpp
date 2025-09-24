@@ -6,6 +6,7 @@
 #include "Monster.h"
 #include "InitManager.h"
 #include "ClassManager.h"
+#include "ItemManager.h"
 
 RoomRef GRoom = make_shared<Room>();
 
@@ -15,6 +16,24 @@ Room::Room()
 
 Room::~Room()
 {}
+
+void Room::Initialize()
+{
+	for (int i = 0; i < 5; ++i)
+	{
+		MonsterRef monster = ObjectUtils::CreateMonster(Protocol::MONSTER_TYPE_GRUDGE);
+		if (AddObject(monster) == false) return;
+
+		float x = Utils::GetRandom(0.f, 1000.f);
+		float y = Utils::GetRandom(0.f, 1000.f);
+		float z = 90.f;
+
+		monster->_posInfo->set_x(x);
+		monster->_posInfo->set_y(y);
+		monster->_posInfo->set_z(z);
+		monster->_destinationInfo->CopyFrom(*(monster->_posInfo));
+	}
+}
 
 bool Room::EnterRoom(ObjectRef object, bool randPos)
 {
@@ -33,8 +52,10 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 		object->_destinationInfo->CopyFrom(*(object->_posInfo));
 	}
 
+	auto player = dynamic_pointer_cast<Player>(object);
+	if (player == nullptr) return false;
+
 	// 입장 사실을 신입 플레이어에게 알린다
-	if (auto player = dynamic_pointer_cast<Player>(object))
 	{
 		Protocol::S_ENTER_GAME enterGamePkt;
 		enterGamePkt.set_success(success);
@@ -60,7 +81,6 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 	}
 
 	// 기존 입장한 플레이어 목록을 신입 플레이어한테 전송해준다
-	if (auto player = dynamic_pointer_cast<Player>(object))
 	{
 		Protocol::S_SPAWN spawnPkt;
 
@@ -81,6 +101,23 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 	}
 
 	// 존재하는 몬스턴들을 신입 플레이어한테 전송해야함
+	{
+		Protocol::S_SPAWN spawnPkt;
+
+		for (auto& item : _objects)
+		{
+			if (item.second->GetObjectType() != Protocol::OBJECT_TYPE_MONSTER) continue;
+			Protocol::ObjectInfo* playerInfo = spawnPkt.add_objects();
+			playerInfo->CopyFrom(*item.second->_objectInfo);
+		}
+
+		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(spawnPkt);
+		if (auto session = player->_session.lock())
+			session->Send(sendBuffer);
+	}
+
+	DoTimer(3000, &Room::SpawnItemFromMonster, uint64(1));
+
 	return success;
 }
 
@@ -114,7 +151,6 @@ bool Room::LeaveRoom(ObjectRef object)
 			if (auto session = player->_session.lock())
 				session->Send(sendBuffer);
 	}
-
 	return success;
 }
 
@@ -245,6 +281,7 @@ void Room::HandleSkillImmediateCast(Protocol::C_SKILL_IMMEDIATE_CAST pkt)
 	Broadcast(sendBuffer);
 }
 
+
 void Room::ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::HitTargetInfo>& outTargetInfos)
 {
 	const uint64 attack_objectId = pkt.attack_object_id();
@@ -277,6 +314,16 @@ void Room::ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::Hi
 		
 		outTargetInfos.push_back(targetInfo);
 	}
+}
+
+void Room::UpdateTick()
+{
+	// ...
+	{
+		// 오브젝트 개인 Update
+	}
+
+	DoTimer(1000, &Room::UpdateTick);
 }
 
 void Room::TestTick(PlayerRef player)
@@ -333,7 +380,16 @@ void Room::SpawnMonster(Protocol::MonsterType monsterType)
 {
 	MonsterRef monster = ObjectUtils::CreateMonster(monsterType);
 	if(AddObject(monster) == false) return;
-	
+
+	float x = Utils::GetRandom(0.f, 300.f);
+	float y = Utils::GetRandom(0.f, 300.f);
+	float z = 90.f;
+
+	monster->_posInfo->set_x(x);
+	monster->_posInfo->set_y(y);
+	monster->_posInfo->set_z(z);
+	monster->_destinationInfo->CopyFrom(*(monster->_posInfo));
+
 	Protocol::S_SPAWN spawnPkt;
 
 	Protocol::ObjectInfo* objectInfo = spawnPkt.add_objects();
@@ -343,13 +399,31 @@ void Room::SpawnMonster(Protocol::MonsterType monsterType)
 	Broadcast(sendBuffer);
 }
 
+void Room::SpawnItemFromMonster(uint64 monsterId)
+{
+	if (_objects.find(monsterId) == _objects.end()) return;
+
+	ObjectRef monster = _objects[monsterId];
+
+	int32 itemId = GItemManager->GetItemRandomId();
+
+	Protocol::S_MONSTER_DEATH monsterDeathPkt;
+	monsterDeathPkt.set_object_id(monsterId);
+	monsterDeathPkt.set_x(monster->_posInfo->x());
+	monsterDeathPkt.set_y(monster->_posInfo->y());
+	monsterDeathPkt.set_z(monster->_posInfo->z());
+	monsterDeathPkt.set_item_id(itemId);
+
+	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(monsterDeathPkt);
+	Broadcast(sendBuffer);
+}
+
 bool Room::AddObject(ObjectRef object)
 {
 	if (_objects.find(object->_objectInfo->object_id()) != _objects.end())
 		return false;
 
 	_objects.insert(make_pair(object->_objectInfo->object_id(), object));
-
 	object->_room.store(GetRoomRef());
 
 	return true;
@@ -378,7 +452,7 @@ void Room::Broadcast(SendBufferRef sendBuffer, uint64 exceptId)
 	{
 		PlayerRef player = dynamic_pointer_cast<Player>(item.second);
 		if (player == nullptr)
-			break;
+			continue;
 
 		if (player->_objectInfo->object_id() == exceptId)
 			continue;
