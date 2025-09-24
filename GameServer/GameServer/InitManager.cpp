@@ -6,8 +6,8 @@
 #include "SkillManager.h"
 #include "MonsterManager.h"
 #include "ItemManager.h"
+#include "PathFinder.h"
 #include "ClientPacketHandler.h"
-
 #include "DBConnectionPool.h"
 #include "DBSynchronizer.h"
 #include "GenProcedures.h"
@@ -17,6 +17,7 @@ GameSessionManager* GSessionManager = nullptr;
 SkillManager*		GSkillManager = nullptr;
 MonsterManager*     GMonsterManager = nullptr;
 ItemManager*        GItemManager = nullptr;
+PathFinder*         GPathFinder = nullptr;
 
 
 InitManager::InitManager()
@@ -26,12 +27,17 @@ InitManager::InitManager()
     GSkillManager = new SkillManager();
     GMonsterManager = new MonsterManager();
     GItemManager = new ItemManager();
+    GPathFinder = new PathFinder();
 
     ClientPacketHandler::Init();
 
     LoadFromDB();
+    GPathFinder->ReadFile(L"Files/EdgesMapOutput.txt");
 
-    if (GRoom) GRoom->Initialize();
+    if (GRoom) {
+        GRoom->Initialize();
+        GRoom->DoAsync(&Room::UpdateTick);
+    }
 }
 
 InitManager::~InitManager()
@@ -41,6 +47,7 @@ InitManager::~InitManager()
 	delete GSkillManager;
 	delete GMonsterManager;
 	delete GItemManager;
+    delete GPathFinder;
 }
 
 void InitManager::LoadFromDB()

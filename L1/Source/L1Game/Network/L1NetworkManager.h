@@ -30,9 +30,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleRecvPackets();
 
-	UFUNCTION(BlueprintCallable)
-	void TestExtractMapData();
-	TArray<TArray<int32>> ExtractMapData(UWorld* World, FVector Origin, int32 Width, int32 Height, float CellSize);
 
 private:
 	bool CheckHandle();

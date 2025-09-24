@@ -72,45 +72,6 @@ void UL1NetworkManager::HandleRecvPackets()
 	GameServerSession->HandleRecvPackets();
 }
 
-void UL1NetworkManager::TestExtractMapData()
-{
-	FVector Origin(0.f, 0.f, 0.f);
-	int32 Width = 10;
-	int32 Height = 10;
-	float CellSize = 200.f;
-
-	TArray<TArray<int32>> Grid = ExtractMapData(GetWorld(), Origin, Width, Height, CellSize);
-	for (int y = 0; y < Height; y++)
-	{
-		FString Line;
-		for (int x = 0; x < Width; x++)
-		{
-			Line += FString::Printf(TEXT("%d "), Grid[y][x]);
-		}
-		UE_LOG(LogTemp, Log, TEXT("%s"), *Line);
-	}
-}
-
-TArray<TArray<int32>> UL1NetworkManager::ExtractMapData(UWorld* World, FVector Origin, int32 Width, int32 Height, float CellSize)
-{
-	TArray<TArray<int32>> Grid;
-	Grid.SetNum(Height);
-	for (int y = 0; y < Height; y++)
-	{
-		Grid[y].SetNum(Width);
-		for (int x = 0; x < Width; x++)
-		{
-			FVector Pos = Origin + FVector(x * CellSize, y * CellSize, 0);
-			FNavLocation OutLocation;
-			bool bOnNav = UNavigationSystemV1::GetCurrent(World)
-				->ProjectPointToNavigation(Pos, OutLocation);
-
-			Grid[y][x] = bOnNav ? 1 : 0; // 1=갈 수 있음, 0=갈 수 없음
-		}
-	}
-	return Grid;
-}
-
 
 void UL1NetworkManager::DropItemFromMonster(int32 ItemTemplateID, FVector Location)
 {

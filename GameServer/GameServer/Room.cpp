@@ -204,7 +204,6 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 		Broadcast(sendBuffer);
 	}
 
-	// TestTick(player);
 }
 
 void Room::HandleHit(Protocol::C_HIT pkt)
@@ -318,58 +317,10 @@ void Room::ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::Hi
 
 void Room::UpdateTick()
 {
-	// ...
-	{
-		// 오브젝트 개인 Update
-	}
 
-	DoTimer(1000, &Room::UpdateTick);
+	DoTimer(200, &Room::UpdateTick);
 }
 
-void Room::TestTick(PlayerRef player)
-{
-	return;
-	if (player == nullptr) return;
-	
-	bool isTick = true;
-	float DeltaTime = 1.0f / 30.0f;
-
-	float destination_x = player->_destinationInfo->x();
-	float destination_y = player->_destinationInfo->y();
-	float destination_z = player->_destinationInfo->z();
-	FVector3 destination = FVector3(destination_x, destination_y, destination_z);
-
-	float location_x = player->_posInfo->x();
-	float location_y = player->_posInfo->y();
-	float location_z = player->_posInfo->z();
-	FVector3 location = FVector3(location_x, location_y, location_z);
-
-	FVector3 ToDest = destination - location;
-	float Distance = ToDest.Length();
-
-	FVector3 Direction = ToDest.Normalize();
-	float MoveDistance = 600.f * DeltaTime;
-
-	if (MoveDistance >= Distance) {
-		player->_posInfo->CopyFrom(*player->_destinationInfo);
-		isTick = false;
-	}
-	else {
-		location = location + Direction * MoveDistance;
-		player->_posInfo->set_x(location._x);
-		player->_posInfo->set_y(location._y);
-		player->_posInfo->set_z(location._z);
-	}
-
-	Protocol::S_MOVE movePkt;
-	Protocol::PosInfo* info = movePkt.mutable_info();
-	info->CopyFrom(*player->_posInfo);
-	
-	SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
-	Broadcast(sendBuffer);
-
-	// if(isTick) DoTimer(DeltaTime, &Room::TestTick, player);
-}
 
 RoomRef Room::GetRoomRef()
 {

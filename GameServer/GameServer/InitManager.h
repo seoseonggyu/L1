@@ -6,6 +6,8 @@ extern class SkillManager*			GSkillManager;
 extern class MonsterManager*		GMonsterManager;
 extern class ItemManager*			GItemManager;
 
+extern class PathFinder*			GPathFinder;
+
 class InitManager
 {
 public:

@@ -24,6 +24,13 @@ FVector3 FVector3::operator*(float scalar) const
 	return FVector3{ _x * scalar, _y * scalar, _z * scalar };
 }
 
+bool FVector3::operator<(const FVector3& other) const
+{
+	if (_x != other._x) return _x < other._x;
+	if (_y != other._y) return _y < other._y;
+	return _z < other._z;
+}
+
 float FVector3::Length() const
 {
 	return sqrtf(_x * _x + _y * _y + _z * _z);

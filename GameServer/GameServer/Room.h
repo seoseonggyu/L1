@@ -29,8 +29,6 @@ private:
 public:
 	void UpdateTick();
 
-	void TestTick(PlayerRef player);
-	
 	RoomRef GetRoomRef();
 
 private:

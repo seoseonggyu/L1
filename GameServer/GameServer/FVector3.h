@@ -9,6 +9,8 @@ struct FVector3
 	FVector3 operator+(const FVector3& other) const;
 	FVector3 operator*(float scalar) const;
 
+	bool operator<(const FVector3& other) const;
+
 	float Length() const;
 
 	FVector3 Normalize() const;

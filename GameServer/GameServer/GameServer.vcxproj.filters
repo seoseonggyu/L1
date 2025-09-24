@@ -46,6 +46,9 @@
     <Filter Include="Data\Item">
       <UniqueIdentifier>{db45d18f-3d2b-43ef-8c82-195c9efd953a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Path">
+      <UniqueIdentifier>{748ae6b8-0992-4668-93f9-07a6759df6ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp">
@@ -114,6 +117,9 @@
     <ClCompile Include="ItemManager.cpp">
       <Filter>Data\Item</Filter>
     </ClCompile>
+    <ClCompile Include="PathFinder.cpp">
+      <Filter>Data\Path</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -181,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="ItemManager.h">
       <Filter>Data\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="PathFinder.h">
+      <Filter>Data\Path</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
