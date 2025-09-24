@@ -40,6 +40,7 @@ void APathFinder::SaveEdgesMapToTxt()
         SaveText += TEXT("\n");
     }
 
+    // SSG: 파일 경로 설정
     FString SavePath = FPaths::ProjectDir() / TEXT("EdgesMapOutput.txt");
 
     if (FFileHelper::SaveStringToFile(SaveText, *SavePath))

@@ -31,6 +31,11 @@ bool FVector3::operator<(const FVector3& other) const
 	return _z < other._z;
 }
 
+bool FVector3::operator==(const FVector3& other) const
+{
+	return _x == other._x && _y == other._y && _z == other._z;
+}
+
 float FVector3::Length() const
 {
 	return sqrtf(_x * _x + _y * _y + _z * _z);

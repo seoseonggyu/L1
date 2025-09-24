@@ -33,6 +33,10 @@ InitManager::InitManager()
 
     LoadFromDB();
     GPathFinder->ReadFile(L"Files/EdgesMapOutput.txt");
+    auto start = FVector3(-9500.f, -9400.f, 0.f);
+    auto end = FVector3(-9100.f, -9200.f, 0.f);
+
+    GPathFinder->AStar(start, end);
 
     if (GRoom) {
         GRoom->Initialize();

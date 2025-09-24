@@ -1,13 +1,26 @@
 #pragma once
 
 
+struct PQNode
+{
+	bool operator<(const PQNode& other) const { return f < other.f; }
+	bool operator>(const PQNode& other) const { return f > other.f; }
+
+	int32		f;
+	int32		g;
+	FVector3	pos;
+};
+
 class PathFinder
 {
 public:
 	void ReadFile(const WCHAR* className);
 	FVector3 parseToVector(const String& str);
 
-private:
-	Map<FVector3, Vector<FVector3>> EdgeMap;
-};
+	void AStar(FVector3 start, FVector3 dest);
 
+private:
+	Map<FVector3, Vector<FVector3>> _EdgeMap;
+
+	Vector<FVector3> _path;
+};
