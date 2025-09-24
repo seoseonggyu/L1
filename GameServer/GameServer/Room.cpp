@@ -19,19 +19,24 @@ Room::~Room()
 
 void Room::Initialize()
 {
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		MonsterRef monster = ObjectUtils::CreateMonster(Protocol::MONSTER_TYPE_GRUDGE);
 		if (AddObject(monster) == false) return;
 
-		float x = Utils::GetRandom(0.f, 1000.f);
-		float y = Utils::GetRandom(0.f, 1000.f);
+		float x = -1000.f;
+		float y = -1000.f;
 		float z = 90.f;
+		/*float x = Utils::GetRandom(0.f, 1000.f);
+		float y = Utils::GetRandom(0.f, 1000.f);
+		float z = 90.f;*/
 
 		monster->_posInfo->set_x(x);
 		monster->_posInfo->set_y(y);
 		monster->_posInfo->set_z(z);
 		monster->_destinationInfo->CopyFrom(*(monster->_posInfo));
+
+		monster->TestAStar();
 	}
 }
 
@@ -116,7 +121,7 @@ bool Room::EnterRoom(ObjectRef object, bool randPos)
 			session->Send(sendBuffer);
 	}
 
-	DoTimer(3000, &Room::SpawnItemFromMonster, uint64(1));
+	//DoTimer(3000, &Room::SpawnItemFromMonster, uint64(1));
 
 	return success;
 }
@@ -203,7 +208,6 @@ void Room::HandleMove(Protocol::C_MOVE pkt)
 		SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
 		Broadcast(sendBuffer);
 	}
-
 }
 
 void Room::HandleHit(Protocol::C_HIT pkt)
@@ -317,8 +321,20 @@ void Room::ParseHitPacketToTargetInfos(Protocol::C_HIT& pkt, Vector<Protocol::Hi
 
 void Room::UpdateTick()
 {
+	for (auto& object : _objects)
+	{
+		object.second->Update();
+		if (object.second->GetObjectType() != Protocol::OBJECT_TYPE_MONSTER) continue;
+		{
+			Protocol::S_MOVE movePkt;
+			Protocol::PosInfo* info = movePkt.mutable_info();
+			info->CopyFrom(*object.second->_posInfo);
 
-	DoTimer(200, &Room::UpdateTick);
+			SendBufferRef sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
+			Broadcast(sendBuffer);
+		}
+	}
+	DoTimer(100, &Room::UpdateTick);
 }
 
 

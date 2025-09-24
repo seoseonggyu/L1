@@ -11,6 +11,11 @@ Player::~Player()
 {
 }
 
+void Player::Update()
+{
+
+}
+
 float Player::GetDamage(Protocol::SkillType skillType)
 {
 	// SSG: 파일로 깔끔하게, 싱글톤으로 스킬, 버프 매니저 생성해서 관리하자,

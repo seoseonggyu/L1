@@ -17,10 +17,8 @@ public:
 	void ReadFile(const WCHAR* className);
 	FVector3 parseToVector(const String& str);
 
-	void AStar(FVector3 start, FVector3 dest);
+	void AStar(FVector3 start, FVector3 dest, Vector<FVector3>& outPath);
 
 private:
 	Map<FVector3, Vector<FVector3>> _EdgeMap;
-
-	Vector<FVector3> _path;
 };

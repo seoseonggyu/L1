@@ -6,6 +6,8 @@ public:
 	Object();
 	virtual ~Object();
 
+	virtual void Update() = 0;
+
 public:
 
 

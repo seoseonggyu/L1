@@ -37,7 +37,7 @@ FVector3 PathFinder::parseToVector(const String& str)
 	return vec;
 }
 
-void PathFinder::AStar(FVector3 start, FVector3 dest)
+void PathFinder::AStar(FVector3 start, FVector3 dest, Vector<FVector3>& outPath)
 {
 	enum
 	{
@@ -110,20 +110,21 @@ void PathFinder::AStar(FVector3 start, FVector3 dest)
 
 	FVector3 pos = dest;
 
+	outPath.clear();
 	while (true)
 	{
-		_path.push_back(pos);
+		outPath.push_back(pos);
 
 		if (pos == parent[pos])
 			break;
 
 		pos = parent[pos];
 	}
-	reverse(_path.begin(), _path.end());
+	reverse(outPath.begin(), outPath.end());
 
 
-	for (int32 i = 0; i < _path.size(); ++i)
+	for (int32 i = 0; i < outPath.size(); ++i)
 	{
-		cout << "(" << _path[i]._x << ", "<< _path[i]._y << ", " << _path[i]._z  << ") ->";
+		cout << "(" << outPath[i]._x << ", "<< outPath[i]._y << ", " << outPath[i]._z  << ") ->";
 	}
 }

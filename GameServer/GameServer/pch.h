@@ -18,6 +18,7 @@
 #include "Struct.pb.h"
 #include "ClientPacketHandler.h"
 #include "Utils.h"
+#include "InitManager.h"
 #include "CompareUtils.h"
 #include "FVector3.h"
 #include "GameSession.h"

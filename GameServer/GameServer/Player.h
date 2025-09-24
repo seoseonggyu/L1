@@ -9,6 +9,8 @@ public:
 	Player();
 	virtual ~Player();
 
+	virtual void Update() override;
+
 public:
 	float GetDamage(Protocol::SkillType skillType) override;
 
