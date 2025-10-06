@@ -164,6 +164,9 @@ public:
 	Protocol::VitalInfo* VitalInfo;
 	Protocol::StatInfo* StatInfo;
 
+	UPROPERTY(BlueprintReadOnly, Category = "L1|Character")
+	TObjectPtr<ALyraCharacter> TargetActor;
+
 	UPROPERTY()
 	ECharacterClassType CharacterClassType = ECharacterClassType::Count;
 

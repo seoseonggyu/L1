@@ -399,11 +399,19 @@ void ULyraHeroComponent::Input_SetDestination(const FInputActionValue& InputActi
 				bHitSuccessful = Controller->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 			}
 
+			ALyraCharacter* HitActor = Cast<ALyraCharacter>(Hit.GetActor());
 			if (bHitSuccessful)
 			{
-				CachedDestination = Hit.Location;
+				if (HitActor)
+				{
+					Character->TargetActor = HitActor;
+				}
+				else
+				{
+					Character->TargetActor = nullptr;
+					CachedDestination = Hit.Location;
+				}
 			}
-
 			{
 				if (GetNetworkManager()->bConnected)
 				{

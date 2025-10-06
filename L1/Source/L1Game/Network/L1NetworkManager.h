@@ -30,7 +30,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleRecvPackets();
 
-
 private:
 	bool CheckHandle();
 	bool CheckHandleObject(uint64 ObjectId);
@@ -72,7 +71,7 @@ private:
 	void SpawnMonster(const Protocol::ObjectInfo& ObjectInfo);
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnMonster(EMonsterType MonsterType);
+	AActor* SpawnMonster(EMonsterType MonsterType);
 
 	void DropItemFromMonster(int32 ItemTemplateID, FVector Location); // Ä³¸¯ÅÍ°¡ ¶³¾î¶ß¸®´Â°Å
 

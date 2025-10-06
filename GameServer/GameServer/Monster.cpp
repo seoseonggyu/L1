@@ -24,7 +24,6 @@ void Monster::Update()
         return;
 
     FVector3 target = _path[_pathIdx];
-
     FVector3 dir{ target._x - _posInfo->x(), target._y - _posInfo->y(), target._z - _posInfo->z() };
 
     float dist = sqrt(dir._x * dir._x + dir._y * dir._y + dir._z * dir._z);

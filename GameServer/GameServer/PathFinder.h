@@ -1,6 +1,5 @@
 #pragma once
 
-
 struct PQNode
 {
 	bool operator<(const PQNode& other) const { return f < other.f; }
@@ -14,6 +13,12 @@ struct PQNode
 class PathFinder
 {
 public:
+	enum
+	{
+		DIR_COUNT = 8
+	};
+public:
+
 	void ReadFile(const WCHAR* className);
 	FVector3 parseToVector(const String& str);
 

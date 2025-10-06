@@ -114,9 +114,17 @@ void ALyraCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector Destination;
-	Destination.X = DestInfo->x();
-	Destination.Y = DestInfo->y();
-	Destination.Z = DestInfo->z();
+	if (TargetActor)
+	{
+		Destination = TargetActor->GetActorLocation();
+	}
+	else
+	{
+		Destination.X = DestInfo->x();
+		Destination.Y = DestInfo->y();
+		Destination.Z = DestInfo->z();
+	}
+
 
 	FVector CurrentLocation = GetActorLocation();
 	FVector ToDestination = Destination - CurrentLocation;

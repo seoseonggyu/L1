@@ -39,11 +39,6 @@ FVector3 PathFinder::parseToVector(const String& str)
 
 void PathFinder::AStar(FVector3 start, FVector3 dest, Vector<FVector3>& outPath)
 {
-	enum
-	{
-		DIR_COUNT = 8
-	};
-
 	FVector3 front[] =
 	{
 		FVector3 { -1, 0, 0},
@@ -52,7 +47,7 @@ void PathFinder::AStar(FVector3 start, FVector3 dest, Vector<FVector3>& outPath)
 		FVector3 { 0, 1, 0},
 		FVector3 {-1, -1, 0},
 		FVector3 {1, -1, 0},
-		FVector3 {1, 1, 0},	
+		FVector3 {1, 1, 0},
 		FVector3 {-1, 1, 0},
 	};
 

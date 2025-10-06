@@ -519,16 +519,16 @@ void UL1NetworkManager::SpawnMonster(const Protocol::ObjectInfo& ObjectInfo)
 	}
 }
 
-void UL1NetworkManager::SpawnMonster(EMonsterType MonsterType)
+AActor* UL1NetworkManager::SpawnMonster(EMonsterType MonsterType)
 {
 	const UL1MonsterData& MonsterData = ULyraAssetManager::Get().GetMonsterData();
 	ULyraPawnData* PawnData = MonsterData.GetPawnData(MonsterType);
-	if (PawnData == nullptr) return;
+	if (PawnData == nullptr) return nullptr;
 
 	FVector SpawnLocation(100.f, 0.f, 0.f);
 	ALyraCharacter* Monster = nullptr;
 	Monster = Cast<AL1MonsterCharacter>(GetWorld()->SpawnActor(PawnData->PawnClass, &SpawnLocation));
-	if (Monster == nullptr) return;
+	if (Monster == nullptr) return nullptr;
 
 	for (ULyraAbilitySet* AbilitySet : PawnData->AbilitySets)
 	{
@@ -554,6 +554,8 @@ void UL1NetworkManager::SpawnMonster(EMonsterType MonsterType)
 		}
 
 	}
+
+	return Monster;
 }
 
 void UL1NetworkManager::SetOverHeadWidget(ALyraCharacter* Object)

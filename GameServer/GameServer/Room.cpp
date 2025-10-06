@@ -27,8 +27,8 @@ void Room::Initialize()
 		float x = -1000.f;
 		float y = -1000.f;
 		float z = 90.f;
-		/*float x = Utils::GetRandom(0.f, 1000.f);
-		float y = Utils::GetRandom(0.f, 1000.f);
+		/*float x = Utils::GetRandom(-1000.f, 1000.f);
+		float y = Utils::GetRandom(-1000.f, 1000.f);
 		float z = 90.f;*/
 
 		monster->_posInfo->set_x(x);
@@ -36,7 +36,8 @@ void Room::Initialize()
 		monster->_posInfo->set_z(z);
 		monster->_destinationInfo->CopyFrom(*(monster->_posInfo));
 
-		monster->TestAStar();
+		// SSG: 길찾기 여기서 해야함
+		// monster->TestAStar();
 	}
 }
 
